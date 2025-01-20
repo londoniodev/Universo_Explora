@@ -1,0 +1,145 @@
+import { motion } from "framer-motion";
+
+const AboutUs = () => {
+  // Variantes de animación para secciones y elementos
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
+
+  const lightAnimation = {
+    initial: { x: 0, y: 0 },
+    animate: {
+      x: [0, 30, -30, 20, -20, 0],
+      y: [0, -20, 20, -30, 30, 0],
+      transition: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+    },
+  };
+
+  return (
+    <div id="Nosotros" className="relative bg-[#101010] text-white py-16 font-satoshi z-70">
+      <div className="absolute inset-0 z-0">
+        <motion.div
+          {...lightAnimation}
+          className="absolute top-[20%] left-[15%] w-[300px] h-[300px] bg-gradient-to-br from-purple-800/50 to-transparent rounded-full blur-2xl"
+        ></motion.div>
+        <motion.div
+          {...lightAnimation}
+          className="absolute top-[50%] right-[15%] w-[400px] h-[400px] bg-gradient-to-br from-blue-500/50 to-transparent rounded-full blur-3xl"
+        ></motion.div>
+      </div>
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 z-10">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={sectionVariants}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+            Sobre Nosotros
+          </h2>
+          <p className="mt-6 text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto">
+            En <span className="font-semibold text-white">Explora</span>, empoderamos a las personas para lograr su máximo
+            potencial mediante tecnología avanzada, estrategias personalizadas y acompañamiento continuo.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={sectionVariants}
+          className="relative flex flex-col lg:flex-row lg:justify-between gap-12 mb-16"
+        >
+          {[
+            {
+              title: "Nuestra Misión",
+              description: "Empoderar a personas de todo el mundo para lograr sus sueños.",
+              gradient: "from-purple-600 to-indigo-400",
+            },
+            {
+              title: "Nuestros Valores",
+              description: "Innovación, compromiso y trabajo en equipo nos definen.",
+              gradient: "from-pink-600 to-red-400",
+            },
+            {
+              title: "Nuestra Visión",
+              description: "Ser un faro de esperanza e inspiración para millones.",
+              gradient: "from-blue-600 to-teal-400",
+            },
+          ].map((item, index) => (
+            <motion.div
+              key={index}
+              variants={cardVariants}
+              className={`relative p-8 rounded-lg bg-gradient-to-br ${item.gradient} text-center shadow-xl`}
+            >
+              <h3 className="text-3xl font-bold text-white">{item.title}</h3>
+              <p className="mt-4 text-gray-200">{item.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={sectionVariants}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          {[
+            {
+              title: "Asesoramiento Personalizado",
+              description: "Estrategias diseñadas para tus objetivos únicos.",
+            },
+            {
+              title: "Herramientas Innovadoras",
+              description: "Tecnología de punta para datos precisos y relevantes.",
+            },
+            {
+              title: "Resultados Medibles",
+              description: "Métricas claras para monitorear tu progreso.",
+            },
+            {
+              title: "Acompañamiento Continuo",
+              description: "Apoyo en cada paso hacia tu éxito.",
+            },
+          ].map((item, index) => (
+            <motion.div
+              key={index}
+              variants={cardVariants}
+              className="relative group p-6 rounded-lg bg-black/10 backdrop-blur-md border border-gray-700 shadow-lg hover:shadow-xl transition-transform duration-300 overflow-hidden"
+              style={{
+                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+              }}
+            >
+              <div
+                className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-blue-500/60 to-transparent rounded-full blur-lg opacity-50"
+                style={{
+                  transform: "translate(-20%, -20%)",
+                }}
+              ></div>
+              <h3 className="relative text-2xl font-bold text-white z-10">{item.title}</h3>
+              <p className="relative mt-3 text-gray-200 text-sm leading-relaxed z-10">{item.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default AboutUs;
