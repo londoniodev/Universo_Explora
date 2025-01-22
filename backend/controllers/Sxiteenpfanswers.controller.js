@@ -117,11 +117,9 @@ export const getUserAnswers = async (req, res) => {
 
 export const getCalculatedResults = async (req, res) => {
   try {
-    const userId = req.accessDetails.userId;
-    const packageId = req.accessDetails.packageId;
-
-    const answers = await Answer.find({ user: userId, package: packageId });
-
+    const userId = req.userId;
+    const answers = await Answer.find({ user: userId });
+    
     if (answers.length === 0) {
       return res.status(404).json({ message: "No se encontraron respuestas para el usuario." });
     }
@@ -146,6 +144,7 @@ export const getCalculatedResults = async (req, res) => {
 
     res.status(200).json({ success: true, results: calculatedAverages });
   } catch (error) {
+    console.error("Error in getCalculatedResults:", error); 
     res.status(500).json({ message: "Error al obtener los resultados calculados." });
   }
 };

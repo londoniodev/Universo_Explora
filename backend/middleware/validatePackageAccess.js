@@ -2,8 +2,13 @@ import { UserPackageAccess } from "../models/UserPackageAccess.model.js";
 
 export const validatePackageAccess = async (req, res, next) => {
   try {
+   
     const { packageId } = req.params;
     const userId = req.userId;
+
+    if (!packageId) {
+      return next();
+    }
 
     const access = await UserPackageAccess.findOne({
       userId,

@@ -40,14 +40,13 @@ app.use("/api/contextualization", verifyToken, contextualizationRoute);
 app.use("/api/autoevaluation", verifyToken, autoevaluationRoute);
 app.use("/api/purchase", verifyToken, purchaseRoutes);
 app.use("/api/questions", verifyToken, sixteenpfquestionsRoutes);
-app.use("/api/answers", verifyToken, sixteenpfanswersRoutes);
-app.use("/api/results", verifyToken, calculatedResultsRoutes);
+app.use("/api/answers", verifyToken, sixteenpfanswersRoutes); // Maneja respuestas del 16PF
+app.use("/api/results", verifyToken, calculatedResultsRoutes); // Maneja resultados calculados
 app.use("/api/users", verifyToken, psychologistAssignRoutes);
 app.use("/api/short-contextualization", verifyToken, shortcontextualizationRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes)
-
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend/dist")));

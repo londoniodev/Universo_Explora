@@ -460,11 +460,9 @@ getSavedAnswers: async (packageId) => {
   }
 },
 
-
-fetchCalculatedResults: async (packageId) => {
+fetchCalculatedResults: async () => {
   try {
-    const userId = get().user._id;
-    const response = await axios.get(`${SIXTEENPFANSWERS_API}/${packageId}/results/${userId}`);
+    const response = await axios.get("/api/results", { withCredentials: true });
     if (response.status === 200) {
       set({ calculatedResults: response.data.results });
     } else {
@@ -472,8 +470,10 @@ fetchCalculatedResults: async (packageId) => {
     }
   } catch (error) {
     toast.error("Error al obtener resultados.");
+    console.error("Error al obtener resultados:", error);
   }
 },
+
 
   // ==========================
   //  MISC
