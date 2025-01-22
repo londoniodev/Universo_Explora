@@ -207,6 +207,7 @@ const FirstPackage = () => {
           Cuestionario de Factores de Personalidad 16PF
         </Link>
       </div>
+      <Link to={`/api/auth/dashboard`} className="mt-8 text-white bg-blue-500 text-center px-6 py-3 rounded-md shadow-md hover:bg-gray-600 transition duration-200">Regresar a la dashboard</Link>
 
       {allCompleted && (
         <button
