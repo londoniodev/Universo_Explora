@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="fixed top-0 w-full bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-md text-white z-50">
+      <nav className="fixed top-0 w-full bg-transparent backdrop-blur-md text-white z-50">
         <div className="container mx-auto flex items-center justify-between py-4 px-6 relative">
           <div className="flex items-center gap-4">
             <Avatar
