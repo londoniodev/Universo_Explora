@@ -17,7 +17,7 @@
   import ContextualizationTest from "./assets/components/ContextualizationTest.jsx";
   import SixteenPfTest from "./assets/components/SixteenPfTest.jsx";
   import CartPage from "./pages/CartPage.jsx";
-  import SixteenPfTestResults from "./assets/components/SixteenPfResults.jsx";
+  import GraphicResults from "./assets/components/GraphicResults.jsx";
   import ShortContextualizationAnswer from "./assets/components/ContextualizationShort.jsx";
   import PsychologistDashboard from "./pages/PsychologistDashboard.jsx";
   import ThankYouPage from "./pages/ThankYouPage.jsx";
@@ -81,7 +81,7 @@
       { path: "/api/auth/dashboard/package/:packageId/autoevaluation", element: <ProtectedRoute><AutoevaluationTest loadAnswers={getAutoevaluationAnswers} saveAnswers={saveAutoevaluationAnswers} saveAutoevaluationAnswers={saveAutoevaluationAnswers} completeTest={completeTest} /></ProtectedRoute> },
       { path: "/api/auth/dashboard/package/:packageId/contextualization", element: <ProtectedRoute><ContextualizationTest loadAnswers={getContextualizationAnswers} saveAnswers={saveContextualizationAnswers} completeTest={completeTest} /></ProtectedRoute> },
       { path: "/api/auth/dashboard/package/:packageId/sixteenpf-test", element: <ProtectedRoute><SixteenPfTest /></ProtectedRoute> },
-      { path: "/api/auth/dashboard/my-results", element: <ProtectedRoute><SixteenPfTestResults /></ProtectedRoute> },
+      { path: "/api/auth/dashboard/my-results", element: <ProtectedRoute><GraphicResults /></ProtectedRoute> },
       { path: "/api/auth/dashboard/cart", element: <ProtectedRoute><CartPage /></ProtectedRoute> },
       { path: "/api/auth/dashboard/payment/thank-you", element: <ProtectedRoute><ThankYouPage /></ProtectedRoute> },
       { path: "/api/auth/dashboard/package/:packageId/short-contextualization", element: <ProtectedRoute><ShortContextualizationAnswer /></ProtectedRoute> },
