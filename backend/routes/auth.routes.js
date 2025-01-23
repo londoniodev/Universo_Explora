@@ -18,9 +18,7 @@ router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.post("/recovery-password/:token", recoveryPassword);
 
-router.get("/dashboard/package/:packageId/:testType",verifyToken, validateTestAccess, (req, res) => {
-    res.status(200).json({ success: true, message: "Acceso permitido al test." });
-})
+router.get("/dashboard/package/:packageId/:testType",verifyToken, validateTestAccess)
 
 router.get("/psychologist-dashboard", verifyToken, isPsychologist, psychologistDashboard);
 router.get("/manage-users", verifyToken, isPsychologist, manageUsers);

@@ -115,7 +115,7 @@ export const getUserAnswers = async (req, res) => {
   }
 };
 
-export const getCalculatedResults = async (req, res) => {
+export const getCalculatedSixteenpfResults = async (req, res) => {
   try {
     const userId = req.userId;
     const answers = await Answer.find({ user: userId });

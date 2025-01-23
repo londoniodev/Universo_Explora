@@ -73,14 +73,22 @@ const AutoevaluationTest = ({ loadAnswers, saveAnswers, completeTest }) => {
   
 
   const handleTableChange = (category, key, value) => {
+    const numericalValue =
+      value === "Nada de interés" || value === "Cierta Dificultad" ? 1
+        : value === "Mediano interés" || value === "Mediano Desempeño"
+        ? 2
+        : value === "Alto interés" || value === "Alto Desempeño"
+        ? 3
+        : null;
+
     setAnswers((prev) => ({
       ...prev,
       [category]: {
         ...prev[category],
-        [key]: value,
+        [key]: numericalValue,
       },
     }));
-  };
+  };  
 
   const handleInputChange = (question, value) => {
     setAnswers((prev) => ({
@@ -180,7 +188,16 @@ const AutoevaluationTest = ({ loadAnswers, saveAnswers, completeTest }) => {
                                   type="radio"
                                   name={`${section.category}-${item}`}
                                   value={option}
-                                  checked={answers[section.category]?.[item] === option}
+                                  checked={
+                                    answers[section.category]?.[item] ===
+                                    (option === "Nada de interés" || option === "Cierta Dificultad"
+                                      ? 1
+                                      : option === "Mediano interés" || option === "Mediano Desempeño"
+                                      ? 2
+                                      : option === "Alto interés" || option === "Alto Desempeño"
+                                      ? 3
+                                      : null)
+                                  }
                                   onChange={() => handleTableChange(section.category, item, option)}
                                 />
                               </td>

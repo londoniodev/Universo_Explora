@@ -10,7 +10,8 @@ import contextualizationRoute from "./routes/contextualization.routes.js";
 import autoevaluationRoute from "./routes/autoevaluation.routes.js";
 import sixteenpfquestionsRoutes from "./routes/Sixteenpfquestions.routes.js";
 import sixteenpfanswersRoutes from "./routes/Sixteenpfanswers.routes.js";
-import calculatedResultsRoutes from "./routes/calculatedResults.routes.js";
+import getCalculatedSixteenpfResultsRoutes from "./routes/Sixteenpfanswers.routes.js";
+import getCalculatedAutoevaluationResultsRoutes from "./routes/autoevaluation.routes.js";
 import purchaseRoutes from "./routes/purchase.routes.js";
 import psychologistAssignRoutes from "./routes/psychologistAssign.routes.js";
 import shortcontextualizationRoutes from "./routes/shortcontextualization.routes.js";
@@ -40,8 +41,9 @@ app.use("/api/contextualization", verifyToken, contextualizationRoute);
 app.use("/api/autoevaluation", verifyToken, autoevaluationRoute);
 app.use("/api/purchase", verifyToken, purchaseRoutes);
 app.use("/api/questions", verifyToken, sixteenpfquestionsRoutes);
-app.use("/api/answers", verifyToken, sixteenpfanswersRoutes); // Maneja respuestas del 16PF
-app.use("/api/results", verifyToken, calculatedResultsRoutes); // Maneja resultados calculados
+app.use("/api/answers", verifyToken, sixteenpfanswersRoutes);
+app.use("/api/sixteenpfresults", verifyToken, getCalculatedSixteenpfResultsRoutes);
+app.use("/api/autoevaluacionresults", verifyToken, getCalculatedAutoevaluationResultsRoutes);
 app.use("/api/users", verifyToken, psychologistAssignRoutes);
 app.use("/api/short-contextualization", verifyToken, shortcontextualizationRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);

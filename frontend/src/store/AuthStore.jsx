@@ -49,6 +49,7 @@ export const useAuthStore = create((set, get) => ({
 
   questions: [],
   calculatedResults: null,
+  autoevaluationResults: null,
 
   fetchCart: async () => {
     const { isAuthenticated } = get();
@@ -358,7 +359,22 @@ completeTest: async (packageId, testType) => {
     }
   },
 
-
+  fetchCalculatedAutoevaluationResults: async () => {
+    try {
+      const response = await axios.get("/api/autoevaluacionresults", { withCredentials: true });
+      if (response.status === 200) {
+        console.log("Autoevaluation Results API Response:", response.data.graphData);
+        set({ autoevaluationResults: response.data.graphData });
+      } else {
+        toast.error("No se pudieron obtener los resultados de la autoevaluación.");
+      }
+    } catch (error) {
+      console.error("Error al obtener los resultados de la autoevaluación:", error);
+      toast.error("Error al obtener los resultados de la autoevaluación.");
+    }
+  },
+  
+  
 // ==========================
 // CONTEXTUALIZATION TEST
 // ==========================
@@ -462,7 +478,7 @@ getSavedAnswers: async (packageId) => {
 
 fetchCalculatedResults: async () => {
   try {
-    const response = await axios.get("/api/results", { withCredentials: true });
+    const response = await axios.get("/api/sixteenpfresults", { withCredentials: true });
     if (response.status === 200) {
       set({ calculatedResults: response.data.results });
     } else {
