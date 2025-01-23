@@ -8,19 +8,6 @@ import { motion } from "framer-motion";
 const DashboardPage = () => {
   const { user, fetchUserData } = useAuthStore();
 
-  const getTestStatus = (testId) => {
-    const status = user?.testProgress?.[testId] || "locked";
-    switch (status) {
-      case "completed":
-        return "Completado";
-      case "inProgress":
-        return "En Progreso";
-      case "locked":
-      default:
-        return "No Iniciado";
-    }
-  };  
-
   useEffect(() => {
     if (user && user.name) {
       const hasSeenWelcomeNotification = localStorage.getItem("hasSeenWelcomeNotification");
@@ -69,17 +56,6 @@ const DashboardPage = () => {
               className="relative bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-6 rounded-lg shadow-lg transform hover:scale-105 hover:shadow-2xl transition-all duration-300"
             >
               <Link to={`/api/auth/dashboard/package/${test.id}`}>
-                <span
-                  className={`absolute top-3 right-3 text-sm px-3 py-1 rounded-full font-semibold ${
-                    getTestStatus(test.id) === "Completado"
-                      ? "bg-green-500 text-white"
-                      : getTestStatus(test.id) === "En Progreso"
-                      ? "bg-yellow-500 text-black"
-                      : "bg-gray-500 text-white"
-                  }`}
-                >
-                  {getTestStatus(test.id)}
-                </span>
                 <h3 className="text-2xl font-bold mb-4 text-white">{test.title}</h3>
                 <p className="text-sm text-gray-300">
                   Haz clic para obtener más detalles
@@ -100,17 +76,6 @@ const DashboardPage = () => {
               className="relative bg-gradient-to-br from-green-500 via-green-600 to-green-700 p-6 rounded-lg shadow-lg transform hover:scale-105 hover:shadow-2xl transition-all duration-300"
             >
               <Link to={`/api/auth/dashboard/package/${user.purchasedTests[0].id}/short-contextualization`}>
-                <span
-                  className={`absolute top-3 right-3 text-sm px-3 py-1 rounded-full font-semibold ${
-                    getTestStatus("shortContextualization") === "Completado"
-                      ? "bg-green-500 text-white"
-                      : getTestStatus("shortContextualization") === "En Progreso"
-                      ? "bg-yellow-500 text-black"
-                      : "bg-gray-500 text-white"
-                  }`}
-                >
-                  {getTestStatus("shortContextualization")}
-                </span>
                 <h3 className="text-2xl font-bold mb-4 text-white">
                   Cuestionario de Contextualización Corto
                 </h3>

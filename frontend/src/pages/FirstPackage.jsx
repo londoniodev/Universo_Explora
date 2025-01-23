@@ -210,12 +210,21 @@ const FirstPackage = () => {
       <Link to={`/api/auth/dashboard`} className="mt-8 text-white bg-blue-500 text-center px-6 py-3 rounded-md shadow-md hover:bg-gray-600 transition duration-200">Regresar a la dashboard</Link>
 
       {allCompleted && (
-        <button
-          onClick={handleSubmission}
-          className="mt-8 bg-yellow-500 w-full text-white px-6 py-3 rounded-md shadow-md hover:bg-yellow-600 transition duration-200"
-        >
-          Enviar mis Resultados
-        </button>
+        <div className="mt-8 flex flex-col space-y-4 w-full max-w-md">
+          {/* <button
+            onClick={handleSubmission}
+            className="bg-yellow-500 w-full text-white px-6 py-3 rounded-md shadow-md hover:bg-yellow-600 transition duration-200"
+          >
+            Enviar mis Resultados
+          </button> */}
+
+          <button
+            onClick={() => navigate("/api/auth/dashboard/my-results")}
+            className="bg-green-500 absolute left-0 right-0 text-white px-6 py-3 rounded-md shadow-md hover:bg-green-600 transition duration-200"
+          >
+            Ver mis Resultados
+          </button>
+        </div>
       )}
     </div>
   );
