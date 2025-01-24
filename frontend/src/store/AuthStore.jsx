@@ -363,13 +363,11 @@ completeTest: async (packageId, testType) => {
     try {
       const response = await axios.get("/api/autoevaluacionresults", { withCredentials: true });
       if (response.status === 200) {
-        console.log("Autoevaluation Results API Response:", response.data.graphData);
         set({ autoevaluationResults: response.data.graphData });
       } else {
         toast.error("No se pudieron obtener los resultados de la autoevaluación.");
       }
     } catch (error) {
-      console.error("Error al obtener los resultados de la autoevaluación:", error);
       toast.error("Error al obtener los resultados de la autoevaluación.");
     }
   },

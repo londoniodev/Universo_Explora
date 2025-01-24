@@ -13,9 +13,6 @@ const GraphicResults = () => {
     fetchCalculatedAutoevaluationResults();
   }, [fetchCalculatedResults, fetchCalculatedAutoevaluationResults]);
 
-  useEffect(() => {
-    console.log("Autoevaluation Results:", autoevaluationResults);
-  }, [autoevaluationResults]);
 
   const hasSixteenPFData = calculatedResults && calculatedResults.length > 0;
   const hasAutoevaluationData = autoevaluationResults && autoevaluationResults.labels && autoevaluationResults.labels.length > 0;
