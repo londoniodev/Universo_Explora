@@ -7,25 +7,26 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 const AutoevaluationGraphic = () => {
   const { autoevaluationResults } = useAuthStore();
 
-  console.log("Autoevaluation Results in AutoevaluationGraphic:", autoevaluationResults);
+  if (!autoevaluationResults) return <p>No hay datos para mostrar.</p>;
 
-  const chartData = autoevaluationResults
-    ? {
-        labels: autoevaluationResults.labels,
-        datasets: [
-          {
-            label: "Afinidad",
-            data: autoevaluationResults.affinity,
-            backgroundColor: "rgba(255, 159, 64, 0.8)", // Naranja oscuro
-          },
-          {
-            label: "Desempeño",
-            data: autoevaluationResults.performance,
-            backgroundColor: "rgba(54, 162, 235, 0.8)", // Azul claro
-          },
-        ],
-      }
-    : null;
+  const affinity = autoevaluationResults.affinity.map((value) => value / 100 * 3);
+  const performance = autoevaluationResults.performance.map((value) => value / 100 * 3);
+
+  const chartData = {
+    labels: autoevaluationResults.labels,
+    datasets: [
+      {
+        label: "Desempeño Académico",
+        data: performance,
+        backgroundColor: "#FFAF00",
+      },
+      {
+        label: "Motivación Académica",
+        data: affinity,
+        backgroundColor: "#F46920",
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
@@ -35,31 +36,38 @@ const AutoevaluationGraphic = () => {
       <p className="text-gray-300 text-center mb-10">
         Explora tus resultados de afinidad y desempeño por área.
       </p>
-      {chartData ? (
-        <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 border border-gray-200">
-          <Bar
-            key={Math.random()}
-            data={chartData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { position: "top" },
-                tooltip: {
-                  callbacks: {
-                    label: (context) => `${context.raw}%`,
-                  },
+      <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 border border-gray-200">
+        <Bar
+          key={Math.random()}
+          data={chartData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.raw.toFixed(1)}`,
                 },
               },
-              scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                title: { display: true, text: "Materias" },
               },
-            }}
-          />
-        </div>
-      ) : (
-        <p className="text-center text-gray-500">No hay datos para mostrar.</p>
-      )}
+              y: {
+                beginAtZero: true,
+                max: 3,
+                ticks: {
+                  stepSize: 0.5,
+                  callback: (value) => value.toFixed(1),
+                },
+                title: { display: true, text: "Nivel (1 = Bajo, 3 = Alto)" },
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };
