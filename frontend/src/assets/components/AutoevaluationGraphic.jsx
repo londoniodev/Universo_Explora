@@ -29,7 +29,7 @@ const AutoevaluationGraphic = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
+    <div className="min-h-screen w-full p-6">
       <h1 className="text-3xl font-bold text-orange-500 mb-6 text-center">
         Resultados del Test de Autoevaluación
       </h1>
