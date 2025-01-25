@@ -66,46 +66,53 @@ export const getcalculateAutoevaluationResults = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Buscar las respuestas de la autoevaluación
     const record = await AutoevaluationAnswer.findOne({ user: userId });
 
     if (!record || !record.answers) {
       return res.status(404).json({ message: "No se encontraron respuestas para este test." });
     }
 
-    const { affinity, performance } = record.answers;
+    const { affinity, performance, activities, activityPerformance } = record.answers;
 
-    // Validar que existan respuestas en ambas categorías
-    if (!affinity || !performance) {
-      return res.status(400).json({ message: "Faltan respuestas de afinidad o desempeño." });
+    if (!affinity || !performance || !activities || !activityPerformance) {
+      return res.status(400).json({ message: "Faltan respuestas de afinidad, desempeño o actividades." });
     }
 
-    // Calcular promedios por área para afinidad y desempeño
-    const areas = Object.keys(affinity); // Asumimos que ambas categorías tienen las mismas áreas
-    const results = areas.map((area) => {
-      const affinityScore = affinity[area] || 0; // Afinidad para el área (1-3)
-      const performanceScore = performance[area] || 0; // Desempeño para el área (1-3)
+    const areas = Object.keys(affinity);
+    const areaResults = areas.map((area) => ({
+      area,
+      affinityScore: (affinity[area] / 3) * 100,
+      performanceScore: (performance[area] / 3) * 100,
+    }));
 
-      return {
-        area,
-        affinityScore: (affinityScore / 3) * 100, // Convertir a porcentaje (0-100)
-        performanceScore: (performanceScore / 3) * 100, // Convertir a porcentaje (0-100)
-      };
+    const processedActivities = {};
+    const processedActivityPerformance = {};
+
+    Object.keys(activities).forEach((activity) => {
+      processedActivities[activity] = (activities[activity] / 3) * 100;
     });
 
-    // Formatear la respuesta para la gráfica
+    Object.keys(activityPerformance).forEach((activity) => {
+      processedActivityPerformance[activity] = (activityPerformance[activity] / 3) * 100; 
+    });
+
     const graphData = {
-      labels: results.map((result) => result.area), // Áreas como etiquetas de la gráfica
-      affinity: results.map((result) => result.affinityScore), // Valores de afinidad
-      performance: results.map((result) => result.performanceScore), // Valores de desempeño
+      labels: areaResults.map((result) => result.area),
+      affinity: areaResults.map((result) => result.affinityScore),
+      performance: areaResults.map((result) => result.performanceScore),
     };
 
-    res.status(200).json({ success: true, graphData });
+    res.status(200).json({
+      success: true,
+      graphData,
+      activities: processedActivities,
+      activityPerformance: processedActivityPerformance,
+    });
   } catch (error) {
-    console.error("Error al calcular resultados:", error);
     res.status(500).json({ message: "Error al calcular los resultados.", error: error.message });
   }
 };
+
 
 export const completeTest = async (req, res) => {
   try {

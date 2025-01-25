@@ -1,10 +1,13 @@
 import { useAuthStore } from "../../store/AuthStore.jsx";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+import { useRef } from "react";
+
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Legend);
 
-const Sixteenpfgraphic = () => {
-    const { calculatedResults } = useAuthStore();
+const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
+  const chartRef = useRef(null);
+  const { calculatedResults } = useAuthStore();
 
   const chartData = calculatedResults
     ? {
@@ -26,10 +29,17 @@ const Sixteenpfgraphic = () => {
       }
     : null;
 
+  const exportChartImage = () => {
+    if (chartRef.current) {
+      const imageURL = chartRef.current.toBase64Image();
+      setSixteenPFImage(imageURL);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full">
       <div className="w-full mx-auto rounded-lg p-8">
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           <div className="overflow-x-auto flex-shrink-0 w-[29%]">
             <table className="table-auto w-full border-collapse rounded-lg shadow-md">
               <thead className="bg-blue-500 text-white">
@@ -61,7 +71,7 @@ const Sixteenpfgraphic = () => {
               </tbody>
             </table>
           </div>
-      
+
           <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 border border-gray-200">
             {[
               "7.5%", "12.8%", "18.1%", "23.5%", "29%", "34%", "39.2%", "44.4%",
@@ -99,9 +109,9 @@ const Sixteenpfgraphic = () => {
               ))}
             </div>
 
-            {/* Gráfica */}
             <div className="mx-16">
               <Line
+                ref={chartRef}
                 data={chartData}
                 options={{
                   responsive: true,
@@ -133,6 +143,13 @@ const Sixteenpfgraphic = () => {
                   },
                 }}
               />
+              <button
+                onClick={exportChartImage}
+                className="hidden"
+                aria-hidden="true"
+              >
+                Exportar Imagen
+              </button>
             </div>
 
             <div className="absolute right-7 top-6 bottom-11 flex flex-col justify-between text-left pl-4 text-[10px] font-medium text-gray-600">
@@ -164,4 +181,4 @@ const Sixteenpfgraphic = () => {
   );
 };
 
-export default Sixteenpfgraphic
+export default Sixteenpfgraphic;

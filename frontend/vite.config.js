@@ -9,4 +9,7 @@ export default defineConfig({
       three: resolve('./node_modules/three'),
     },
   },
+  optimizeDeps: {
+    include: ["jspdf", "jspdf-autotable"],
+  },
 });

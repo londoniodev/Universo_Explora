@@ -5,27 +5,38 @@ import { useRef } from "react";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const AutoevaluationGraphic = ({ setAutoevaluationImage }) => {
+const ActivityEvaluationGraphic = ({ setActivityImage }) => {
   const chartRef = useRef(null);
-  const { autoevaluationResults } = useAuthStore();
+  const { activityResults } = useAuthStore();
 
-  if (!autoevaluationResults) return <p>No hay datos para mostrar.</p>;
+  if (
+    !activityResults ||
+    !Object.keys(activityResults.activities || {}).length ||
+    !Object.keys(activityResults.activityPerformance || {}).length
+  ) {
+    return <p className="text-gray-500 text-center">No hay datos para actividades.</p>;
+  }
 
-  const affinity = autoevaluationResults.affinity.map((value) => value / 100 * 3);
-  const performance = autoevaluationResults.performance.map((value) => value / 100 * 3);
+  const activityLabels = Object.keys(activityResults.activities);
+  const affinityData = Object.values(activityResults.activities).map((value) =>
+    value > 3 ? 3 : value < 0 ? 0 : value
+  );
+  const performanceData = Object.values(activityResults.activityPerformance).map((value) =>
+    value > 3 ? 3 : value < 0 ? 0 : value
+  );
 
   const chartData = {
-    labels: autoevaluationResults.labels,
+    labels: activityLabels,
     datasets: [
       {
-        label: "Desempeño Académico",
-        data: performance,
-        backgroundColor: "#FFAF00",
+        label: "Interés",
+        data: affinityData,
+        backgroundColor: "#00A6FF",
       },
       {
-        label: "Motivación Académica",
-        data: affinity,
-        backgroundColor: "#F46920",
+        label: "Desempeño",
+        data: performanceData,
+        backgroundColor: "#0056B3",
       },
     ],
   };
@@ -33,25 +44,25 @@ const AutoevaluationGraphic = ({ setAutoevaluationImage }) => {
   const exportChartImage = () => {
     if (chartRef.current) {
       const imageURL = chartRef.current.toBase64Image();
-      setAutoevaluationImage(imageURL);
+      setActivityImage(imageURL);
     }
   };
 
   return (
     <div className="min-h-screen w-full p-6">
-      <h1 className="text-3xl font-bold text-orange-500 mb-6 text-center">
-        Resultados del Test de Autoevaluación
+      <h1 className="text-3xl font-bold text-blue-500 mb-6 text-center">
+        Aprovechamiento del Tiempo Libre
       </h1>
       <p className="text-gray-300 text-center mb-10">
-        Explora tus resultados de afinidad y desempeño por área.
+        Evaluación de actividades en términos de afinidad y desempeño.
       </p>
       <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 border border-gray-200">
         <Bar
           ref={chartRef}
-          key={Math.random()}
           data={chartData}
           options={{
             responsive: true,
+            indexAxis: "y",
             plugins: {
               legend: { position: "top" },
               tooltip: {
@@ -61,15 +72,18 @@ const AutoevaluationGraphic = ({ setAutoevaluationImage }) => {
               },
             },
             scales: {
-              x: { grid: { display: false }, title: { display: true, text: "Materias" } },
-              y: {
+              x: {
                 beginAtZero: true,
                 max: 3,
                 ticks: {
                   stepSize: 0.5,
                   callback: (value) => value.toFixed(1),
                 },
-                title: { display: true, text: "Nivel (1 = Bajo, 3 = Alto)" },
+                title: { display: true, text: "Nivel (0.0 = Bajo, 3.0 = Alto)" },
+              },
+              y: {
+                ticks: { autoSkip: false },
+                title: { display: true, text: "Actividad" },
               },
             },
           }}
@@ -86,4 +100,4 @@ const AutoevaluationGraphic = ({ setAutoevaluationImage }) => {
   );
 };
 
-export default AutoevaluationGraphic;
+export default ActivityEvaluationGraphic;

@@ -50,6 +50,7 @@ export const useAuthStore = create((set, get) => ({
   questions: [],
   calculatedResults: null,
   autoevaluationResults: null,
+  activityResults: null,
 
   fetchCart: async () => {
     const { isAuthenticated } = get();
@@ -371,7 +372,37 @@ completeTest: async (packageId, testType) => {
       toast.error("Error al obtener los resultados de la autoevaluación.");
     }
   },
+
+  fetchActivityData: async () => {
+    try {
+      const response = await axios.get("/api/autoevaluacionresults", { withCredentials: true });
+      if (response.status === 200) {
+        const { activities, activityPerformance } = response.data;
+
+        if (!activities || !activityPerformance) {
+          toast.error("No se encontraron datos de actividades en las respuestas.");
+          return;
+        }
   
+        set({
+          activityResults: {
+            activities: Object.fromEntries(
+              Object.entries(activities).map(([key, value]) => [key, (value / 100) * 3])
+            ),
+            activityPerformance: Object.fromEntries(
+              Object.entries(activityPerformance).map(([key, value]) => [key, (value / 100) * 3])
+            ),
+          },
+        });
+        
+      } else {
+        toast.error("No se pudieron obtener los datos de actividades.");
+      }
+    } catch (error) {
+      toast.error("Error al obtener los datos de actividades.");
+      console.error("Error al obtener los datos de actividades:", error);
+    }
+  },
   
 // ==========================
 // CONTEXTUALIZATION TEST
