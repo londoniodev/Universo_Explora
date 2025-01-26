@@ -21,10 +21,8 @@ const HomeNavbar = () => {
       transition={{ duration: 0.8, ease: "easeOut" }}
       variants={navVariants}
     >
-      {/* Logo */}
       <img src={Logo} alt="Logo" className="w-12 pointer-events-none z-50" />
 
-      {/* Desktop Menu */}
       <motion.div
         className="hidden md:flex space-x-6 items-center"
         variants={navVariants}
@@ -42,8 +40,8 @@ const HomeNavbar = () => {
             href={item.href}
             onClick={() => setActiveNav(item.href)}
             className={`text-sm font-medium ${
-              activeNav === item.href ? "text-[#004e92]" : "text-white"
-            } hover:text-gray-400 transition duration-300`}
+              activeNav === item.href ? "text-cyan-400" : "text-white"
+            } hover:text-cyan-400 transition duration-300`}
           >
             {item.label}
           </a>
@@ -66,7 +64,6 @@ const HomeNavbar = () => {
         </div>
       </motion.div>
 
-      {/* Mobile Menu */}
       <div className="flex flex-col md:hidden items-center w-full">
         <div className="flex items-center justify-between w-full px-4">
           <div className="flex items-center space-x-2">
@@ -119,7 +116,7 @@ const HomeNavbar = () => {
                     setMenuOpen(false);
                   }}
                   className={`text-base font-medium ${
-                    activeNav === item.href ? "text-[#004e92]" : "text-white"
+                    activeNav === item.href ? "text-cyan-400" : "text-white"
                   } hover:text-gray-400 transition duration-300`}
                 >
                   {item.label}

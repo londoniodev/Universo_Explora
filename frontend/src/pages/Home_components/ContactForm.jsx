@@ -1,27 +1,95 @@
 import { useState, useRef } from "react";
-import PropTypes from "prop-types";
 import { Switch } from "@headlessui/react";
 import { motion } from "framer-motion";
 import emailjs from "emailjs-com";
+import Swal from "sweetalert2";
+import { FiLoader } from "react-icons/fi";
 
-const ContactForm = ({ emailServiceId, emailTemplateId, emailPublicKey }) => {
+const ContactForm = () => {
   const [agreed, setAgreed] = useState(false);
   const form = useRef();
+  const [loading, setLoading] = useState(false);
 
-  const sendEmail = (e) => {
+  const emailServiceId = import.meta.env.VITE_EMAIL_SERVICE_ID;
+  const emailTemplateId = import.meta.env.VITE_EMAIL_TEMPLATE_ID;
+  const emailPublicKey = import.meta.env.VITE_EMAIL_PUBLIC_KEY;
+
+  const sanitizeInput = (value) => {
+    return value.replace(/[^a-zA-Z0-9\s@.,_-]/g, "").trim();
+  }
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  const sendEmail = async (e) => {
     e.preventDefault();
-    emailjs
-      .sendForm(emailServiceId, emailTemplateId, form.current, emailPublicKey)
-      .then(
-        () => {
-          alert("¡Correo enviado con éxito! Gracias por tu mensaje.");
-          e.target.reset();
-        },
-        (error) => {
-          alert("Error al enviar el correo. Por favor, inténtalo nuevamente.");
-          console.error("Error de EmailJS:", error);
-        }
+
+    const formData = new FormData(form.current);
+    const data = {
+      name: sanitizeInput(formData.get("name")),
+      last_name: sanitizeInput(formData.get("last_name")),
+      email: sanitizeInput(formData.get("email")),
+      message: sanitizeInput(formData.get("message")),
+    }
+
+    if(!isValidEmail(data.email)){
+      swal.fire({
+        icon: "error",
+        title: "Correo Inválido",
+        text: "Por favor, ingresa un correo electrónico válido.",
+        confirmButtonText: "Aceptar",
+      });
+      return
+    }
+
+    if(!data.name || !data.email || !data.message) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos vacíos",
+        text: "Todos los campos son obligatorios.",
+        confirmButtonText: "Aceptar",
+      });
+      return
+    }
+
+    if (!agreed) {
+      Swal.fire({
+        icon: "warning",
+        title: "Atención",
+        text: "Debes aceptar las Políticas de Privacidad para enviar tu mensaje.",
+        confirmButtonText: "Aceptar",
+      });
+      return;
+    }
+    
+    setLoading(true);
+
+    try {
+      await emailjs.sendForm(
+        emailServiceId,
+        emailTemplateId,
+        form.current,
+        emailPublicKey
       );
+      Swal.fire({
+        icon: "success",
+        title: "¡Mensaje Enviado!",
+        text: "Gracias por tu mensaje. Te contactaremos pronto.",
+        confirmButtonText: "Aceptar",
+      });
+      e.target.reset();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo enviar tu mensaje. Por favor, inténtalo nuevamente.",
+        confirmButtonText: "Aceptar",
+      });
+    }finally {
+      setLoading(false);      
+    }
   };
 
   const containerVariants = {
@@ -75,7 +143,7 @@ const ContactForm = ({ emailServiceId, emailTemplateId, emailPublicKey }) => {
         <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl dark:text-white">
           Estemos en contacto
         </h2>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-lg text-white">
           Para nosotros lo más importante es resolver tus dudas y ayudarte a alcanzar tus objetivos.
         </p>
       </motion.div>
@@ -91,105 +159,113 @@ const ContactForm = ({ emailServiceId, emailTemplateId, emailPublicKey }) => {
           variants={containerVariants}
         >
           <motion.div variants={itemVariants}>
-            <label htmlFor="first-name" className="block text-sm font-semibold text-gray-900 dark:text-white">
+            <label
+              htmlFor="name"
+              className="block text-sm font-semibold text-gray-900 dark:text-white"
+            >
               Nombre
             </label>
-            <div className="mt-2.5">
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="given-name"
-                required
-                className="block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
-              />
-            </div>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              className="mt-2.5 block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
+            />
           </motion.div>
           <motion.div variants={itemVariants}>
-            <label htmlFor="last-name" className="block text-sm font-semibold text-gray-900 dark:text-white">
+            <label
+              htmlFor="last_name"
+              className="block text-sm font-semibold text-gray-900 dark:text-white"
+            >
               Apellido
             </label>
-            <div className="mt-2.5">
-              <input
-                id="last_name"
-                name="last_name"
-                type="text"
-                autoComplete="family-name"
-                required
-                className="block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
-              />
-            </div>
+            <input
+              id="last_name"
+              name="last_name"
+              type="text"
+              required
+              className="mt-2.5 block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
+            />
           </motion.div>
+
           <motion.div className="sm:col-span-2" variants={itemVariants}>
-            <label htmlFor="email" className="block text-sm font-semibold text-gray-900 dark:text-white">
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-gray-900 dark:text-white"
+            >
               Correo Electrónico
             </label>
-            <div className="mt-2.5">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
-              />
-            </div>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="mt-2.5 block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
+            />
           </motion.div>
+
           <motion.div className="sm:col-span-2" variants={itemVariants}>
-            <label htmlFor="message" className="block text-sm font-semibold text-gray-900 dark:text-white">
+            <label
+              htmlFor="message"
+              className="block text-sm font-semibold text-gray-900 dark:text-white"
+            >
               Mensaje
             </label>
-            <div className="mt-2.5">
-              <textarea
-                id="message"
-                name="message"
-                rows={4}
-                required
-                className="block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
-              />
-            </div>
-          </motion.div>
-          <motion.div className="flex gap-x-4 sm:col-span-2 items-center" variants={itemVariants}>
-            <Switch
-              checked={agreed}
-              onChange={setAgreed}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                agreed ? "bg-indigo-500" : "bg-gray-600"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                  agreed ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </Switch>
-            <label htmlFor="agree" className="text-sm text-gray-400">
-              Estoy de acuerdo con las{" "}
-              <a href="#" className="font-semibold text-indigo-500">
-                Políticas de Privacidad
-              </a>
-              .
-            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows={4}
+              required
+              className="mt-2.5 block w-full rounded-md bg-transparent px-3.5 py-2 text-base text-white outline outline-1 outline-gray-600 placeholder-gray-400 focus:outline-indigo-500"
+            />
           </motion.div>
         </motion.div>
 
-        <motion.div className="mt-10" variants={itemVariants}>
-          <button
-            type="submit"
-            className="block w-full rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-indigo-400 focus:outline-indigo-500"
+        <motion.div
+          className="flex gap-x-4 items-center sm:col-span-2 mt-6"
+          variants={itemVariants}
+        >
+          <Switch
+            checked={agreed}
+            onChange={setAgreed}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+              agreed ? "bg-indigo-500" : "bg-gray-600"
+            }`}
           >
-            Enviar
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                agreed ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </Switch>
+          <label htmlFor="agree" className="text-sm text-gray-400">
+            Estoy de acuerdo con las{" "}
+            <a href="#" className="font-semibold text-indigo-500">
+              Políticas de Privacidad
+            </a>
+            , para el tratamiento de mis datos.
+          </label>
+        </motion.div>
+
+        <motion.div className="mt-10" variants={itemVariants}>
+        <button
+            type="submit"
+            disabled={loading}
+            className={`flex justify-center items-center w-full rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg focus:outline-indigo-500 ${
+              loading ? "bg-indigo-700 cursor-not-allowed" : "bg-indigo-700"
+            }`}
+          >
+            {loading ? (
+              <FiLoader className="animate-spin h-5 w-5" />
+            ) : (
+              "Enviar"
+            )}
           </button>
         </motion.div>
       </motion.form>
     </motion.div>
   );
-};
-
-ContactForm.propTypes = {
-  emailServiceId: PropTypes.string.isRequired,
-  emailTemplateId: PropTypes.string.isRequired,
-  emailPublicKey: PropTypes.string.isRequired,
 };
 
 export default ContactForm;

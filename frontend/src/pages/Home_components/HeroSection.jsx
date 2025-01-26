@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import Light from "../../assets/images/ligth.png";
 
 const HeroSection = () => {
-  // Variants para la primera luz
   const light1Animation = {
     initial: { x: 0, y: 0 },
     animate: {
@@ -17,7 +16,6 @@ const HeroSection = () => {
     },
   };
 
-  // Variants para la segunda luz
   const light2Animation = {
     initial: { x: 0, y: 0 },
     animate: {
@@ -41,13 +39,11 @@ const HeroSection = () => {
       />
 
       <div className="absolute inset-0 z-0">
-        {/* Primera luz con animación independiente */}
         <motion.div
           {...light1Animation}
           className="absolute top-[20%] left-[15%] w-[200px] h-[200px] md:w-[300px] md:h-[300px] bg-gradient-to-br from-purple-500/100 to-transparent rounded-full blur-2xl"
         ></motion.div>
 
-        {/* Segunda luz con animación independiente */}
         <motion.div
           {...light2Animation}
           className="absolute top-[50%] left-[50%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-gradient-to-r from-blue-500/100 to-transparent rounded-full blur-3xl"

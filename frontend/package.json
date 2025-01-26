@@ -42,6 +42,7 @@
     "react-tabs": "^6.0.2",
     "simplex-noise": "^4.0.3",
     "slick-carousel": "^1.8.1",
+    "sweetalert2": "^11.15.10",
     "swiper": "^11.1.15",
     "three": "^0.171.0",
     "zustand": "^4.5.5"

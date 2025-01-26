@@ -32,13 +32,12 @@ const Footer = () => {
 
   return (
     <motion.footer
-      className="relative bg-[#101010] text-white py-12 font-satoshi overflow-hidden border-t border-gray-800 mb-0"
+      className="relative bg-[#101010] text-white py-2 font-satoshi overflow-hidden border-t border-gray-800"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
       variants={containerVariants}
     >
-      {/* Animating Lights */}
       <motion.div
         className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-br from-blue-500/30 to-transparent rounded-full blur-3xl"
         {...lightAnimation}
@@ -57,7 +56,7 @@ const Footer = () => {
           variants={containerVariants}
         >
           <motion.div variants={itemVariants}>
-            <h3 className="text-2xl font-extrabold text-white">Explora</h3>
+            <h3 className="text-2xl font-extrabold text-white mt-[10%]">Explora</h3>
             <p className="mt-4 text-gray-300 text-sm leading-relaxed">
               Descubre herramientas y asesoramiento personalizado para alcanzar
               el éxito en tu vida profesional y personal.
@@ -65,22 +64,23 @@ const Footer = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-lg font-semibold text-white mb-4">Enlaces</h4>
-            <ul className="text-sm text-gray-300 space-y-2">
-              {["Sobre Nosotros", "Acompañamiento", "Contáctanos", "Nuestro Equipo"].map(
-                (link, index) => (
-                  <li key={index}>
-                    <a href={`#${link.replace(/\s+/g, "")}`} className="hover:text-cyan-400">
-                      {link}
-                    </a>
-                  </li>
-                )
-              )}
+            <h4 className="text-lg font-semibold text-white mb-4 mt-[10%]">Enlaces</h4>
+            <ul className="flex justify-center items-center text-sm text-gray-300 gap-6">
+              {["Nosotros", "Acompañamiento", "Contáctanos", "Equipo"].map((link, index) => (
+                <li key={index}>
+                  <a
+                    href={`#${link.replace(/\s+/g, "")}`}
+                    className="hover:text-cyan-400 transition-colors"
+                  >
+                    {link}
+                  </a>
+                </li>
+              ))}
             </ul>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-lg font-semibold text-white mb-4">Síguenos</h4>
+            <h4 className="text-lg font-semibold text-white mb-4 mt-[10%]">Síguenos</h4>
             <div className="flex space-x-4">
               {[
                 { href: "https://github.com", icon: <FaGithub size={24} /> },
