@@ -136,13 +136,13 @@ export const forgotPassword = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hora
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = resetTokenExpiresAt;
     await user.save();
 
-    await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/recovery-password/${resetToken}`);
+    await sendPasswordResetEmail(user.email, resetToken);
 
     return res.status(200).json({ success: true, message: "Correo enviado para restablecer la contraseña" });
   } catch (error) {

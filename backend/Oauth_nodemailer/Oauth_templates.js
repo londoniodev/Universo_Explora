@@ -22,7 +22,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
     <p style="font-size: 18px;">Ingresa este código en la página de verificación para completar tu registro.</p>
     <p style="font-size: 18px;">Este código expirará en 15 minutos por razones de seguridad.</p>
     <p style="font-size: 18px;">Si no creaste una cuenta con nosotros, por favor ignora este correo.</p>
-    <p style="font-size: 18px;">Saludos,<br>Explora Team</p>
+    <p style="font-size: 18px;">Saludos,<br>Explora Team 😎✨</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
@@ -143,7 +143,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
       <li>Evites usar la misma contraseña en varios sitios</li>
     </ul>
     <p style="font-size: 18px;">Gracias por ayudarnos a mantener la seguridad de tu cuenta.</p>
-    <p style="font-size: 18px;">Saludos,<br>Explora Team</p>
+    <p style="font-size: 18px;">Saludos,<br>Explora Team 😎✨</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
@@ -175,7 +175,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
       <a href="{resetUrl}" style="background-color: #446AAB; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 18px;">Restablecer Contraseña</a>
     </div>
     <p style="font-size: 18px;">Este enlace expirará en 1 hora por razones de seguridad.</p>
-    <p style="font-size: 18px;">Saludos,<br>Explora Team</p>
+    <p style="font-size: 18px;">Saludos,<br>Explora Team 😎✨</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>Este es un mensaje automático, por favor no respondas a este correo.</p>

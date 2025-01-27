@@ -39,20 +39,30 @@ export const sendWelcomeEmail = async (email, name) => {
 
 }
 
-export const sendPasswordResetEmail = async (email, resetUrl) => {
+export const generateResetPasswordUrl = (resetToken) => {
+    const clientUrl = process.env.NODE_ENV === "production"
+    ? process.env.CLIENT_URL_PROD
+    : process.env.CLIENT_URL_DEV;
+  
+    return `${clientUrl}/recovery-password/${resetToken}`;
+};
+  
+
+export const sendPasswordResetEmail = async (email, resetToken) => {
     try {
-        const response = await transporter.sendMail({
-            from: process.env.SMTP_EMAIL,
-            to: email,
-            subject: "Reestablece tu contraseña",
-            html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetUrl}", resetUrl),
-            category: "Reestablecimiento de contraseña"
-        })
-        console.log("Correo de reestablecimiento enviado: ", response)
+      const resetUrl = generateResetPasswordUrl(resetToken);
+      const response = await transporter.sendMail({
+        from: process.env.SMTP_EMAIL,
+        to: email,
+        subject: "Reestablece tu contraseña",
+        html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetUrl}", resetUrl),
+        category: "Reestablecimiento de contraseña",
+      });
+      console.log("Correo de reestablecimiento enviado: ", response);
     } catch (error) {
-        throw new Error("Error al enviar el correo de reestablecimiento de contraseña", error)
+      throw new Error("Error al enviar el correo de reestablecimiento de contraseña", error);
     }
-}
+};  
 
 export const sendResetSuccessEmail = async (email) => {
     try {

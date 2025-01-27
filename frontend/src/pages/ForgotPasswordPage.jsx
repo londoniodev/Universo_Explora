@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import { ArrowLeft, Mail } from "lucide-react";
+import Navbar from "../pages/Home_components/Home_navbar.jsx";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import '../assets/css/forgot.css'
@@ -25,6 +26,7 @@ const ForgotPassword = () => {
 
   return (
     <div id="container" className="flex items-center justify-center min-h-screen w-full h-full">
+      <Navbar/>
       <div className="bg-[#181818] text-center rounded-lg px-8 py-8">
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className="ml-auto text-center">
