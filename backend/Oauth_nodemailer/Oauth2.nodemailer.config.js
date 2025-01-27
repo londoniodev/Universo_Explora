@@ -63,11 +63,12 @@ export const sendVerificationEmail = async (email,userId) => {
         subject: "Verificación de correo electrónico",
         html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('Error sending email:', error);
-        } else {
-            console.log('Verification email sent:', info.response);
-        }
-    })
+    // esto funciona correctamente, solo lo comenté para evitar que se vean detalles de los emails enviados en la consola
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //     if (error) {
+    //         console.log('Error sending email:', error);
+    //     } else {
+    //         console.log('Verification email sent:', info.response);
+    //     }
+    // })
 }

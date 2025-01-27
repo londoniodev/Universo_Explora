@@ -15,7 +15,6 @@ export const sendVerificationEmail = async ( email, verificationToken) => {
             category: "Verificación de correo"
         })
     }catch (error) {
-        console.log("Error al enviar el correo: ", error)
         throw new Error ("Error al enviar el correo de verificación" ,error)
     }
 }
@@ -52,7 +51,6 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetUrl}", resetUrl),
         category: "Reestablecimiento de contraseña",
       });
-      console.log("Correo de reestablecimiento enviado: ", response);
     } catch (error) {
       throw new Error("Error al enviar el correo de reestablecimiento de contraseña", error);
     }
@@ -67,7 +65,6 @@ export const sendResetSuccessEmail = async (email) => {
             html: PASSWORD_RESET_SUCCESS_TEMPLATE,
             category: "Reestablecimiento de contraseña exitoso"
         })
-        console.log("Contraseña reestablecida exitosamente: ", response)
     } catch (error) {
         throw new Error("Error al reestablecer la contraseña", error)
     }
