@@ -9,7 +9,7 @@ export const sendVerificationEmail = async ( email, verificationToken) => {
 
     try {
         const response = await transporter.sendMail({
-            from:process.env.SMTP_EMAIL,
+            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Verifica tu correo",
             html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
@@ -26,7 +26,7 @@ export const sendWelcomeEmail = async (email, name) => {
 
     try{
         const response = await transporter.sendMail({
-            from: process.env.SMTP_EMAIL,
+            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Verificación de cuenta exitosa",
             html: WELCOME_NEW_USER_EMAIL_TEMPLATE.replace("{name}", name),
@@ -52,7 +52,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     try {
       const resetUrl = generateResetPasswordUrl(resetToken);
       const response = await transporter.sendMail({
-        from: process.env.SMTP_EMAIL,
+        from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
         to: email,
         subject: "Reestablece tu contraseña",
         html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetUrl}", resetUrl),
@@ -67,7 +67,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 export const sendResetSuccessEmail = async (email) => {
     try {
         const response = await transporter.sendMail({
-            from: process.env.SMTP_EMAIL,
+            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Reestablecimiento de contraseña exitoso",
             html: PASSWORD_RESET_SUCCESS_TEMPLATE,
