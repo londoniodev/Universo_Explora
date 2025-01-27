@@ -58,12 +58,11 @@ export const sendVerificationEmail = async (email,userId) => {
     await User.findByIdAndUpdate(objectId, { verificationToken, verificationTokenExpiresAt })
 
     const mailOptions = {
-        from: process.env.SMTP_EMAIL,
+        from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
         to: email,
         subject: "Verificación de correo electrónico",
         html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
     };
-
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log('Error sending email:', error);

@@ -6,16 +6,14 @@ import { transporter } from "../Oauth_nodemailer/Oauth2.nodemailer.config.js"
 
 
 export const sendVerificationEmail = async ( email, verificationToken) => {
-
     try {
         const response = await transporter.sendMail({
-            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
+            from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Verifica tu correo",
             html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
             category: "Verificación de correo"
         })
-        console.log("Correo enviado: ", response)
     }catch (error) {
         console.log("Error al enviar el correo: ", error)
         throw new Error ("Error al enviar el correo de verificación" ,error)
@@ -23,20 +21,16 @@ export const sendVerificationEmail = async ( email, verificationToken) => {
 }
 
 export const sendWelcomeEmail = async (email, name) => {
-
     try{
         const response = await transporter.sendMail({
-            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
+            from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Verificación de cuenta exitosa",
             html: WELCOME_NEW_USER_EMAIL_TEMPLATE.replace("{name}", name),
-            
         })
     }catch(error){
         throw new Error("Error al enviar el correo de bienvenida", error)
     }
-
-
 }
 
 export const generateResetPasswordUrl = (resetToken) => {
@@ -52,7 +46,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     try {
       const resetUrl = generateResetPasswordUrl(resetToken);
       const response = await transporter.sendMail({
-        from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
+        from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
         to: email,
         subject: "Reestablece tu contraseña",
         html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetUrl}", resetUrl),
@@ -67,7 +61,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 export const sendResetSuccessEmail = async (email) => {
     try {
         const response = await transporter.sendMail({
-            from: `"Explora Team - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
+            from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
             to: email,
             subject: "Reestablecimiento de contraseña exitoso",
             html: PASSWORD_RESET_SUCCESS_TEMPLATE,
