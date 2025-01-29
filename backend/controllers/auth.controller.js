@@ -19,7 +19,7 @@ const setTokenCookie = (res, userId) => {
 
 
 export const signup = async (req, res) => {
-  const { name, last_name, birthdate, phone, city, gender, email, password } = req.body;
+  const { name, last_name, birthdate, phone, city, gender, customGender, email, password } = req.body;
 
   try {
     if (!email || !password || !name || !last_name || !birthdate || !phone || !city || !gender) {
@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
       birthdate,
       phone,
       city,
-      gender,
+      gender : gender === "custom" ? customGender : gender,
       email,
       password: hashedPassword,
       verificationToken,

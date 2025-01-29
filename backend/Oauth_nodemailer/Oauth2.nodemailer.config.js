@@ -43,16 +43,6 @@ export const transporter = nodemailer.createTransport({
     tls: {
         rejectUnauthorized: false
     },
-    // host: process.env.SMTP_HOST,
-    // port: process.env.SMTP_PORT,
-    // auth: {
-    //     user: process.env.SMTP_USER,
-    //     pass: process.env.SMTP_PASS,
-    // },
-    // secure: process.env.SMTP_SECURE === 'true',
-    // tls: {
-    //     rejectUnauthorized: false
-    // }
 });
 
 
@@ -73,5 +63,5 @@ export const sendVerificationEmail = async (email,userId) => {
         subject: "Verificación de correo electrónico",
         html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
     };
-    transporter.sendMail(mailOptions)
+    transporter.sendMail(mailOptions);
 }

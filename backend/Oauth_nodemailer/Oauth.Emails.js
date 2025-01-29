@@ -31,7 +31,7 @@ export const sendWelcomeEmail = async (email, name) => {
 }
 
 export const generateResetPasswordUrl = (resetToken) => {
-    const clientUrl = process.env.NODE_ENV === "production"
+    const clientUrl = process.env.CLIENT_URL_DEV === "production"
     ? process.env.CLIENT_URL_PROD
     : process.env.CLIENT_URL_DEV;
   

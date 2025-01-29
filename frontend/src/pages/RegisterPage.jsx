@@ -28,7 +28,7 @@ const genderOptions = [
   { value: "polygender", label: "Poligénero" },
   { value: "cisgender", label: "Cisgénero" },
   { value: "intersex", label: "Intersex" },
-  { value: "prefer_not_to_say", label: "Prefiero no decirlo" },
+  { value: "prefer not to say", label: "Prefiero no decirlo" },
   { value: "custom", label: "Especificar otro género" },
 ];
 
@@ -64,10 +64,13 @@ const RegisterPage = () => {
 
   const handleGenderChange = (e) => {
     const selectedGender = e.target.value;
-    setGender(selectedGender);
-    if(selectedGender !== "custom") {
+    
+    if (selectedGender === "custom") {
+      setGender("");
+    }else{
+      setGender(selectedGender);
       setCustomGender("");
-    };
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -80,8 +83,10 @@ const RegisterPage = () => {
 
     setIsLoading(true);
 
+    const finalGender = gender === "" ? customGender : gender;
+
     try {
-      await signup(name, last_name, birthdate, phone, city, gender, email, password);
+      await signup(name, last_name, birthdate, phone, city, finalGender, email, password);
       toast.success("Te has registrado correctamente");
       toast("Verifica tu correo, hemos enviado un código para activar tu cuenta", {
         icon: "📧",
