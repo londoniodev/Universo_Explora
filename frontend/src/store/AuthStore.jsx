@@ -25,19 +25,6 @@ axios.interceptors.response.use(
   }
 );
 
-// const getAuthHeaders = () => {
-//   const token = document.cookie
-//     .split("; ")
-//     .find((row) => row.startsWith("token="))
-//     ?.split("=")[1];
-
-//   if (!token) {
-//     toast.error("Sesión no válida. Inicia sesión nuevamente.");
-//     throw new Error("Token no encontrado");
-//   }
-
-//   return { Authorization: `Bearer ${token}` };
-// };
 
 export const useAuthStore = create((set, get) => ({
   user: null,

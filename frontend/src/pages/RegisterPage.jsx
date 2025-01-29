@@ -1,12 +1,36 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaUserPlus, FaQuoteLeft } from "react-icons/fa";
+import { FaUserPlus, FaQuoteLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { HiSelector } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "./PasswordStrenghtMeter.jsx";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import toast from "react-hot-toast";
 import Boy from "../assets/images/astro_boy.png";
 import NightLight from "../assets/images/nightlight.png";
+
+
+const genderOptions = [
+  { value: "male", label: "Masculino" },
+  { value: "female", label: "Femenino" },
+  { value: "nonbinary", label: "No binario" },
+  { value: "genderqueer", label: "Genderqueer" },
+  { value: "transgender", label: "Transgénero" },
+  { value: "agender", label: "Agénero" },
+  { value: "bigender", label: "Bígénero" },
+  { value: "genderfluid", label: "Genderfluid" },
+  { value: "demiboy", label: "Demiboy" },
+  { value: "demigirl", label: "Demigirl" },
+  { value: "androgyne", label: "Andrógino" },
+  { value: "two-spirit", label: "Dos espíritus (Two-Spirit)" },
+  { value: "neutrois", label: "Neutrois" },
+  { value: "pangender", label: "Pangénero" },
+  { value: "polygender", label: "Poligénero" },
+  { value: "cisgender", label: "Cisgénero" },
+  { value: "intersex", label: "Intersex" },
+  { value: "prefer_not_to_say", label: "Prefiero no decirlo" },
+  { value: "custom", label: "Especificar otro género" },
+];
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -15,8 +39,10 @@ const RegisterPage = () => {
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [gender, setGender] = useState("");
+  const [customGender, setCustomGender] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { signup, error } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +60,14 @@ const RegisterPage = () => {
       return false;
     }
     return true;
+  };
+
+  const handleGenderChange = (e) => {
+    const selectedGender = e.target.value;
+    setGender(selectedGender);
+    if(selectedGender !== "custom") {
+      setCustomGender("");
+    };
   };
 
   const handleSubmit = async (e) => {
@@ -95,30 +129,29 @@ const RegisterPage = () => {
   };
 
   return (
-    <div id="container" className="flex justify-center min-h-screen items-center px-4 relative overflow-hidden">
+    <div id="container" className="flex justify-center items-center min-h-screen px-4 md:px-8 bg-gray-50 relative overflow-hidden">
       <img
         src={NightLight}
         alt="Light"
         className="absolute z-1 inset-0 h-[50%] top-[50%] w-full pointer-events-none"
       />
-      {/* Lights */}
       <motion.div
-        className="absolute top-[20%] left-[15%] w-[200px] h-[200px] bg-gradient-to-br from-purple-800/50 to-transparent rounded-full blur-2xl"
+        className="absolute top-[20%] left-[15%] w-[150px] h-[150px] bg-gradient-to-br from-purple-800/50 to-transparent rounded-full blur-2xl"
         {...lightAnimation}
       />
       <motion.div
-        className="absolute bottom-[10%] right-[15%] w-[150px] h-[150px] bg-gradient-to-br from-blue-500/50 to-transparent rounded-full blur-3xl"
+        className="absolute bottom-[10%] right-[15%] w-[100px] h-[100px] bg-gradient-to-br from-blue-500/50 to-transparent blur-3xl"
         {...lightAnimation}
       />
 
       <motion.div
-        className="flex flex-col md:flex-row w-full z-10 max-w-7xl bg-transparent shadow-lg rounded-2xl overflow-hidden"
+        className="flex flex-col md:flex-row w-full z-10 max-w-4xl lg:max-w-6xl bg-transparent border border-white/20 shadow-lg overflow-hidden h-auto md:h-[38rem]"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
         <motion.div
-          className="hidden md:flex md:w-1/2 bg-cover bg-center relative"
+          className="hidden md:flex md:w-1/2 bg-cover bg-center relative h-[200px] md:h-full"
           variants={itemVariants}
         >
           <img
@@ -128,7 +161,7 @@ const RegisterPage = () => {
             loading="lazy"
           />
           <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-            <h1 className="text-xl lg:text-2xl font-bold text-white text-center p-4">
+            <h1 className="text-base lg:text-lg font-bold text-white text-center p-2">
               <FaQuoteLeft className="inline-block mr-2" />
               Eres la razón de nuestro trabajo diario. ¡Gracias por elegirnos!
             </h1>
@@ -136,24 +169,24 @@ const RegisterPage = () => {
         </motion.div>
 
         <motion.div
-          className="flex flex-col justify-center bg-[#181818] md:w-1/2 w-full p-6 sm:px-8"
+          className="flex flex-col justify-center bg-[#101010]/20 md:w-1/2 w-full p-4 sm:p-6 lg:p-8 backdrop-blur-lg border-white/10 shadow-lg"
           variants={itemVariants}
         >
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-sm md:max-w-md mt-[-2%] mx-auto">
             <motion.h1
-              className="text-xl sm:text-2xl font-bold text-white text-center"
+              className="text-base sm:text-2xl font-bold text-white text-center"
               variants={itemVariants}
             >
               Todo comienza aquí
             </motion.h1>
             <motion.p
-              className="text-sm sm:text-base text-white text-center mt-2"
+              className="text-xs sm:text-sm text-white text-center mt-1"
               variants={itemVariants}
             >
               Crea tu cuenta ahora.
             </motion.p>
             <motion.form
-              className="space-y-4 mt-4"
+              className="space-y-2 mt-3"
               onSubmit={handleSubmit}
               variants={containerVariants}
             >
@@ -167,7 +200,7 @@ const RegisterPage = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -175,7 +208,7 @@ const RegisterPage = () => {
                   value={last_name}
                   onChange={(e) => setLast_name(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </motion.div>
               <motion.div
@@ -187,7 +220,7 @@ const RegisterPage = () => {
                   value={birthdate}
                   onChange={(e) => setBirthdate(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   type="text"
@@ -195,11 +228,11 @@ const RegisterPage = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </motion.div>
               <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                className="grid grid-cols-1.5 sm:grid-cols-2 gap-2"
                 variants={itemVariants}
               >
                 <input
@@ -208,20 +241,37 @@ const RegisterPage = () => {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="" disabled>
-                    Seleccione su Género
-                  </option>
-                  <option value="male">Masculino</option>
-                  <option value="female">Femenino</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={gender}
+                    onChange={handleGenderChange}
+                    required
+                    className="w-full px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Seleccione su Género
+                    </option>
+                    {genderOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
+                    <HiSelector className="w-5 h-5" />
+                  </div>
+                </div>
+                {gender === "custom" && (
+                  <input
+                    type="text"
+                    placeholder="Escriba su género"
+                    value={customGender}
+                    onChange={(e) => setCustomGender(e.target.value)}
+                    className="w-96 px-2 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
               </motion.div>
               <motion.div variants={itemVariants}>
                 <input
@@ -230,23 +280,32 @@ const RegisterPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-2 py-1.5 text-[90%] text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 inset-y-0 flex items-center text-gray-500"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
                 <PasswordStrengthMeter password={password} />
               </motion.div>
               {error && (
                 <motion.p
-                  className="text-sm text-red-500 text-center"
+                  className="text-xs text-red-500 text-center"
                   variants={itemVariants}
                 >
                   {error}
@@ -255,7 +314,7 @@ const RegisterPage = () => {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2 px-4 bg-blue-600 flex items-center justify-center gap-2 text-white font-medium text-xl rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full py-2 px-4 bg-blue-600 flex items-center justify-center gap-2 text-white font-medium text-sm md:text-base rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 variants={buttonVariants}
                 whileHover="hover"
               >
