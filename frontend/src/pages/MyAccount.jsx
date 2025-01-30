@@ -3,7 +3,8 @@ import { useAuthStore } from "../store/AuthStore.jsx";
 import toast, { Toaster } from "react-hot-toast";
 import Avatar from "react-avatar";
 import Navbar from "../assets/components/NavBar.jsx";
-import { FaUser, FaEnvelope, FaPhone, FaCity, FaVenusMars, FaCalendar, FaEdit } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone, FaCity, FaVenusMars, FaCalendar, FaMapMarkerAlt, FaUserTag } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const genderOptions = [
   { value: "male", label: "Masculino" },
@@ -103,46 +104,74 @@ const MyAccount = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen flex items-center justify-center bg-[#0D0D0D]"
+      >
         <p className="text-gray-400 animate-pulse">Cargando datos...</p>
-      </div>
+      </motion.div>
     );
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0D0D0D]">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex flex-col min-h-screen bg-[#0D0D0D]"
+    >
       <Navbar />
       <div className="flex-1 flex items-center justify-center p-8">
         <Toaster position="top-center" />
         <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl">
-          {/* Tarjeta izquierda: Avatar, nombre y correo */}
-          <div className="bg-[#1A1A1A] rounded-xl p-8 flex flex-col items-center w-full md:w-1/3">
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="bg-[#1A1A1A] rounded-xl p-6 flex flex-col items-center w-full md:w-1/3 shadow-2xl"
+          >
             <div className="relative">
-              <Avatar name={formData.name} size="120" round={true} className="border-4 border-[#4F46E5]" />
-              <button className="absolute bottom-2 right-2 bg-[#4F46E5] p-2 rounded-full hover:bg-[#9333EA] transition duration-300">
-                <FaEdit className="text-white" />
-              </button>
+              <Avatar name={formData.name} size="100" round={true} />
             </div>
-            <h2 className="mt-6 text-2xl font-bold text-white text-center">
+            <h2 className="mt-4 text-xl font-bold text-white text-center">
               {formData.name || "Usuario"}
             </h2>
-            <p className="mt-2 text-gray-400 text-sm text-center">
+            <p className="mt-1 text-gray-400 text-sm text-center">
               {formData.email}
             </p>
-            <div className="mt-4 text-gray-400 text-sm text-center">
-              <p><strong>Ciudad:</strong> {formData.city || "No especificada"}</p>
-              <p><strong>Género:</strong> {formData.gender === "custom" ? formData.customGender : formData.gender || "No especificado"}</p>
-              <p><strong>Miembro desde:</strong> {new Date(user?.createdAt).toLocaleDateString()}</p>
-            </div>
-          </div>
+            <div className="mt-4 text-gray-400 text-sm text-center space-y-2">
+              <div className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-gray-400 text-lg" />
+                <p><strong>Ciudad:</strong> {formData.city || "No especificada"}</p>
+              </div>
 
-          {/* Tarjeta derecha: Formulario de edición */}
-          <div className="bg-[#1A1A1A] rounded-xl p-8 w-full md:w-2/3">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Nombre */}
+              <div className="flex items-center gap-2">
+                <FaVenusMars className="text-gray-400 text-lg flex-shrink-0" />
+                <p className="flex items-center">
+                  <strong>Género:</strong> 
+                  <span className="text-white ml-1">
+                    {formData.gender === "custom" ? formData.customGender : formData.gender || "No especificado"}
+                  </span>
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <FaUserTag className="text-gray-400 text-lg" />
+                <p><strong>Miembro desde:</strong> {new Date(user?.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-[#1A1A1A] rounded-xl p-6 w-full md:w-2/3 shadow-2xl"
+          >
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaUser className="text-[#4F46E5]" /> Nombre
+                    <FaUser className="text-gray-400" /> Nombre
                   </label>
                   <input
                     type="text"
@@ -150,15 +179,14 @@ const MyAccount = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                     placeholder="Ingresa tu nombre"
                   />
                 </div>
 
-                {/* Apellido */}
                 <div>
                   <label htmlFor="last_name" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaUser className="text-[#4F46E5]" /> Apellido
+                    <FaUser className="text-gray-400" /> Apellido
                   </label>
                   <input
                     type="text"
@@ -166,15 +194,14 @@ const MyAccount = () => {
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                     placeholder="Ingresa tu apellido"
                   />
                 </div>
 
-                {/* Correo Electrónico */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaEnvelope className="text-[#4F46E5]" /> Correo Electrónico
+                    <FaEnvelope className="text-gray-400" /> Correo Electrónico
                   </label>
                   <input
                     type="email"
@@ -182,15 +209,14 @@ const MyAccount = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                     placeholder="Ingresa tu correo"
                   />
                 </div>
 
-                {/* Teléfono */}
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaPhone className="text-[#4F46E5]" /> Teléfono
+                    <FaPhone className="text-gray-400" /> Teléfono
                   </label>
                   <input
                     type="tel"
@@ -198,15 +224,14 @@ const MyAccount = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                     placeholder="Ingresa tu teléfono"
                   />
                 </div>
 
-                {/* Ciudad */}
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaCity className="text-[#4F46E5]" /> Ciudad
+                    <FaCity className="text-gray-400" /> Ciudad
                   </label>
                   <input
                     type="text"
@@ -214,22 +239,21 @@ const MyAccount = () => {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                     placeholder="Ingresa tu ciudad"
                   />
                 </div>
 
-                {/* Género */}
                 <div>
                   <label htmlFor="gender" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <FaVenusMars className="text-[#4F46E5]" /> Género
+                    <FaVenusMars className="text-gray-400" /> Género
                   </label>
                   <select
                     id="gender"
                     name="gender"
                     value={formData.gender}
                     onChange={handleGenderChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                   >
                     <option value="" disabled>Selecciona tu género</option>
                     {genderOptions.map((option) => (
@@ -240,11 +264,10 @@ const MyAccount = () => {
                   </select>
                 </div>
 
-                {/* Campo personalizado para género */}
                 {formData.gender === "custom" && (
                   <div className="md:col-span-2">
                     <label htmlFor="customGender" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                      <FaVenusMars className="text-[#4F46E5]" /> Especifica tu género
+                      <FaVenusMars className="text-gray-400" /> Especifica tu género
                     </label>
                     <input
                       type="text"
@@ -252,17 +275,16 @@ const MyAccount = () => {
                       name="customGender"
                       value={formData.customGender}
                       onChange={(e) => setFormData({ ...formData, customGender: e.target.value })}
-                      className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                      className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
                       placeholder="Escribe tu género"
                     />
                   </div>
                 )}
               </div>
 
-              {/* Fecha de Nacimiento */}
               <div>
                 <label htmlFor="birthdate" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
-                  <FaCalendar className="text-[#4F46E5]" /> Fecha de Nacimiento
+                  <FaCalendar className="text-gray-400" /> Fecha de Nacimiento
                 </label>
                 <input
                   type="text"
@@ -271,26 +293,25 @@ const MyAccount = () => {
                   value={formData.birthdate}
                   onChange={handleChange}
                   disabled
-                  className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-gray-400 cursor-not-allowed"
+                  className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed text-sm"
                   placeholder="Fecha de Nacimiento"
                 />
               </div>
 
-              {/* Botón de guardar */}
               <div className="flex justify-center">
-                <button
+                <motion.button
                   type="submit"
-                  className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-[#4F46E5] to-[#9333EA] text-white font-semibold rounded-lg hover:from-[#9333EA] hover:to-[#4F46E5] transition duration-300 shadow-lg"
+                  className="w-full md:w-auto px-6 py-2 bg-white text-black font-semibold rounded-lg text-sm hover:bg-gray-100 transition duration-300"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Guardando..." : "Guardar Cambios"}
-                </button>
+                </motion.button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
