@@ -141,11 +141,13 @@ const MyAccount = () => {
               {formData.email}
             </p>
             <div className="mt-4 text-gray-400 text-sm text-center space-y-2">
-              <div className="flex items-center gap-2">
+              <p className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-gray-400 text-lg" />
-                <p><strong>Ciudad:</strong> {formData.city || "No especificada"}</p>
-              </div>
-
+                <div className="flex items-center gap-2">
+                  <strong>Ciudad:</strong>
+                  <p className="text-white ml-0">{formData.city || "No especificada"}</p>
+                </div>
+              </p>
               <div className="flex items-center gap-2">
                 <FaVenusMars className="text-gray-400 text-lg flex-shrink-0" />
                 <p className="flex items-center">
@@ -157,7 +159,10 @@ const MyAccount = () => {
               </div>
               <div className="flex items-center gap-2">
                 <FaUserTag className="text-gray-400 text-lg" />
-                <p><strong>Miembro desde:</strong> {new Date(user?.createdAt).toLocaleDateString()}</p>
+                <p className="flex items-center">
+                  <strong>Miembro desde:</strong>
+                  <p className="text-white ml-1">{new Date(user?.createdAt).toLocaleDateString()}</p>
+                </p>
               </div>
             </div>
           </motion.div>
@@ -179,7 +184,7 @@ const MyAccount = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black transition text-sm"
                     placeholder="Ingresa tu nombre"
                   />
                 </div>
@@ -194,7 +199,7 @@ const MyAccount = () => {
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                     placeholder="Ingresa tu apellido"
                   />
                 </div>
@@ -209,7 +214,7 @@ const MyAccount = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                     placeholder="Ingresa tu correo"
                   />
                 </div>
@@ -224,7 +229,7 @@ const MyAccount = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                     placeholder="Ingresa tu teléfono"
                   />
                 </div>
@@ -239,7 +244,7 @@ const MyAccount = () => {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                     placeholder="Ingresa tu ciudad"
                   />
                 </div>
@@ -253,7 +258,7 @@ const MyAccount = () => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleGenderChange}
-                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                    className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                   >
                     <option value="" disabled>Selecciona tu género</option>
                     {genderOptions.map((option) => (
@@ -275,7 +280,7 @@ const MyAccount = () => {
                       name="customGender"
                       value={formData.customGender}
                       onChange={(e) => setFormData({ ...formData, customGender: e.target.value })}
-                      className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200 text-sm"
+                      className="mt-1 block w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-black text-sm"
                       placeholder="Escribe tu género"
                     />
                   </div>
@@ -293,7 +298,7 @@ const MyAccount = () => {
                   value={formData.birthdate}
                   onChange={handleChange}
                   disabled
-                  className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed text-sm"
+                  className="mt-1 block w-full bg-gray-300 border border-gray-300 rounded-lg px-3 py-2 text-gray-800 cursor-not-allowed text-sm"
                   placeholder="Fecha de Nacimiento"
                 />
               </div>
