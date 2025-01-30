@@ -54,6 +54,7 @@ export const useAuthStore = create((set, get) => ({
 
   addToCart: async (testId, quantity) => {
     try {
+      toast.dismiss();
       const response = await axios.post(
         `${CART_API}`,
         { testId, quantity },
@@ -62,12 +63,14 @@ export const useAuthStore = create((set, get) => ({
       set({ cart: response.data.items });
       toast.success("Producto agregado al carrito.");
     } catch (error) {
+      toast.dismiss();
       toast.error("Error al agregar el producto al carrito.");
     }
   },
 
   removeFromCart: async (testId) => {
     try {
+      toast.dismiss();
       const response = await axios.delete(`${CART_API}/item`, {
         data: { testId },
         withCredentials: true,
@@ -75,16 +78,19 @@ export const useAuthStore = create((set, get) => ({
       set({ cart: response.data.items });
       toast.success("Producto eliminado del carrito.");
     } catch (error) {
+      toast.dismiss();
       toast.error("Error al eliminar el producto del carrito.");
     }
   },
 
   clearCart: async () => {
     try {
+      toast.dismiss();
       await axios.delete(`${CART_API}`, { withCredentials: true });
       set({ cart: [] });
       toast.success("Carrito vaciado.");
     } catch (error) {
+      toast.dismiss();
       toast.error("Error al vaciar el carrito.");
     }
   },
@@ -100,8 +106,10 @@ export const useAuthStore = create((set, get) => ({
       const formData = { name, last_name, birthdate, phone, city, gender, email, password, };
       const response = await axios.post(`${AUTHENTICATION_API}/signup`, formData);
       set({ user: response.data.user, isAuthenticated: true, isLoading: false, });
+      toast.dismiss();
       toast.success("Registro exitoso");
     } catch (error) {
+      toast.dismiss();
       toast.error( error.response?.data?.message || "Error al registrarse" );
       set({ isLoading: false });
     }
@@ -112,12 +120,12 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoading: true });
       await axios.post(`${AUTHENTICATION_API}/verify-code`, { code });
       set({ isLoading: false });
+      toast.dismiss();
       toast.success("Código verificado correctamente");
     } catch (error) {
       set({ isLoading: false });
-      toast.error(
-        error.response?.data?.message || "Error al verificar el código"
-      );
+      toast.dismiss();
+      toast.error( error.response?.data?.message || "Error al verificar el código");
     }
   },
 
@@ -139,15 +147,13 @@ export const useAuthStore = create((set, get) => ({
     try {
       set({ isLoading: true });
       const response = await axios.post(`${AUTHENTICATION_API}/login`, { email, password }, { withCredentials: true });
-      set({
-        user: response.data.user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+      toast.dismiss();
       toast.success("Inicio de sesión exitoso.");
 
       await get().fetchCart();
     } catch (error) {
+      toast.dismiss();
       set({ isLoading: false });
 
       if (error.response?.status === 401) {
@@ -199,8 +205,10 @@ export const useAuthStore = create((set, get) => ({
         { password }
       );
       set({ isLoading: false });
+      toast.dismiss();
       toast.success(response.data.message);
     } catch (error) {
+      toast.dismiss();
       set({ isLoading: false });
       toast.error("Error al restablecer contraseña");
     }
@@ -211,6 +219,7 @@ export const useAuthStore = create((set, get) => ({
   // ==========================
   buyTests: async (purchasedTests) => {
     try {
+      toast.dismiss();
       const response = await axios.post(
         `${PURCHASE_API}`,
         { purchasedTests, paymentMethod: "manual" },
@@ -220,6 +229,7 @@ export const useAuthStore = create((set, get) => ({
       if (response.data.success) {
         set({ user: response.data.user });
         set({ cart: [] });
+        toast.dismiss();
         toast.success("Compra realizada con éxito.");
         return response;
       }
@@ -272,8 +282,10 @@ export const useAuthStore = create((set, get) => ({
         }
       );
       set({ user: response.data.user });
+      toast.dismiss();
       toast.success("Información de cuenta actualizada correctamente");
     } catch (error) {
+      toast.dismiss();
       toast.error("Error al actualizar la cuenta");
     }
   },
@@ -293,11 +305,14 @@ completeTest: async (packageId, testType) => {
     const response = await axios.post(endpointMap[testType], null, { withCredentials: true });
 
     if (response.data.success) {
+      toast.dismiss();
       toast.success(`El test de ${testType} se marcó como completado.`);
     } else {
+      toast.dismiss();
       toast.error(`No se pudo completar el test de ${testType}.`);
     }
   } catch (error) {
+    toast.dismiss();
     toast.error(`Error al completar el test de ${testType}.`);
   }
 },

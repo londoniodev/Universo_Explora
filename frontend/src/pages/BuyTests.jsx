@@ -2,9 +2,11 @@ import NavBar from "../assets/components/NavBar.jsx";
 import { BsCartPlus } from "react-icons/bs";
 import { useCart } from "../context/CartContext.jsx";
 import { Toaster, toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const BuyTests = () => {
   const { cart, addToCart } = useCart();
+  const navigate = useNavigate();
 
   const previousPrice = 25;
   const currentPrice = 20;
@@ -12,13 +14,21 @@ const BuyTests = () => {
 
   const handleAddToCart = async (pkg) => {
     if (!pkg.testId || !pkg.title || !pkg.price) {
+      toast.dismiss();
       toast.error("Error: Datos incompletos detectados");
       return;
     }
     await addToCart(pkg, 1);
     const updatedCart = cart.find((item) => item.testId === pkg.testId);
     const quantityInCart = updatedCart ? updatedCart.quantity + 1 : 1;
+    toast.dismiss();
     toast.success(`¡${pkg.title} agregado al carrito! (Cantidad: ${quantityInCart})`);
+    
+    setTimeout(() => {
+      toast.success("Redirigiendo a carrito...");
+      navigate("/api/auth/dashboard/cart");
+    },1000);
+    
   };
   
   return (
