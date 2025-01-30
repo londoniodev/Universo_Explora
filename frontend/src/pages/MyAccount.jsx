@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/AuthStore.jsx";
 import toast, { Toaster } from "react-hot-toast";
 import Avatar from "react-avatar";
 import Navbar from "../assets/components/NavBar.jsx";
+import { FaUser, FaEnvelope, FaPhone, FaCity, FaVenusMars, FaCalendar, FaEdit } from "react-icons/fa";
 
 const genderOptions = [
   { value: "male", label: "Masculino" },
@@ -36,6 +37,7 @@ const MyAccount = () => {
     phone: "",
     city: "",
     gender: "",
+    customGender: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ const MyAccount = () => {
     } else {
       setFormData({ ...formData, gender: selectedGender, customGender: "" });
     }
-  };  
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,175 +103,191 @@ const MyAccount = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Cargando datos...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
+        <p className="text-gray-400 animate-pulse">Cargando datos...</p>
       </div>
     );
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#0D0D0D]">
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br pt-16 md:pt-24 from-black via-gray-900 to-black flex flex-col items-center px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex items-center justify-center p-8">
         <Toaster position="top-center" />
-        <div className="bg-gray-800 shadow-lg rounded-lg p-6 sm:p-8 w-full max-w-3xl mt-4 md:mt-8 mb-8">
-          <div className="flex flex-col items-center mb-6">
-            <Avatar 
-              name={formData.name} 
-              size="80px" 
-              className="w-20 h-20 md:w-24 md:h-24 shadow-lg" 
-              round 
-            />
-            <h2 className="mt-4 text-xl md:text-2xl font-semibold text-white text-center">
+        <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl">
+          {/* Tarjeta izquierda: Avatar, nombre y correo */}
+          <div className="bg-[#1A1A1A] rounded-xl p-8 flex flex-col items-center w-full md:w-1/3">
+            <div className="relative">
+              <Avatar name={formData.name} size="120" round={true} className="border-4 border-[#4F46E5]" />
+              <button className="absolute bottom-2 right-2 bg-[#4F46E5] p-2 rounded-full hover:bg-[#9333EA] transition duration-300">
+                <FaEdit className="text-white" />
+              </button>
+            </div>
+            <h2 className="mt-6 text-2xl font-bold text-white text-center">
               {formData.name || "Usuario"}
             </h2>
-            <p className="text-gray-400 text-sm md:text-base text-center">{formData.email}</p>
+            <p className="mt-2 text-gray-400 text-sm text-center">
+              {formData.email}
+            </p>
+            <div className="mt-4 text-gray-400 text-sm text-center">
+              <p><strong>Ciudad:</strong> {formData.city || "No especificada"}</p>
+              <p><strong>Género:</strong> {formData.gender === "custom" ? formData.customGender : formData.gender || "No especificado"}</p>
+              <p><strong>Miembro desde:</strong> {new Date(user?.createdAt).toLocaleDateString()}</p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm md:text-base font-medium text-gray-400">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                  placeholder="Nombre"
-                />
-              </div>
-              <div>
-                <label htmlFor="last_name" className="block text-sm md:text-base font-medium text-gray-400">
-                  Apellido
-                </label>
-                <input
-                  type="text"
-                  id="last_name"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                  placeholder="Apellido"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div>
-                <label htmlFor="email" className="block text-sm md:text-base font-medium text-gray-400">
-                  Correo Electrónico
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                  placeholder="Correo"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm md:text-base font-medium text-gray-400">
-                  Teléfono
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                  placeholder="Teléfono"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div>
-                <label htmlFor="city" className="block text-sm md:text-base font-medium text-gray-400">
-                  Ciudad
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                  placeholder="Ciudad"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="gender" className="block text-sm md:text-base font-medium text-gray-400">
-                  Género
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleGenderChange}
-                  className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm bg-gray-900 text-white px-3 py-2 md:px-4 md:py-2 text-sm md:text-base"
-                >
-                  <option value="" disabled>
-                    Selecciona tu género
-                  </option>
-                  {genderOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {formData.gender === "custom" && (
-                <div className="md:col-span-2">
-                  <label htmlFor="customGender" className="block text-sm md:text-base font-medium text-gray-400">
-                    Especifica tu género
+          {/* Tarjeta derecha: Formulario de edición */}
+          <div className="bg-[#1A1A1A] rounded-xl p-8 w-full md:w-2/3">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Nombre */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaUser className="text-[#4F46E5]" /> Nombre
                   </label>
                   <input
                     type="text"
-                    id="customGender"
-                    name="customGender"
-                    value={formData.customGender}
-                    onChange={(e) => setFormData({ ...formData, customGender: e.target.value })}
-                    className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm bg-gray-900 text-white px-3 py-2 md:px-4 md:py-2 text-sm md:text-base"
-                    placeholder="Escribe tu género"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    placeholder="Ingresa tu nombre"
                   />
                 </div>
-              )}
-            </div>
 
-            <div>
-              <label htmlFor="birthdate" className="block text-sm md:text-base font-medium text-gray-400">
-                Fecha de Nacimiento
-              </label>
-              <input
-                type="String"
-                id="birthdate"
-                name="birthdate"
-                value={formData.birthdate}
-                onChange={handleChange}
-                disabled={true}
-                className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm text-sm md:text-base px-3 py-2 md:px-4 md:py-2 bg-gray-900 text-white placeholder-gray-500"
-                placeholder="Fecha de Nacimiento"
-              />
-            </div>
+                {/* Apellido */}
+                <div>
+                  <label htmlFor="last_name" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaUser className="text-[#4F46E5]" /> Apellido
+                  </label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    placeholder="Ingresa tu apellido"
+                  />
+                </div>
 
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="w-full md:w-auto px-4 py-2 md:px-6 md:py-3 bg-blue-600 text-white font-medium md:font-bold rounded-md hover:bg-blue-700 transition duration-300 shadow-md text-sm md:text-base"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
-              </button>
-            </div>
-          </form>
+                {/* Correo Electrónico */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaEnvelope className="text-[#4F46E5]" /> Correo Electrónico
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    placeholder="Ingresa tu correo"
+                  />
+                </div>
+
+                {/* Teléfono */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaPhone className="text-[#4F46E5]" /> Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    placeholder="Ingresa tu teléfono"
+                  />
+                </div>
+
+                {/* Ciudad */}
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaCity className="text-[#4F46E5]" /> Ciudad
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                    placeholder="Ingresa tu ciudad"
+                  />
+                </div>
+
+                {/* Género */}
+                <div>
+                  <label htmlFor="gender" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                    <FaVenusMars className="text-[#4F46E5]" /> Género
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleGenderChange}
+                    className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                  >
+                    <option value="" disabled>Selecciona tu género</option>
+                    {genderOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Campo personalizado para género */}
+                {formData.gender === "custom" && (
+                  <div className="md:col-span-2">
+                    <label htmlFor="customGender" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                      <FaVenusMars className="text-[#4F46E5]" /> Especifica tu género
+                    </label>
+                    <input
+                      type="text"
+                      id="customGender"
+                      name="customGender"
+                      value={formData.customGender}
+                      onChange={(e) => setFormData({ ...formData, customGender: e.target.value })}
+                      className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-[#4F46E5] focus:border-[#4F46E5] transition duration-200"
+                      placeholder="Escribe tu género"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Fecha de Nacimiento */}
+              <div>
+                <label htmlFor="birthdate" className="block text-sm font-medium text-gray-400 flex items-center gap-2">
+                  <FaCalendar className="text-[#4F46E5]" /> Fecha de Nacimiento
+                </label>
+                <input
+                  type="text"
+                  id="birthdate"
+                  name="birthdate"
+                  value={formData.birthdate}
+                  onChange={handleChange}
+                  disabled
+                  className="mt-1 block w-full bg-[#0D0D0D] border border-gray-700 rounded-lg px-4 py-2 text-gray-400 cursor-not-allowed"
+                  placeholder="Fecha de Nacimiento"
+                />
+              </div>
+
+              {/* Botón de guardar */}
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-[#4F46E5] to-[#9333EA] text-white font-semibold rounded-lg hover:from-[#9333EA] hover:to-[#4F46E5] transition duration-300 shadow-lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
