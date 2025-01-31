@@ -221,7 +221,7 @@ const GraphicResults = () => {
   };
   
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
+    <div id="container" className="min-h-screen w-full">
       <Navbar />
 
       <div className="w-full mx-auto rounded-lg p-8">

@@ -31,7 +31,7 @@ const DashboardPage = () => {
   }, [user, fetchUserData]);  
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-black via-gray-900 to-black text-white">
+    <div id="container" className="relative min-h-screen flex flex-col text-white">
       <Navbar />
       <div className="flex-grow flex flex-col items-center justify-center px-4 md:px-6">
         <h1 className="text-4xl font-extrabold text-white mb-10 tracking-wide">

@@ -7,9 +7,11 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { FaGithub, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { useEffect } from "react";
+import Mauro from "../../assets/images/Mauro.jpeg";
+import MauroBackground from "../../assets/images/MauroBackground.jpeg";
 
 const TeamCarousel = () => {
-  const { ref, inView } = useInView({ threshold: 0.2 }); // Trigger when 20% of the section is visible
+  const { ref, inView } = useInView({ threshold: 0.2 });
   const animation = useAnimation();
 
   useEffect(() => {
@@ -22,13 +24,11 @@ const TeamCarousel = () => {
 
   const teamMembers = [
     {
-      name: "Dr. Juan Pérez",
+      name: "Cristian Mauricio",
       role: "Psicólogo Profesional",
       description: "Psicólogo especializado en desarrollo personal.",
-      backgroundImage:
-        "https://images.unsplash.com/photo-1525875101783-8a1dff5a6d05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
-      profileImage:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=150",
+      backgroundImage: MauroBackground,
+      profileImage: Mauro,
       socialLinks: {
         github: "https://github.com",
         facebook: "https://facebook.com",
@@ -118,16 +118,20 @@ const TeamCarousel = () => {
                 style={{
                   backgroundImage: `url(${member.backgroundImage})`,
                   backgroundSize: "cover",
-                  backgroundPosition: "center",
+                  backgroundPosition: "left top 0%",
+                  backgroundRepeat: "no-repeat",
                 }}
               >
                 <div className="absolute inset-0 bg-black/60 group-hover:bg-black/70 transition-all duration-300"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white mb-4 shadow-lg">
+                  <div className="relative w-34 h-[50%] border rounded-[10%] overflow-hidden border-4 border-white mb-4 shadow-lg">
                     <img
                       src={member.profileImage}
                       alt={member.name}
                       className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: "center bottom 60%",
+                      }}
                     />
                   </div>
                   <h3 className="text-2xl font-bold text-white">{member.name}</h3>

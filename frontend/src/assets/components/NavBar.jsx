@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="fixed top-0 w-full bg-transparent backdrop-blur-md text-white z-50">
+      <nav className="fixed top-0 w-full bg-transparent text-white z-50">
         <div className="container mx-auto flex items-center justify-between py-4 px-6 relative">
           <div className="flex items-center gap-4">
             <Avatar
@@ -55,7 +55,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/api/auth/dashboard"
-                className="hover:text-blue-400 flex bg-gray-800 py-2 px-4 rounded-lg items-center gap-2 transition"
+                className="hover:text-cyan-400 flex bg-gray-800 py-2 px-4 rounded-lg items-center gap-2 transition"
               >
                 <MdHome className="text-xl" /> Inicio
               </Link>
@@ -63,7 +63,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/api/auth/dashboard/buy-tests"
-                className="hover:text-blue-400 bg-gray-800 py-2 px-4 rounded-lg flex items-center gap-2 transition"
+                className="hover:text-cyan-400 bg-gray-800 py-2 px-4 rounded-lg flex items-center gap-2 transition"
               >
                 <MdStore className="text-xl" /> Comprar Test
               </Link>
@@ -71,7 +71,7 @@ const Navbar = () => {
             <li>
               <Link
                 to="/api/auth/dashboard/my-results"
-                className="hover:text-blue-400 bg-gray-800 py-2 px-4 rounded-lg flex items-center gap-2 transition"
+                className="hover:text-cyan-400 bg-gray-800 py-2 px-4 rounded-lg flex items-center gap-2 transition"
               >
                 <MdAssessment className="text-xl" /> Resultados
               </Link>

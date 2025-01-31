@@ -60,14 +60,9 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-gray-200 flex flex-col">
+    <div id="container" className="min-h-screen text-gray-200 flex flex-col">
       <Toaster position="top-center" />
       <Navbar />
-      <div className="flex flex-col items-center pt-[7%] sm:mt-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white text-center">
-          Carrito de Compras
-        </h1>
-      </div>
       <div className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 flex mt-[-4%] items-center justify-center">
         {cart.length === 0 ? (
           <div className="flex flex-col items-center gap-4">

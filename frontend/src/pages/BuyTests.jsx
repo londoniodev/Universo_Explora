@@ -32,67 +32,65 @@ const BuyTests = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
+    <div id="container" className="min-h-screen flex flex-col">
       <Toaster />
 
       <header className="bg-white shadow-md sticky top-0 z-50">
         <NavBar />
       </header>
 
-      <main className="flex-grow flex flex-col items-center pt-[8%] px-4">
+      <main className="flex-grow flex flex-col items-center pt-[6%] px-4">
         <h1 className="text-4xl font-extrabold text-white text-center">
           Comprar Pruebas
         </h1>
-        <p className="text-white mt-4 text-center max-w-2xl">
+        <p className="text-white mt-4 text-center max-w-3xl">
           Explora nuestras pruebas diseñadas para ayudarte a descubrir tus habilidades y orientar tus decisiones.
         </p>
 
-        <section className="mt-12 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-8">
-          <article className="relative bg-gray-950 rounded-lg shadow-lg overflow-hidden border border-green-900">
+        <section className="mt-3 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <article className="relative bg-transparent rounded-lg shadow-lg overflow-hidden border border-green-900 w-[90%] max-w-[350px] mx-auto p-4 sm:p-5">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-green-700 blur-sm opacity-70 pointer-events-none"></div>
 
-            <div className="relative p-6 flex flex-col items-start space-y-4">
-              <div className="bg-green-600 text-white text-xs font-bold py-1 px-3 rounded-md shadow-md z-10">
+            <div className="relative flex flex-col items-start space-y-3">
+              <div className="bg-green-600 text-white text-xs font-bold py-1 px-3 rounded-md shadow-md">
                 ¡Oferta Especial!
               </div>
 
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white text-center">
                 Paquete 1: Autoconocimiento y Orientación Vocacional
               </h2>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="text-gray-400 text-sm leading-relaxed text-center">
                 Descubre una serie de tests diseñados para ayudarte a explorar tus intereses, habilidades y personalidad, y guiarte hacia tus metas.
               </p>
 
               <ul className="text-gray-300 text-sm space-y-2">
                 <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full mr-3"></span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                   Test de Contextualización
                 </li>
                 <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full mr-3"></span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                   Autoevaluación
                 </li>
                 <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full mr-3"></span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                   Test 16PF
                 </li>
               </ul>
 
-              <div className="flex items-center justify-between w-full mt-4">
-                <div>
-                  <p className="text-gray-400 text-sm">
-                    Antes: <span className="line-through">${previousPrice} USD</span>
-                  </p>
-                  <p className="text-lg font-bold text-green-400">
-                    Ahora: ${currentPrice} USD
-                  </p>
-                </div>
-                <p className="text-ml font-semibold text-yellow-400">
+              <div className="flex flex-col items-center w-full mt-3 space-y-1">
+                <p className="text-gray-400 text-sm">
+                  Antes: <span className="line-through">${previousPrice} USD</span>
+                </p>
+                <p className="text-lg font-bold text-green-400">
+                  Ahora: ${currentPrice} USD
+                </p>
+                <p className="text-sm font-semibold text-yellow-400">
                   ¡Ahorras: {discountPercentage}%!
                 </p>
               </div>
 
-              <div className="w-full mt-4">
+              <div className="w-full mt-3">
                 <button
                   onClick={() =>
                     handleAddToCart({
@@ -101,13 +99,14 @@ const BuyTests = () => {
                       price: currentPrice,
                     })
                   }
-                  className="w-full bg-green-500 text-white font-medium py-3 rounded-lg flex flex-row items-center justify-center gap-2 hover:bg-green-600 transition-colors shadow-md hover:shadow-lg"
+                  className="w-full bg-green-500 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-md hover:shadow-lg"
                 >
                   <BsCartPlus /> <span>Agregar al carrito</span>
                 </button>
               </div>
             </div>
           </article>
+
         </section>
       </main>
     </div>
