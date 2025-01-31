@@ -443,6 +443,18 @@ getContextualizationAnswers: async (packageId) => {
   }
 },
 
+getCompletedContextualizationAnswers: async () => {
+  try {
+    const response = await axios.get(`${CONTEXTUALIZATION_API}/completed-answers`);
+
+    if (response.status === 200) {
+      return response.data.answers || {};
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Error al obtener respuestas.");
+    return {};
+  }
+},
 
 /// ==========================
 //   16PF TEST

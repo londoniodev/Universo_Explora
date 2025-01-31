@@ -1,7 +1,8 @@
 import { useAuthStore } from "../../store/AuthStore.jsx";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import html2canvas from "html2canvas";
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Legend);
 
@@ -29,18 +30,24 @@ const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
       }
     : null;
 
-  const exportChartImage = () => {
+  const exportChartImage = async () => {
     if (chartRef.current) {
-      const imageURL = chartRef.current.toBase64Image();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const canvas = await html2canvas(chartRef.current, { scale: 3 });
+      const imageURL = canvas.toDataURL("image/png");
       setSixteenPFImage(imageURL);
     }
   };
 
+  useEffect(() => {
+    exportChartImage();
+  }, []);
+
   return (
     <div className="min-h-screen w-full">
       <div className="w-full mx-auto rounded-lg p-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="overflow-x-auto flex-shrink-0 w-[29%]">
+        <div className="flex flex-col items-center gap-8">
+          <div className="overflow-x-auto -mt-[6%] flex-shrink-0 w-[80%]">
             <table className="table-auto w-full border-collapse rounded-lg shadow-md">
               <thead className="bg-blue-500 text-white">
                 <tr>
@@ -72,10 +79,10 @@ const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
             </table>
           </div>
 
-          <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 border border-gray-200">
+          <div className="relative flex-grow bg-gray-50 rounded-lg shadow-inner p-6 w-[80%]">
             {[
-              "7.5%", "12.8%", "18.1%", "23.5%", "29%", "34%", "39.2%", "44.4%",
-              "50%", "55%", "60.5%", "65.5%", "70.9%", "76.1%", "81.5%",
+              "6.8%", "12.8%", "18.1%", "23.5%", "29%", "34%", "39.2%", "44.4%",
+              "50%", "55%", "60.5%", "65.5%", "71.6%", "77%", "83%",
             ].map((topPosition, index) => (
               <div
                 key={index}

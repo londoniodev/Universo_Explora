@@ -47,6 +47,23 @@ export const getContextualizationAnswers = async (req, res) => {
   }
 };
 
+export const getCompletedContextualizationAnswers = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const record = await ContextualizationAnswer.findOne({ user: userId, isCompleted: true });
+
+    if (!record) {
+      return res.status(404).json({ message: "No se encontraron respuestas para este test." });
+    }
+
+    return res.status(200).json({ answers: record.answers });
+  } catch (error) {
+    console.error("Error al obtener respuestas del test completado:", error.message);
+    return res.status(500).json({ message: "Error al obtener respuestas del test." });
+  }
+};
+
+
 export const completeTest = async (req, res) => {
   try {
     const { packageId } = req.params;
