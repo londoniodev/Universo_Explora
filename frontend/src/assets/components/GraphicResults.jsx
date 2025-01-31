@@ -223,23 +223,23 @@ const GraphicResults = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black">
       <Navbar />
-      <h1 className="text-[3rem] font-bold text-indigo-500 pt-[10%] mb-6 text-center relative after:content-[''] after:w-24 after:h-1 after:bg-indigo-500 after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-2 animate-fadeIn">
-        Resultados del Test
-      </h1>
-      <p className="text-gray-300 text-center mb-6 text-lg max-w-3xl mx-auto px-6">
-        Hola <span className="text-indigo-400 text-[1.3rem] font-semibold">{user?.name || "Usuario"}</span>, aquí podrás visualizar tus resultados detallados de las pruebas realizadas. 
-        Explora las gráficas y consulta los factores clave para entender mejor tu desempeño.
-      </p>
-      <p className="text-center mb-[4%] text-lg max-w-3xl mx-auto px-6 leading-relaxed 
-        bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400 text-transparent bg-clip-text">
-        Tus resultados reflejan dónde estás ahora, pero no definen quién eres ni hasta dónde puedes llegar.
-        <span className="font-semibold">La vida está llena de cambios, aprendizajes y oportunidades.</span>, 
-        Sigue avanzando y explorando tu camino. <FaStar className="inline-block text-yellow-400 text-xl ml-1 -mt-[1%]" />
-      </p>
 
       <div className="w-full mx-auto rounded-lg p-8">
         {hasAnyData ? (
           <>
+            <h1 className="text-[3rem] font-bold text-indigo-500 pt-[10%] mb-6 text-center relative after:content-[''] after:w-24 after:h-1 after:bg-indigo-500 after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-2 animate-fadeIn">
+              Resultados del Test
+            </h1>
+            <p className="text-gray-300 text-center mb-6 text-lg max-w-3xl mx-auto px-6">
+              Hola <span className="text-indigo-400 text-[1.3rem] font-semibold">{user?.name || "Usuario"}</span>, aquí podrás visualizar tus resultados detallados de las pruebas realizadas. 
+              Explora las gráficas y consulta los factores clave para entender mejor tu desempeño.
+            </p>
+            <p className="text-center mb-[4%] text-lg max-w-3xl mx-auto px-6 leading-relaxed 
+              bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400 text-transparent bg-clip-text">
+              Tus resultados reflejan dónde estás ahora, pero no definen quién eres ni hasta dónde puedes llegar.
+              <span className="font-semibold">La vida está llena de cambios, aprendizajes y oportunidades.</span>, 
+              Sigue avanzando y explorando tu camino. <FaStar className="inline-block text-yellow-400 text-xl ml-1 -mt-[1%]" />
+            </p>
             {hasSixteenPFData && (
               <div id="sixteenPFGraphicContainer" ref={sixteenPFRef}>
                 <Sixteenpfgraphic />
@@ -284,7 +284,7 @@ const GraphicResults = () => {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-96">
-            <p className="text-gray-600 text-3xl font-semibold pt-[10%]">
+            <p className="text-gray-600 text-3xl font-semibold pt-[25%]">
               Aún no hay datos para graficar.
             </p>
             <img
