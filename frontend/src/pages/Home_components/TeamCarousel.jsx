@@ -24,7 +24,7 @@ const TeamCarousel = () => {
 
   const teamMembers = [
     {
-      name: "Cristian Mauricio",
+      name: "Mauricio Mera",
       role: "Psicólogo Profesional",
       description: "Psicólogo especializado en desarrollo personal.",
       backgroundImage: MauroBackground,
