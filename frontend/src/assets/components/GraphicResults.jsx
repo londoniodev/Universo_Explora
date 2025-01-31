@@ -232,11 +232,11 @@ const GraphicResults = () => {
       </p>
       <p className="text-center mb-[4%] text-lg max-w-3xl mx-auto px-6 leading-relaxed 
         bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400 text-transparent bg-clip-text">
-        Recuerda que estos resultados no definen tu camino, sino que te ayudan a comprenderte mejor y 
-        a tomar decisiones con más claridad. <span className="font-semibold">El crecimiento es un viaje constante</span>, 
-        y cada paso cuenta. <FaStar className="inline-block text-yellow-400 text-xl ml-1 -mt-[1%]" />
+        Tus resultados reflejan dónde estás ahora, pero no definen quién eres ni hasta dónde puedes llegar.
+        <span className="font-semibold">La vida está llena de cambios, aprendizajes y oportunidades.</span>, 
+        Sigue avanzando y explorando tu camino. <FaStar className="inline-block text-yellow-400 text-xl ml-1 -mt-[1%]" />
       </p>
-      
+
       <div className="w-full mx-auto rounded-lg p-8">
         {hasAnyData ? (
           <>
