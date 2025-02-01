@@ -21,7 +21,7 @@ const HomeNavbar = () => {
       transition={{ duration: 0.8, ease: "easeOut" }}
       variants={navVariants}
     >
-      <img src={Logo} alt="Logo" className="w-12 pointer-events-none z-50" />
+      <img src={Logo} alt="Logo" className="w-10 sm:w-12 md:w-14 h-auto pointer-events-none z-50" />
 
       <motion.div
         className="hidden md:flex space-x-6 items-center"
