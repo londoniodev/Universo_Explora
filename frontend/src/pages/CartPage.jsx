@@ -4,7 +4,6 @@ import toast, { Toaster } from "react-hot-toast";
 import { BsBoxSeam } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 import { useAuthStore } from "../store/AuthStore.jsx";
-import "../assets/css/cartPage.css";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../assets/components/NavBar.jsx";
 

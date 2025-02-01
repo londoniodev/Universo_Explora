@@ -47,7 +47,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div id="container" className="relative min-h-screen bg-black w-full overflow-hidden flex flex-col items-center justify-center text-center">
+    <div id="hero" className="relative min-h-screen bg-black w-full overflow-hidden flex flex-col items-center justify-center text-center">
       <div className="absolute bottom-0 left-0 w-full h-[5rem] bg-gradient-to-b from-black to-[#101010]"></div>
 
       <div className="absolute inset-0 flex justify-center z-10 items-center pointer-events-none">
