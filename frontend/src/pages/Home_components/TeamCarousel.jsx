@@ -25,8 +25,8 @@ const TeamCarousel = () => {
   const teamMembers = [
     {
       name: "Mauro Mera",
-      role: "Psicólogo Profesional",
-      description: "Psicólogo especializado en desarrollo personal.",
+      role: "Fundador & CEO | Psicólogo Orientador Vocacional.",
+      description: "Mauricio es el corazón y la mente detrás de Explora.",
       backgroundImage: MauroBackground,
       profileImage: Mauro,
       socialLinks: {
@@ -36,9 +36,9 @@ const TeamCarousel = () => {
       },
     },
     {
-      name: "Carlos Mendoza",
-      role: "Asistente Técnico",
-      description: "Encargado de tecnología y marketing.",
+      name: "Álvaro Londoño",
+      role: "Co Fundador & CTO | Administrador & Analista de Datos.",
+      description: "Nuestro CTO optimiza el sistema para brindarte recomendaciones basadas en tendencias, profesiones emergentes y el mercado laboral.",
       backgroundImage:
         "https://images.unsplash.com/photo-1554151228-14d9def656e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
       profileImage:
@@ -51,8 +51,8 @@ const TeamCarousel = () => {
     },
     {
       name: "Juan Carlos Zambrano",
-      role: "Desarrollador de Software",
-      description: "Creando herramientas digitales innovadoras.",
+      role: "Ingeniero de Software",
+      description: "El arquitecto de Explora, creando experiencias rápidas, intuitivas y sin límites.",
       backgroundImage:
         "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
       profileImage:

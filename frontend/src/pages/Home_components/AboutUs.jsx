@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 
 const AboutUs = () => {
-  // Variantes de animación para secciones y elementos
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -30,7 +29,8 @@ const AboutUs = () => {
   };
 
   return (
-    <div id="Nosotros" className="relative bg-[#101010] text-white py-16 font-satoshi z-70">
+    <div id="Nosotros" className="relative bg-[#101010] text-white py-20 font-satoshi">
+      {/* 🔥 Luces animadas */}
       <div className="absolute inset-0 z-0">
         <motion.div
           {...lightAnimation}
@@ -41,7 +41,10 @@ const AboutUs = () => {
           className="absolute top-[50%] right-[15%] w-[400px] h-[400px] bg-gradient-to-br from-blue-500/50 to-transparent rounded-full blur-3xl"
         ></motion.div>
       </div>
+
+      {/* ✅ Contenido principal */}
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 z-10">
+        {/* 🔹 Título principal */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -58,37 +61,48 @@ const AboutUs = () => {
           </p>
         </motion.div>
 
+        {/* 🔹 Sección de tarjetas en columna */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={sectionVariants}
-          className="relative flex flex-col lg:flex-row lg:justify-between gap-12 mb-16"
+          className="relative flex flex-col gap-12 mb-16"
         >
           {[
             {
               title: "Nuestra Misión",
-              description: "Empoderar a personas de todo el mundo para lograr sus sueños.",
+              description:
+                "Acompañar y orientar a los jóvenes de todo Latinoamérica en su transición de la escuela a la universidad, desde la confusión hacia la certeza de un futuro profesional feliz y exitoso.",
               gradient: "from-purple-600 to-indigo-400",
             },
             {
               title: "Nuestros Valores",
-              description: "Innovación, compromiso y trabajo en equipo nos definen.",
+              description: (
+                <>
+                  ✅ <strong>Claridad:</strong> Simplificamos el proceso de decisión para que tomes la mejor elección. <br />
+                  ✅ <strong>Innovación:</strong> Nos adaptamos a las nuevas tendencias y profesiones del futuro. <br />
+                  ✅ <strong>Empatía:</strong> Te guiamos sin juicios ni presiones. <br />
+                  ✅ <strong>Responsabilidad:</strong> Fomentamos decisiones informadas. <br />
+                  ✅ <strong>Transformación:</strong> Te ayudamos a dar el primer paso hacia un futuro exitoso.
+                </>
+              ),
               gradient: "from-pink-600 to-red-400",
             },
             {
               title: "Nuestra Visión",
-              description: "Ser un faro de esperanza e inspiración para millones.",
+              description:
+                "Ser la empresa líder en orientación vocacional y profesional en habla hispana, preparando a las nuevas generaciones para elegir con confianza y diseñar un futuro alineado con sus talentos y las tendencias globales.",
               gradient: "from-blue-600 to-teal-400",
             },
           ].map((item, index) => (
             <motion.div
               key={index}
               variants={cardVariants}
-              className={`relative p-8 rounded-lg bg-gradient-to-br ${item.gradient} text-center shadow-xl`}
+              className={`relative p-8 rounded-lg bg-gradient-to-br ${item.gradient} text-center shadow-xl backdrop-blur-lg`}
             >
               <h3 className="text-3xl font-bold text-white">{item.title}</h3>
-              <p className="mt-4 text-gray-200">{item.description}</p>
+              <p className="mt-4 text-gray-200 text-lg text-left leading-relaxed">{item.description}</p>
             </motion.div>
           ))}
         </motion.div>

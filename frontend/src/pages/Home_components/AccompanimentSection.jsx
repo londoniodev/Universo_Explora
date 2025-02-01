@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { FaDiagnoses, FaRegClipboard, FaChartLine, FaAward } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const AccompanimentSection = () => {
-  // Variantes para animaciones
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -55,7 +55,7 @@ const AccompanimentSection = () => {
             Nuestro Acompañamiento
           </h2>
           <p className="mt-6 text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            En <span className="font-semibold text-white">Explora</span>, creemos en un acompañamiento integral, donde cada etapa está diseñada para maximizar tu potencial.
+            En <span className="font-semibold text-white">Explora</span>, te guiamos paso a paso hacia la decisión correcta.
           </p>
         </div>
 
@@ -69,25 +69,25 @@ const AccompanimentSection = () => {
           {[
             {
               title: "Diagnóstico",
-              description: "Evaluamos tus necesidades y trazamos un camino claro.",
+              description: "Identificamos tus talentos, intereses y valores.",
               gradient: "from-purple-600 to-indigo-400",
               icon: <FaDiagnoses className="h-8 w-8 text-white" />,
             },
             {
               title: "Planificación",
-              description: "Diseñamos estrategias personalizadas para alcanzar tus objetivos.",
+              description: "Te mostramos oportunidades alineadas con tu potencial.",
               gradient: "from-pink-600 to-red-400",
               icon: <FaRegClipboard className="h-8 w-8 text-white" />,
             },
             {
               title: "Seguimiento",
-              description: "Revisamos tus progresos para ajustar el plan en tiempo real.",
+              description: "Te damos claridad para elegir con confianza.",
               gradient: "from-blue-600 to-teal-400",
               icon: <FaChartLine className="h-8 w-8 text-white" />,
             },
             {
               title: "Resultados",
-              description: "Logra el éxito con métricas claras y resultados tangibles.",
+              description: "Más que una carrera, creamos contigo un plan para un futuro exitoso y pleno.",
               gradient: "from-green-600 to-teal-500",
               icon: <FaAward className="h-8 w-8 text-white" />,
             },
@@ -108,6 +108,12 @@ const AccompanimentSection = () => {
             </motion.div>
           ))}
         </motion.div>
+
+        <div className="flex justify-center mt-12">
+          <Link to={"/api/auth/login"} className="px-8 py-4 text-lg font-semibold text-white text-center bg-gradient-to-r from-blue-600 to-indigo-500  rounded-xl shadow-lg hover:from-blue-500 hover:to-indigo-400 transition-all duration-300  transform hover:scale-105 hover:shadow-2xl focus:ring-4 focus:ring-blue-300 focus:outline-none" >
+            ¿Listo para elegir con seguridad? 🚀
+          </Link>
+        </div>
       </motion.div>
     </div>
   );

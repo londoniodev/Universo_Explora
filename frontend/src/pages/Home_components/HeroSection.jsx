@@ -1,7 +1,24 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
+import { FaChevronDown } from "react-icons/fa";
 import Light from "../../assets/images/ligth.png";
 
 const HeroSection = () => {
+  const controls = useAnimation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        controls.start({ opacity: 0, y: 20 });
+      } else {
+        controls.start({ opacity: 1, y: 0 });
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [controls]);
+
   const light1Animation = {
     initial: { x: 0, y: 0 },
     animate: {
@@ -32,6 +49,7 @@ const HeroSection = () => {
 
   return (
     <div className="relative min-h-screen bg-black w-full overflow-hidden flex flex-col items-center justify-center text-center">
+      <div className="absolute bottom-0 left-0 w-full h-[5rem] bg-gradient-to-b from-black to-[#101010]"></div>
       <img
         src={Light}
         alt="Light"
@@ -56,17 +74,36 @@ const HeroSection = () => {
         transition={{ duration: 1 }}
         className="relative z-10 text-center text-white w-full max-w-6xl px-8 md:px-12 lg:px-16"
       >
-        <h2 className="text-[3rem] sm:text-[4rem] md:text-[5rem] lg:text-[6rem] font-bold bg-clip-text text-white text-transparent leading-tight">
-          Explora tu potencial profesional
+        <h2 className="text-[1rem] sm:text-[4rem] md:text-[5rem] lg:text-[4rem] font-bold bg-clip-text text-white text-transparent leading-tight">
+          No dejes tu futuro en manos del azar.
+          Déjanos acompañarte en este momento clave de tu vida. Agenda tu sesión ahora.
         </h2>
 
         <p className="mt-6 text-lg sm:text-xl md:text-2xl lg:text-2xl text-gray-400 leading-relaxed">
-          Descubre un universo de posibilidades y diseña tu camino hacia el{" "}
-          <span className="font-semibold text-white">
-            éxito profesional y personal
-          </span>
-          .
+          ¿Te sientes confundido o con muchas dudas para elegir carrera profesional?{" "}
+          <span className="font-semibold text-white">No estás solo</span>.
         </p>
+      </motion.div>
+
+      <motion.div
+        animate={controls}
+        initial={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute bottom-20 flex justify-center items-center z-10"
+      >
+        <motion.div
+          animate={{
+            y: [0, 15, 0],
+          }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="flex flex-col items-center"
+        >
+          <FaChevronDown className="text-white text-5xl opacity-90 animate-pulse drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]" />
+        </motion.div>
       </motion.div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#151515] to-[#101010] opacity-80 pointer-events-none"></div>
