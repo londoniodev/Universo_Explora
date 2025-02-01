@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import NightLight from "../assets/images/nightlight.png";
@@ -13,10 +13,6 @@ const LoginPage = () => {
   const { login } = useAuthStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleCommingSoon = () => {
-    toast("Esta funcionalidad estará disponible pronto.", { icon: "🚧" });
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -133,25 +129,6 @@ const LoginPage = () => {
             {isLoading ? "Ingresando..." : "Ingresar"}
           </motion.button>
         </motion.form>
-        <motion.div className="mt-6 text-center" variants={itemVariants}>
-          <p className="text-sm text-gray-400">O continuar con</p>
-          <div className="flex justify-center space-x-4 mt-4">
-            <motion.button
-              onClick={handleCommingSoon}
-              className="px-4 py-2 bg-gray-800 text-white rounded-md flex items-center hover:bg-gray-700 hover:scale-105 transition transform"
-              variants={itemVariants}
-            >
-              <FaGoogle className="mr-2" /> Google
-            </motion.button>
-            <motion.button
-              onClick={handleCommingSoon}
-              className="px-4 py-2 bg-gray-800 text-white rounded-md flex items-center hover:bg-gray-700 hover:scale-105 transition transform"
-              variants={itemVariants}
-            >
-              <FaGithub className="mr-2" /> GitHub
-            </motion.button>
-          </div>
-        </motion.div>
         <motion.div className="mt-6 text-center" variants={itemVariants}>
           <p className="text-sm text-gray-400">
             ¿No tienes una cuenta?{" "}

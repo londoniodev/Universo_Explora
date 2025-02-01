@@ -32,7 +32,7 @@ const Footer = () => {
 
   return (
     <motion.footer
-      className="relative bg-[#101010] text-white py-2 font-satoshi overflow-hidden border-t border-gray-800"
+      className="relative bg-[#101010] text-white py-10 px-6 sm:px-10 font-satoshi overflow-hidden border-t border-gray-800"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
@@ -48,24 +48,24 @@ const Footer = () => {
       />
 
       <motion.div
-        className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10"
+        className="max-w-7xl mx-auto relative z-10"
         variants={containerVariants}
       >
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-12"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left"
           variants={containerVariants}
         >
           <motion.div variants={itemVariants}>
-            <h3 className="text-2xl font-extrabold text-white mt-[10%]">Explora</h3>
-            <p className="mt-4 text-gray-300 text-sm leading-relaxed">
+            <h3 className="text-2xl font-extrabold text-white">universoexplora</h3>
+            <p className="mt-4 text-gray-300 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
               Descubre herramientas y asesoramiento personalizado para alcanzar
               el éxito en tu vida profesional y personal.
             </p>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-lg font-semibold text-white mb-4 mt-[10%]">Enlaces</h4>
-            <ul className="flex justify-center items-center text-sm text-gray-300 gap-6">
+            <h4 className="text-lg font-semibold text-white mb-4">Enlaces</h4>
+            <ul className="flex flex-col md:flex-row justify-center md:justify-start items-center md:items-start text-sm text-gray-300 gap-3 md:gap-6">
               {["Nosotros", "Acompañamiento", "Contáctanos", "Equipo"].map((link, index) => (
                 <li key={index}>
                   <a
@@ -80,8 +80,8 @@ const Footer = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h4 className="text-lg font-semibold text-white mb-4 mt-[10%]">Síguenos</h4>
-            <div className="flex space-x-4">
+            <h4 className="text-lg font-semibold text-white mb-4">Síguenos</h4>
+            <div className="flex justify-center md:justify-start space-x-6">
               {[
                 { href: "https://github.com", icon: <FaGithub size={24} /> },
                 { href: "https://facebook.com", icon: <FaFacebook size={24} /> },
@@ -103,11 +103,12 @@ const Footer = () => {
         </motion.div>
 
         <motion.div className="border-t border-gray-800 mt-10" variants={itemVariants}></motion.div>
+
         <motion.div
           className="text-center mt-6 text-sm text-gray-500"
           variants={itemVariants}
         >
-          © 2024 Explora. Todos los derechos reservados.
+          © 2024 universoexplora. Todos los derechos reservados.
         </motion.div>
       </motion.div>
     </motion.footer>

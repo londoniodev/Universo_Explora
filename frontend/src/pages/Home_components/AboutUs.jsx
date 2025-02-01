@@ -30,7 +30,6 @@ const AboutUs = () => {
 
   return (
     <div id="Nosotros" className="relative bg-[#101010] text-white py-20 font-satoshi">
-      {/* 🔥 Luces animadas */}
       <div className="absolute inset-0 z-0">
         <motion.div
           {...lightAnimation}
@@ -42,9 +41,7 @@ const AboutUs = () => {
         ></motion.div>
       </div>
 
-      {/* ✅ Contenido principal */}
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 z-10">
-        {/* 🔹 Título principal */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -61,7 +58,6 @@ const AboutUs = () => {
           </p>
         </motion.div>
 
-        {/* 🔹 Sección de tarjetas en columna */}
         <motion.div
           initial="hidden"
           whileInView="visible"

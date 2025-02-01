@@ -10,20 +10,20 @@ import Footer from './Home_components/Footer.jsx';
 
 const HomePage = () => {
   return (
-      <div className="relative w-full min-h-screen bg-[#101010] overflow-visible">
-      <Home_navbar />
-      <HeroSection />
-      <Opening/>
-      <AboutUs />
-      <AccompanimentSection />
-      <TeamCarousel />
-      <Testimonials />
-      <ContactForm
-        emailServiceId={import.meta.env.VITE_EMAILJS_SERVICE}
-        emailTemplateId={import.meta.env.VITE_EMAILJS_TEMPLATE}
-        emailPublicKey={import.meta.env.VITE_EMAILJS_PUBLIC_KEY}
-      />
-      <Footer />
+      <div className="relative overflow-hidden w-full h-full bg-[#101010]">
+        <Home_navbar />
+        <HeroSection />
+        <Opening/>
+        <AboutUs />
+        <AccompanimentSection />
+        <TeamCarousel />
+        <Testimonials />
+        <ContactForm
+          emailServiceId={import.meta.env.VITE_EMAILJS_SERVICE}
+          emailTemplateId={import.meta.env.VITE_EMAILJS_TEMPLATE}
+          emailPublicKey={import.meta.env.VITE_EMAILJS_PUBLIC_KEY}
+        />
+        <Footer />
     </div>
   );
 };

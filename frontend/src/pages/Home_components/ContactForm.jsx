@@ -223,13 +223,13 @@ const ContactForm = () => {
         </motion.div>
 
         <motion.div
-          className="flex gap-x-4 items-center sm:col-span-2 mt-6"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-x-4 items-start sm:items-center sm:col-span-2 mt-6 max-w-xs sm:max-w-full"
           variants={itemVariants}
         >
           <Switch
             checked={agreed}
             onChange={setAgreed}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 ${
               agreed ? "bg-indigo-500" : "bg-gray-600"
             }`}
           >
@@ -239,12 +239,12 @@ const ContactForm = () => {
               }`}
             />
           </Switch>
-          <label htmlFor="agree" className="text-sm text-gray-400">
+
+          <label htmlFor="agree" className="text-sm text-gray-400 leading-tight sm:leading-normal">
             Estoy de acuerdo con las{" "}
-            <a href="#" className="font-semibold text-indigo-500">
+            <a href="#" className="font-semibold text-indigo-500 underline">
               Políticas de Privacidad
-            </a>
-            , para el tratamiento de mis datos.
+            </a>, para el tratamiento de mis datos.
           </label>
         </motion.div>
 
