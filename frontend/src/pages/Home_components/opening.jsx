@@ -15,18 +15,18 @@ const Opening = () => {
   return (
     <motion.div
       ref={ref}
-      className="relative max-w-4xl mx-auto bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl p-10 mt-[-2rem] text-white overflow-hidden"
+      className="relative max-w-4xl mx-auto bg-transparent backdrop-blur-lg border border-green-800 shadow-2xl rounded-2xl p-10 mt-[2rem] text-white overflow-hidden"
     >
       <div className="absolute inset-0 z-0">
         <motion.div
           animate={{ x: [0, 25, -20, 15, -15, 0], y: [0, -15, 20, -10, 10, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[15%] left-[10%] w-[200px] h-[200px] bg-gradient-to-br from-purple-500/60 to-transparent rounded-full blur-2xl opacity-50"
+          className="absolute top-[-10%] left-[5%] w-[450px] h-[450px] bg-gradient-to-br from-green-400 rounded-full blur-[200px]"
         ></motion.div>
         <motion.div
           animate={{ x: [0, -20, 15, -10, 10, 0], y: [0, 20, -15, 10, -10, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[10%] right-[10%] w-[250px] h-[250px] bg-gradient-to-br from-blue-500/60 to-transparent rounded-full blur-3xl opacity-40"
+          className="absolute bottom-[10%] right-[10%] w-[250px] h-[250px] bg-gradient-to-br from-blue-500 to-transparent rounded-full blur-3xl"
         ></motion.div>
       </div>
 

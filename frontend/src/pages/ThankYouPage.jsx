@@ -71,38 +71,38 @@ const ThankYouPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-      <div className="bg-white shadow-2xl rounded-lg p-10 max-w-3xl w-full">
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 flex items-center justify-center bg-green-100 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-green-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="bg-white shadow-2xl rounded-lg p-8 max-w-2xl w-full">
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
           </div>
+  
+          <h1 className="text-sm font-medium text-green-600">
+            Confirmación de Pago Exitoso
+          </h1>
+          <h2 className="text-3xl font-bold text-blue-700 mb-3">¡Gracias por tu compra!</h2>
+          <p className="text-base text-gray-600">
+            Tu pedido ha sido procesado exitosamente. A continuación, te presentamos los detalles de la transacción.
+          </p>
         </div>
-
-        <h1 className="text-sm font-medium text-green-600">
-          Confirmación de Pago Exitoso
-        </h1>
-        <h2 className="text-4xl font-bold text-blue-700 mb-4">¡Gracias por tu compra!</h2>
-        <p className="text-lg text-gray-600">
-          Tu pedido ha sido procesado exitosamente. A continuación, te presentamos los detalles de la transacción.
-        </p>
-      </div>
-
+  
         {recentPurchase.length > 0 ? (
-          <div className="bg-gray-50 rounded-lg p-6 shadow-sm mb-8">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Detalles de tu compra</h2>
+          <div className="bg-gray-50 rounded-lg p-5 shadow-sm mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-3">Detalles de tu compra</h2>
             <ul className="divide-y divide-gray-300">
               {recentPurchase.map((item, index) => (
-                <li key={index} className="py-4 flex justify-between items-center">
+                <li key={index} className="py-3 flex justify-between items-center">
                   <div>
                     <span className="text-base font-medium text-gray-700">{item.title}</span>
                     <div className="text-sm text-gray-500">Cantidad: {item.quantity}</div>
@@ -113,25 +113,25 @@ const ThankYouPage = () => {
                 </li>
               ))}
             </ul>
-            <div className="border-t border-gray-300 mt-6 pt-4 flex justify-between items-center">
+            <div className="border-t border-gray-300 mt-5 pt-3 flex justify-between items-center">
               <span className="text-lg font-medium text-gray-700">Total:</span>
-              <span className="text-2xl font-bold text-blue-700">${totalPrice.toFixed(2)}</span>
+              <span className="text-xl font-bold text-blue-700">${totalPrice.toFixed(2)}</span>
             </div>
           </div>
         ) : (
-          <p className="text-lg text-red-500 text-center">No se encontraron datos de compra.</p>
+          <p className="text-base text-red-500 text-center">No se encontraron datos de compra.</p>
         )}
-
+  
         <div className="flex justify-center">
           <button
             onClick={handleReturn}
-            className="py-3 px-8 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all duration-300"
+            className="py-2 px-6 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all duration-300"
           >
             Volver al Dashboard
           </button>
         </div>
-
-        <div className="mt-8 text-center text-sm text-gray-500">
+  
+        <div className="mt-6 text-center text-sm text-gray-500">
           Si tienes alguna pregunta sobre tu compra,{" "}
           <a href="/support" className="text-blue-600 underline hover:text-blue-800 transition-colors">
             contáctanos aquí

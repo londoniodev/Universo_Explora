@@ -10,7 +10,7 @@ import Footer from './Home_components/Footer.jsx';
 
 const HomePage = () => {
   return (
-    <div className="bg-[#101010] w-full h-full">
+      <div className="relative w-full min-h-screen bg-[#101010] overflow-visible">
       <Home_navbar />
       <HeroSection />
       <Opening/>
