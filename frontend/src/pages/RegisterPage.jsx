@@ -131,7 +131,7 @@ const RegisterPage = () => {
     const selectedGender = e.target.value;
     
     if (selectedGender === "custom") {
-      setGender("");
+      setGender("custom");
       setCustomGender("");
     }else{
       setGender(selectedGender);
