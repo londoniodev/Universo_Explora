@@ -149,7 +149,7 @@ const RegisterPage = () => {
 
     setIsLoading(true);
 
-    const finalGender = gender === "" ? customGender : gender;
+    const finalGender = gender === "custom" ? customGender : gender;
 
     try {
       await signup(name, last_name, birthdate, phone, city, finalGender, email, password);
