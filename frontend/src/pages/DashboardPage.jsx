@@ -64,7 +64,7 @@ const DashboardPage = () => {
             </motion.div>
           ))}
 
-          {user?.purchasedTests?.length > 0 && (
+          {/* {user?.purchasedTests?.length > 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -82,7 +82,7 @@ const DashboardPage = () => {
                 <p className="text-sm text-gray-300">Haz clic para iniciar</p>
               </Link>
             </motion.div>
-          )}
+          )} */}
         </motion.div>
       </div>
     </div>

@@ -3,20 +3,12 @@ import { motion } from "framer-motion";
 const AboutUs = () => {
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
   };
 
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.5, ease: "easeOut" },
-    },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
   const lightAnimation = {
@@ -33,81 +25,82 @@ const AboutUs = () => {
       <div className="absolute inset-0 z-0">
         <motion.div
           {...lightAnimation}
-          className="absolute top-[20%] left-[15%] w-[300px] h-[300px] bg-gradient-to-br from-purple-800/50 to-transparent rounded-full blur-2xl"
+          className="absolute top-[20%] left-[15%] w-[250px] h-[250px] z-10 bg-gradient-to-br from-blue-700 to-transparent rounded-full blur-3xl"
         ></motion.div>
         <motion.div
           {...lightAnimation}
-          className="absolute top-[50%] right-[15%] w-[400px] h-[400px] bg-gradient-to-br from-blue-500/50 to-transparent rounded-full blur-3xl"
+          className="absolute top-[50%] right-[15%] w-[350px] h-[350px] z-10 bg-gradient-to-br from-purple-500 to-transparent rounded-full blur-3xl"
         ></motion.div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 z-10">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={sectionVariants}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={sectionVariants} className="text-center mb-16">
+          <h2 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#f8f8f8] to-[#d4d4d4]">
             Sobre Nosotros
           </h2>
           <p className="mt-6 text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            En <span className="font-semibold text-white">Explora</span>, empoderamos a las personas para lograr su máximo
-            potencial mediante tecnología avanzada, estrategias personalizadas y acompañamiento continuo.
+            En <span className="font-semibold text-white">Explora</span>, empoderamos a las personas para lograr su máximo potencial mediante tecnología avanzada, estrategias personalizadas y acompañamiento continuo.
           </p>
         </motion.div>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={sectionVariants}
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true }} 
+          variants={sectionVariants} 
           className="relative flex flex-col gap-12 mb-16"
         >
           {[
             {
               title: "Nuestra Misión",
-              description:
-                "Acompañar y orientar a los jóvenes de todo Latinoamérica en su transición de la escuela a la universidad, desde la confusión hacia la certeza de un futuro profesional feliz y exitoso.",
-              gradient: "from-purple-600 to-indigo-400",
+              description: "Acompañar y orientar a los jóvenes de todo Latinoamérica en su transición de la escuela a la universidad, desde la confusión hacia la certeza de un futuro profesional feliz y exitoso.",
             },
             {
               title: "Nuestros Valores",
               description: (
-                <>
-                  ✅ <strong>Claridad:</strong> Simplificamos el proceso de decisión para que tomes la mejor elección. <br />
-                  ✅ <strong>Innovación:</strong> Nos adaptamos a las nuevas tendencias y profesiones del futuro. <br />
-                  ✅ <strong>Empatía:</strong> Te guiamos sin juicios ni presiones. <br />
-                  ✅ <strong>Responsabilidad:</strong> Fomentamos decisiones informadas. <br />
-                  ✅ <strong>Transformación:</strong> Te ayudamos a dar el primer paso hacia un futuro exitoso.
-                </>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    { title: "Claridad", text: "Simplificamos el proceso de decisión para que tomes la mejor elección." },
+                    { title: "Innovación", text: "Nos adaptamos a las nuevas tendencias y profesiones del futuro." },
+                    { title: "Empatía", text: "Te guiamos sin juicios ni presiones." },
+                    { title: "Responsabilidad", text: "Fomentamos decisiones informadas." },
+                    { title: "Transformación", text: "Te ayudamos a dar el primer paso hacia un futuro exitoso." },
+                    { title: "Compromiso", text: "Acompañamos tu crecimiento con dedicación y constancia." },
+                  ].map((value, index) => (
+                    <motion.div 
+                      key={index} 
+                      variants={cardVariants} 
+                      className="p-6 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg"
+                    >
+                      <h4 className="text-xl font-semibold text-white">{value.title}</h4>
+                      <p className="mt-2 text-gray-300 text-sm">{value.text}</p>
+                    </motion.div>
+                  ))}
+                </div>
               ),
-              gradient: "from-pink-600 to-red-400",
             },
             {
               title: "Nuestra Visión",
-              description:
-                "Ser la empresa líder en orientación vocacional y profesional en habla hispana, preparando a las nuevas generaciones para elegir con confianza y diseñar un futuro alineado con sus talentos y las tendencias globales.",
-              gradient: "from-blue-600 to-teal-400",
+              description: "Ser la empresa líder en orientación vocacional y profesional en habla hispana, preparando a las nuevas generaciones para elegir con confianza y diseñar un futuro alineado con sus talentos y las tendencias globales.",
             },
           ].map((item, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              className={`relative p-8 rounded-lg bg-gradient-to-br ${item.gradient} text-center shadow-xl backdrop-blur-lg`}
+            <motion.div 
+              key={index} 
+              variants={cardVariants} 
+              className="relative p-8 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg 
+                        overflow-hidden text-center"
             >
               <h3 className="text-3xl font-bold text-white">{item.title}</h3>
-              <p className="mt-4 text-gray-200 text-lg text-left leading-relaxed">{item.description}</p>
+              <div className="mt-4 text-gray-300 text-lg leading-relaxed">{item.description}</div>
             </motion.div>
           ))}
         </motion.div>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={sectionVariants}
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true }} 
+          variants={sectionVariants} 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           {[
@@ -128,22 +121,13 @@ const AboutUs = () => {
               description: "Apoyo en cada paso hacia tu éxito.",
             },
           ].map((item, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              className="relative group p-6 rounded-lg bg-black/10 backdrop-blur-md border border-gray-700 shadow-lg hover:shadow-xl transition-transform duration-300 overflow-hidden"
-              style={{
-                boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-              }}
+            <motion.div 
+              key={index} 
+              variants={cardVariants} 
+              className="relative group p-6 rounded-xl bg-white/10 backdrop-blur-xl border z-50 border-white/20 shadow-lg"
             >
-              <div
-                className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-blue-500/60 to-transparent rounded-full blur-lg opacity-50"
-                style={{
-                  transform: "translate(-20%, -20%)",
-                }}
-              ></div>
-              <h3 className="relative text-2xl font-bold text-white z-10">{item.title}</h3>
-              <p className="relative mt-3 text-gray-200 text-sm leading-relaxed z-10">{item.description}</p>
+              <h3 className="relative text-2xl font-bold text-white">{item.title}</h3>
+              <p className="relative mt-3 text-gray-300 text-sm leading-relaxed">{item.description}</p>
             </motion.div>
           ))}
         </motion.div>
