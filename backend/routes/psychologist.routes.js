@@ -1,7 +1,12 @@
 import express from "express";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { isPsychologist } from "../middleware/auth.middleware.js";
-import { psychologistDashboard, assignPsychologistAutomatically } from "../controllers/psychologist.controller.js";
+import { 
+  psychologistDashboard, 
+  assignPsychologistAutomatically, 
+  getPendingRequests, 
+  respondToRequest 
+} from "../controllers/psychologist.controller.js";
 
 const router = express.Router();
 
@@ -9,6 +14,12 @@ router.use(verifyToken);
 
 // 📊 Dashboard del psicólogo
 router.get("/dashboard", isPsychologist, psychologistDashboard);
+
+// 📩 Obtener solicitudes pendientes de asignación
+router.get("/pending-requests", isPsychologist, getPendingRequests);
+
+// ✅ Psicólogo responde a la solicitud de asignación
+router.post("/respond-request", isPsychologist, respondToRequest);
 
 // 🔄 Asignación automática de psicólogos con manejo de errores
 router.post("/assign-auto", async (req, res) => {

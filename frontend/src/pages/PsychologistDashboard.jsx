@@ -40,24 +40,24 @@ const PsychologistDashboard = () => {
 
   const fetchPendingRequests = async () => {
     try {
-      const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true }); // 🔥 Ruta corregida
+      const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
       setPendingRequests(response.data.requests);
     } catch (error) {
       toast.error("Error al obtener solicitudes pendientes.");
     }
   };
   
-
   const handleRequestResponse = async (requestId, action) => {
     try {
-      await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true }); // 🔥 Ruta corregida
+      await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true });
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
       fetchPendingRequests();
-      fetchAssignedUsers();
+      fetchAssignedUsers(); // 🔥 Actualiza la lista de pacientes
     } catch (error) {
       toast.error("Error al procesar la solicitud.");
     }
   };
+  
   
 
   const handleSaveNote = async (userId) => {
@@ -136,64 +136,67 @@ const PsychologistDashboard = () => {
           </div>
         );
   
-      case "requests":
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Solicitudes Pendientes</h2>
-            {pendingRequests.length === 0 ? (
-              <p>No hay solicitudes pendientes.</p>
-            ) : (
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-300 px-4 py-2">Usuario</th>
-                    <th className="border border-gray-300 px-4 py-2">Email</th>
-                    <th className="border border-gray-300 px-4 py-2">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingRequests.map((req) => (
-                    <tr key={req._id}>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {req.userId?.name || "Desconocido"}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        {req.userId?.email || "No disponible"}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 flex gap-2">
-                        <button
-                          onClick={() => handleRequestResponse(req._id, "accept")}
-                          className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-                        >
-                          Aceptar
-                        </button>
-                        <button
-                          onClick={() => handleRequestResponse(req._id, "reject")}
-                          className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                        >
-                          Rechazar
-                        </button>
-                      </td>
+        case "requests":
+          return (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Solicitudes Pendientes</h2>
+              {pendingRequests.length === 0 ? (
+                <p className="text-gray-600">No hay solicitudes pendientes.</p>
+              ) : (
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="border border-gray-300 px-4 py-2">Usuario</th>
+                      <th className="border border-gray-300 px-4 py-2">Email</th>
+                      <th className="border border-gray-300 px-4 py-2">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        );
-  
-      case "calendar":
-        return <div>Calendario</div>;
-  
-      case "messages":
-        return <div>Mensajes</div>;
-  
-      case "reports":
-        return <div>Reportes</div>;
-  
-      default:
-        return <div>Seleccione una sección</div>;
-    }
+                  </thead>
+                  <tbody>
+                    {pendingRequests.map((req) => {
+                      const user = req.userId || {}; // 🔥 Evita errores si `userId` es null
+                      return (
+                        <tr key={req._id} className="text-center">
+                          <td className="border border-gray-300 px-4 py-2">
+                            {user.name || "Desconocido"}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {user.email || "No disponible"}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 flex flex-wrap gap-2 justify-center">
+                            <button
+                              onClick={() => handleRequestResponse(req._id, "accept")}
+                              className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
+                            >
+                              Aceptar
+                            </button>
+                            <button
+                              onClick={() => handleRequestResponse(req._id, "reject")}
+                              className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                            >
+                              Rechazar
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+
+        case "calendar":
+          return <div>Calendario</div>;
+
+        case "messages":
+          return <div>Mensajes</div>;
+
+        case "reports":
+          return <div>Reportes</div>;
+
+        default:
+          return <div>Seleccione una sección</div>;
+      }
   };
   
   return (
