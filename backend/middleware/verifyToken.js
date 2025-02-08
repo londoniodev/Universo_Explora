@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
+import { User } from "../models/user.model.js"; // ✅ Importar el modelo de usuario
 
-export const verifyToken = (req, res, next) => {
-
+export const verifyToken = async (req, res, next) => {
   let token = req.cookies?.token || null;
 
   if (!token && req.headers.authorization) {
@@ -18,6 +18,14 @@ export const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
+
+    // 🔥 Buscar al usuario en la base de datos y asignarlo a req.user
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    req.user = user; // ✅ Ahora `req.user` estará disponible en `isAdmin`
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: "Token inválido o expirado" });

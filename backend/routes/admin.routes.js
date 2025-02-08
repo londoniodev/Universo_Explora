@@ -1,0 +1,15 @@
+import express from "express";
+import { verifyToken } from "../middleware/verifyToken.js";
+import { isAdmin } from "../middleware/auth.middleware.js";
+import { getAllUsers, updateUserRole, deleteUser } from "../controllers/admin.controller.js";
+
+const router = express.Router();
+
+router.use(verifyToken); // ✅ Aplica autenticación
+
+// Rutas protegidas solo para administradores
+router.get("/users", isAdmin, getAllUsers);
+router.put("/users/:userId/role", isAdmin, updateUserRole);
+router.delete("/users/:userId", isAdmin, deleteUser);
+
+export default router;

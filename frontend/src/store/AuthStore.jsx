@@ -132,16 +132,23 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const response = await axios.get(`${AUTHENTICATION_API}/check-auth`, { withCredentials: true });
+      if (!response.data.user) throw new Error("Usuario no autenticado");
+  
       set({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
+  
+      console.log(`El usuario es ${response.data.user.role}`);
       await get().fetchCart();
     } catch (error) {
+      console.warn("⚠️ checkAuth falló:", error.message);
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
     }
   },
+  
+  
   
   login: async (email, password) => {
     try {
@@ -167,21 +174,23 @@ export const useAuthStore = create((set, get) => ({
   fetchUserData: async () => {
     try {
       const response = await axios.get(`${AUTHENTICATION_API}/my-account`, { withCredentials: true });
-      set({ user: response.data.user });
+      set((state) => ({
+        user: { ...response.data.user, purchasedTests: response.data.user.purchasedTests || [] }
+      }));
     } catch (error) {
       toast.error("Error al cargar datos del usuario.");
     }
-  },  
-
+  },
+  
   logout: async () => {
     try {
       await axios.post(`${AUTHENTICATION_API}/logout`);
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isCheckingAuth: false }); // Agregamos isCheckingAuth: false
       toast.success("Sesión cerrada correctamente");
     } catch (error) {
       toast.error("Error al cerrar sesión");
     }
-  },
+  }, 
 
   forgotPassword: async (email) => {
     try {
@@ -227,8 +236,11 @@ export const useAuthStore = create((set, get) => ({
       );
   
       if (response.data.success) {
-        set({ user: response.data.user });
-        set({ cart: [] });
+        // ✅ Ahora actualiza `purchasedTests` en `user`
+        set((state) => ({
+          user: { ...state.user, purchasedTests: response.data.user.purchasedTests }
+        }));
+        
         toast.dismiss();
         toast.success("Compra realizada con éxito.");
         return response;
@@ -238,7 +250,7 @@ export const useAuthStore = create((set, get) => ({
       toast.error(error.message || "Error al realizar la compra.");
       return null;
     }
-  },  
+  },
 
   // ==========================
   //    ACCESOS A LOS PAQUETES
@@ -402,7 +414,6 @@ completeTest: async (packageId, testType) => {
       }
     } catch (error) {
       toast.error("Error al obtener los datos de actividades.");
-      console.error("Error al obtener los datos de actividades:", error);
     }
   },
   
@@ -529,7 +540,6 @@ fetchCalculatedResults: async () => {
     }
   } catch (error) {
     toast.error("Error al obtener resultados.");
-    console.error("Error al obtener resultados:", error);
   }
 },
 
@@ -595,5 +605,73 @@ getShortContextualizationAnswers: async (packageId) => {
     return { answers: {}, isCompleted: false };
   }
 },
+
+ // ==========================
+  //  ADMIN: Gestionar Usuarios
+  // ==========================
+  fetchAllUsers: async () => {
+    try {
+      const response = await axios.get("/api/admin/users", { withCredentials: true });
+      return response.data.users;
+    } catch (error) {
+      return [];
+    }
+  },
+
+  deleteUser: async (userId) => {
+    try {
+      await axios.delete(`/api/admin/users/${userId}`, { withCredentials: true });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  updateUserRole: async (userId, newRole) => {
+    try {
+      await axios.put(`/api/admin/users/${userId}/role`, { newRole }, { withCredentials: true });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  // ==========================
+//  PSICÓLOGOS: Gestión de Solicitudes
+// ==========================
+fetchPendingRequests: async () => {
+  try {
+    const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
+    return response.data.requests || [];
+  } catch (error) {
+    console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
+    return [];
+  }
+},
+
+
+respondToRequest: async (requestId, action) => {
+  try {
+    await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true });
+    return true;
+  } catch (error) {
+    return false;
+  }
+},
+
+assignUserToPsychologist: async (userId, psychologistId) => {
+  try {
+    await axios.post(
+      "/api/psychologist/assign-user", // ✅ URL corregida
+      { userId, psychologistId },
+      { withCredentials: true }
+    );
+    return true;
+  } catch (error) {
+    console.error("❌ Error al asignar usuario a psicólogo:", error);
+    return false;
+  }
+},
+
   
 }));

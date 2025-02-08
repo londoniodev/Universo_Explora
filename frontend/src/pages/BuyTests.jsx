@@ -3,34 +3,46 @@ import { BsCartPlus } from "react-icons/bs";
 import { useCart } from "../context/CartContext.jsx";
 import { Toaster, toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const BuyTests = () => {
-  const { cart, addToCart } = useCart();
+  const { cart, addToCart, fetchCart } = useCart(); // 🔥 `fetchCart` para asegurar que el carrito se actualiza
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const previousPrice = 25;
   const currentPrice = 20;
   const discountPercentage = Math.round(((previousPrice - currentPrice) / previousPrice) * 100);
 
   const handleAddToCart = async (pkg) => {
-    if (!pkg.testId || !pkg.title || !pkg.price) {
+    if (!pkg?.testId || !pkg?.title || !pkg?.price) {
       toast.dismiss();
       toast.error("Error: Datos incompletos detectados");
       return;
     }
-    await addToCart(pkg, 1);
-    const updatedCart = cart.find((item) => item.testId === pkg.testId);
-    const quantityInCart = updatedCart ? updatedCart.quantity + 1 : 1;
-    toast.dismiss();
-    toast.success(`¡${pkg.title} agregado al carrito! (Cantidad: ${quantityInCart})`);
-    
-    setTimeout(() => {
-      toast.success("Redirigiendo a carrito...");
-      navigate("/api/auth/dashboard/cart");
-    },1000);
-    
+
+    setIsLoading(true);
+    try {
+      await addToCart(pkg, 1);
+      await fetchCart(); // 🔄 Actualizar el carrito después de agregar el producto
+
+      const updatedCart = [...cart, { testId: pkg.testId, quantity: 1 }]; // 🔥 Asegurar que obtenemos el carrito actualizado
+      const quantityInCart = updatedCart.filter((item) => item.testId === pkg.testId).length;
+
+      toast.dismiss();
+      toast.success(`¡${pkg.title} agregado al carrito! (Cantidad: ${quantityInCart})`);
+
+      setTimeout(() => {
+        navigate("/api/auth/dashboard/cart");
+      }, 1000);
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Error al agregar el producto al carrito.");
+    } finally {
+      setIsLoading(false);
+    }
   };
-  
+
   return (
     <div id="container" className="min-h-screen flex flex-col">
       <Toaster />
@@ -99,14 +111,18 @@ const BuyTests = () => {
                       price: currentPrice,
                     })
                   }
-                  className="w-full bg-green-500 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-md hover:shadow-lg"
+                  disabled={isLoading} // 🔒 Bloquea el botón mientras está procesando
+                  className={`w-full ${
+                    isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+                  } text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg`}
                 >
-                  <BsCartPlus /> <span>Agregar al carrito</span>
+                  {isLoading ? "Añadiendo..." : <>
+                    <BsCartPlus /> <span>Agregar al carrito</span>
+                  </>}
                 </button>
               </div>
             </div>
           </article>
-
         </section>
       </main>
     </div>

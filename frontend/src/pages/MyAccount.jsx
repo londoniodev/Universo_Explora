@@ -72,7 +72,6 @@ const genderOptions = [
   { value: "pirata", label: "Pirata" },
   { value: "noble-medieval", label: "Noble Medieval" },
   { value: "templario", label: "Templario" },
-  { value: "espartano", label: "Espartano" },
   { value: "ninja", label: "Ninja" },
   { value: "galactic-entity", label: "Entidad Galáctica" },
   { value: "estrella-de-mar", label: "Estrella de Mar" },

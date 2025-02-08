@@ -25,11 +25,12 @@ const DashboardPage = () => {
   }, [user]);
 
   useEffect(() => {
-    if (!user?.testProgress) {
+    if (!user?.testProgress || !user?.purchasedTests) {
       fetchUserData();
     }
-  }, [user, fetchUserData]);  
+  }, [user, user?.purchasedTests, fetchUserData]);
 
+  
   return (
     <div id="container" className="relative min-h-screen flex flex-col text-white">
       <Navbar />
