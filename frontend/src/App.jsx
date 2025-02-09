@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import toast, { Toaster } from "react-hot-toast";
+import { io } from "socket.io-client";
 import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage.jsx";
 import Signup from "./pages/RegisterPage.jsx";
@@ -25,6 +26,9 @@ import ThankYouPage from "./pages/ThankYouPage.jsx";
 import LoadingSpinner from "./pages/LoadingSpinner.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { useAuthStore } from "./store/AuthStore.jsx";
+
+// 🔥 Conectar con `Socket.io`
+const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true, transports: ["websocket"],});
 
 // 🔹 Ruta protegida que valida autenticación y roles
 const ProtectedRoute = ({ children }) => {
@@ -70,14 +74,26 @@ const RedirectAuthenticatedUser = ({ children }) => {
 RedirectAuthenticatedUser.propTypes = { children: PropTypes.node.isRequired };
 
 const App = () => {
-  const { isCheckingAuth, checkAuth, fetchCart, getAutoevaluationAnswers, saveAutoevaluationAnswers, getContextualizationAnswers, saveContextualizationAnswers, completeTest } = useAuthStore();
+  const { 
+    isCheckingAuth, 
+    checkAuth, 
+    fetchCart, 
+    getAutoevaluationAnswers, 
+    saveAutoevaluationAnswers, 
+    getContextualizationAnswers, 
+    saveContextualizationAnswers, 
+    completeTest,
+    user
+  } = useAuthStore();
 
+  // ✅ Verificar autenticación y cargar datos iniciales
   useEffect(() => {
     checkAuth()
       .then(fetchCart)
       .catch((err) => console.warn("Error al verificar autenticación:", err.message));
   }, []);
 
+  // ✅ Notificación antes de la expiración de sesión
   useEffect(() => {
     const tokenExpiration = localStorage.getItem("tokenExpiration");
     if (tokenExpiration) {
@@ -87,6 +103,34 @@ const App = () => {
       }
     }
   }, []);
+
+  // ✅ Unir al psicólogo a su sala en `Socket.io`
+  useEffect(() => {
+    if (user?.role === "psychologist") {
+      socket.emit("join-psychologist-room", user._id);
+      console.log(`📡 Uniendo al psicólogo ${user._id} a su sala...`);
+    }
+  }, [user]);
+
+  // ✅ Escuchar eventos en tiempo real
+  useEffect(() => {
+    if (user?.role === "psychologist") {
+      socket.on("new-request", () => {
+        toast.info("Tienes una nueva solicitud de paciente.");
+      });
+
+      socket.on("assigned-user", ({ psychologistId }) => {
+        if (psychologistId === user._id) {
+          toast.success("Se te ha asignado un nuevo paciente.");
+        }
+      });
+    }
+
+    return () => {
+      socket.off("new-request");
+      socket.off("assigned-user");
+    };
+  }, [user]);
 
   if (isCheckingAuth) return <LoadingSpinner />;
 

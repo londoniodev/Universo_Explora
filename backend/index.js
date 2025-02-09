@@ -7,6 +7,44 @@ import path from "path";
 import { createServer } from "http";
 import { initSocket, getIO } from "./socket.js";
 
+// 🔥 Cargar variables de entorno
+dotenv.config();
+
+// 🔥 Definir entorno (Desarrollo o Producción)
+const isProduction = process.env.NODE_ENV === "production";
+const CLIENT_URL = isProduction ? process.env.CLIENT_URL_PROD : process.env.CLIENT_URL_DEV;
+const MONGO_URI = isProduction ? process.env.MONGO_URI : process.env.MONGO_URI_LOCAL;
+const PORT = process.env.PORT || 4001;
+
+const app = express();
+const __dirname = path.resolve();
+
+// 🔥 Configurar middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
+
+// 🔥 **Crear servidor HTTP**
+const server = createServer(app);
+
+// ✅ **Inicializar Socket.io**
+initSocket(server);
+
+// 📌 **Emitir eventos desde otros módulos**
+export const emitPsychologistRequest = (userId) => {
+  const io = getIO();
+  io.emit("newPsychologistRequest", { userId });
+  console.log(`📢 Enviando evento de solicitud de psicólogo para el usuario: ${userId}`);
+};
+
+// 🔥 **Configurar Rutas**
 import authRoutes from "./routes/auth.routes.js";
 import contextualizationRoute from "./routes/contextualization.routes.js";
 import autoevaluationRoute from "./routes/autoevaluation.routes.js";
@@ -24,33 +62,7 @@ import { verifyToken } from "./middleware/verifyToken.js";
 import testAccessRoutes from "./routes/testAccess.routes.js";
 import packageRoutes from "./routes/Package.routes.js";
 
-dotenv.config();
-const app = express();
-const __dirname = path.resolve();
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: process.env.NODE_ENV === "production" ? process.env.CLIENT_URL_PROD : process.env.CLIENT_URL_DEV,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  })
-);
-
-// 🔥 **CREAR SERVIDOR HTTP**
-const server = createServer(app);
-
-// ✅ **INICIALIZAR SOCKET.IO**
-initSocket(server);
-
-// 📌 **Emitir eventos desde otros módulos**
-export const emitPsychologistRequest = (userId) => {
-  getIO().emit("newPsychologistRequest", { userId });
-};
-
-// 🔥 **Configurar Rutas**
+// 🔥 Registrar rutas protegidas
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contextualization", verifyToken, contextualizationRoute);
@@ -67,27 +79,38 @@ app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
 
-if (process.env.NODE_ENV === "production") {
+// 📌 **Modo Producción: Servir el frontend**
+if (isProduction) {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
 
-const PORT = process.env.PORT || 4001;
-server.listen(PORT, async () => {
+// 🔥 **Iniciar servidor y conectar DB**
+const startServer = async () => {
   try {
-    await connectDB();
-    console.log(`✅ Servidor corriendo en el puerto ${PORT}`);
+    await connectDB(MONGO_URI);
+    console.log(`✅ Conectado a MongoDB en ${MONGO_URI}`);
+
+    server.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+    });
+
   } catch (error) {
     console.error("❌ Error al conectar a la base de datos:", error);
     process.exit(1);
   }
-});
+};
 
-process.on("SIGINT", () => {
+startServer();
+
+// 📌 **Cerrar servidor correctamente en SIGINT**
+process.on("SIGINT", async () => {
+  console.log("\n🔴 Cerrando servidor...");
+
   server.close(() => {
-    console.log("🔴 Servidor cerrado. Puerto liberado.");
+    console.log("✅ Servidor cerrado correctamente.");
     process.exit(0);
   });
 });

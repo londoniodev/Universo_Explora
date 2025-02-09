@@ -5,9 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client"; 
+import { io } from "socket.io-client";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true });
+// 🔥 Conectar con `Socket.io`
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  withCredentials: true,
+  transports: ["websocket"],
+});
 
 const PsychologistDashboard = () => {
   const { user, logout } = useAuthStore();
@@ -19,29 +23,45 @@ const PsychologistDashboard = () => {
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [notes, setNotes] = useState({});
 
+  // ✅ Unir al psicólogo a su sala de `Socket.io`
+  useEffect(() => {
+    if (user?._id) {
+      socket.emit("join-psychologist-room", user._id);
+      console.log(`📡 Uniendo al psicólogo ${user._id} a su sala...`);
+    }
+  }, [user?._id]);
+
   // ✅ Cargar datos al iniciar
   useEffect(() => {
     fetchAssignedUsers();
     fetchPendingRequests();
   }, []);
 
-  // ✅ Escuchar eventos en tiempo real con `socket.io`
+  // ✅ Escuchar eventos en tiempo real con `Socket.io`
   useEffect(() => {
-    socket.on("new-request", fetchPendingRequests);
+    const updatePendingRequests = async () => await fetchPendingRequests();
+    const updateAssignedUsers = async () => await fetchAssignedUsers();
+
+    socket.on("new-request", updatePendingRequests);
     socket.on("request-removed", ({ userId }) => {
       setPendingRequests((prevRequests) => prevRequests.filter(req => req.userId !== userId));
       setPendingRequestCount((prevCount) => Math.max(0, prevCount - 1));
     });
 
-    socket.on("assigned-user", fetchAssignedUsers); // ✅ Ahora se actualiza correctamente
+    socket.on("assigned-user", ({ psychologistId }) => {
+      if (psychologistId === user?._id) {
+        updateAssignedUsers();
+      }
+    });
 
     return () => {
-      socket.off("new-request");
+      socket.off("new-request", updatePendingRequests);
       socket.off("request-removed");
-      socket.off("assigned-user");
+      socket.off("assigned-user", updateAssignedUsers);
     };
-  }, []);
+  }, [user?._id]);
 
+  // ✅ Obtener pacientes asignados
   const fetchAssignedUsers = async () => {
     try {
       const response = await axios.get("/api/psychologist/dashboard", { withCredentials: true });
@@ -51,6 +71,7 @@ const PsychologistDashboard = () => {
     }
   };
 
+  // ✅ Obtener solicitudes pendientes
   const fetchPendingRequests = async () => {
     try {
       const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
@@ -61,17 +82,21 @@ const PsychologistDashboard = () => {
     }
   };
 
+  // ✅ Aceptar o rechazar solicitudes
   const handleRequestResponse = async (requestId, action) => {
     try {
       await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true });
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
-      fetchAssignedUsers();
-      fetchPendingRequests();
+
+      // 🔄 Actualizar listas en tiempo real
+      await fetchAssignedUsers();
+      await fetchPendingRequests();
     } catch (error) {
       toast.error("Error al procesar la solicitud.");
     }
   };
 
+  // ✅ Guardar notas
   const handleSaveNote = async (userId) => {
     try {
       await axios.post("/api/psychologist/save-note", { userId, note: notes[userId] }, { withCredentials: true });
@@ -81,13 +106,14 @@ const PsychologistDashboard = () => {
     }
   };
 
+  // ✅ Cerrar sesión
   const handleLogout = async () => {
     await logout();
     localStorage.removeItem("hasSeenWelcomeNotification");
     navigate("/api/auth/login");
   };
 
-  // 🔥 Renderizado de contenido según la sección activa
+  // 🔥 Renderizar el contenido dinámico
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
@@ -135,37 +161,38 @@ const PsychologistDashboard = () => {
         );
 
         case "patients":
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Pacientes Asignados</h2>
-            {assignedUsers.length === 0 ? (
-              <p>No tienes pacientes asignados.</p>
-            ) : (
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border border-gray-300 px-4 py-2">Nombre</th>
-                    <th className="border border-gray-300 px-4 py-2">Email</th>
-                    <th className="border border-gray-300 px-4 py-2">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignedUsers.map((user) => (
-                    <tr key={user._id}>
-                      <td className="border border-gray-300 px-4 py-2">{user.name}</td>
-                      <td className="border border-gray-300 px-4 py-2">{user.email}</td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
-                          Ver Detalles
-                        </button>
-                      </td>
+          return (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Pacientes Asignados</h2>
+              {assignedUsers.length === 0 ? (
+                <p>No tienes pacientes asignados.</p>
+              ) : (
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="border border-gray-300 px-4 py-2">Nombre</th>
+                      <th className="border border-gray-300 px-4 py-2">Email</th>
+                      <th className="border border-gray-300 px-4 py-2">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        );
+                  </thead>
+                  <tbody>
+                    {assignedUsers.map((user) => (
+                      <tr key={user._id}>
+                        <td className="border border-gray-300 px-4 py-2">{user.name}</td>
+                        <td className="border border-gray-300 px-4 py-2">{user.email}</td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
+                            Ver Detalles
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+
         case "calendar":
           return <div>Calendario</div>;
 

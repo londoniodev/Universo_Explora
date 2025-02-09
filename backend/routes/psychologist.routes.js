@@ -10,16 +10,18 @@ import {
 
 const router = express.Router();
 
+// ✅ Aplicar `verifyToken` a todas las rutas
 router.use(verifyToken);
+router.use(isPsychologist); // 🔥 Se aplica a todas las rutas de psicólogos
 
 // 📊 Dashboard del psicólogo
-router.get("/dashboard", isPsychologist, psychologistDashboard);
+router.get("/dashboard", psychologistDashboard);
 
 // 📩 Obtener solicitudes pendientes de asignación
-router.get("/pending-requests", isPsychologist, getPendingRequests);
+router.get("/pending-requests", getPendingRequests);
 
 // ✅ Psicólogo responde a la solicitud de asignación
-router.post("/respond-request", isPsychologist, respondToRequest);
+router.post("/respond-request", respondToRequest);
 
 // 🔄 Asignación automática de psicólogos con manejo de errores
 router.post("/assign-auto", async (req, res) => {

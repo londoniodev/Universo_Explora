@@ -55,7 +55,7 @@ export const requestPsychologist = async (userId) => {
       await Notification.create({ psychologistId: psychologist._id, userId });
     }
 
-    // 🔥 Emitimos evento en tiempo real
+    // 🔥 Emitir evento en tiempo real SOLO a psicólogos
     try {
       getIO().emit("new-request", { userId });
     } catch (error) {
@@ -76,21 +76,25 @@ export const respondToRequest = async (req, res) => {
   try {
     const { requestId, action } = req.body;
 
-    // Intentamos buscar la notificación
+    // Buscar la solicitud
     const request = await Notification.findById(requestId);
     if (!request) {
       return res.status(404).json({ success: false, message: "La solicitud ya no existe." });
     }
 
+    // Verificar que el psicólogo correcto responde
     if (String(request.psychologistId) !== String(req.user._id)) {
       return res.status(403).json({ success: false, message: "No autorizado para esta solicitud" });
     }
 
-    if (action === "accept") {
-      const user = await User.findById(request.userId);
-      if (!user) return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    // Buscar al usuario de la solicitud
+    const user = await User.findById(request.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
 
-      // Si ya tiene un psicólogo, no se puede asignar otra vez
+    if (action === "accept") {
+      // Verificar que el usuario no tenga ya un psicólogo asignado
       if (user.psychologistAssigned?.id) {
         return res.status(400).json({ success: false, message: "Este usuario ya ha sido asignado a otro psicólogo." });
       }
@@ -103,23 +107,20 @@ export const respondToRequest = async (req, res) => {
         specialization: req.user.specialization || "General",
       };
 
+      // Agregar usuario a la lista de asignados del psicólogo
       req.user.assignedUsers = req.user.assignedUsers || [];
       req.user.assignedUsers.push(user._id);
       req.user.lastAssigned = new Date();
 
-      await user.save();
-      await req.user.save();
+      // Guardar los cambios
+      await Promise.all([user.save(), req.user.save()]);
 
-      // 🔥 **Eliminar TODAS las notificaciones del usuario**
+      // Eliminar todas las notificaciones de este usuario
       await Notification.deleteMany({ userId: request.userId });
 
-      // 🔥 **Emitimos un evento en tiempo real para actualizar a otros psicólogos**
+      // 🔥 Emitir evento en tiempo real SOLO a ese psicólogo
       const io = getIO();
-      io.emit("request-removed", { userId: request.userId }); // Elimina la notificación
-
-      // ✅ Emitir evento para actualizar la lista de pacientes en el frontend
-      io.emit("assigned-user", { psychologistId: req.user._id });
-
+      io.to(req.user._id.toString()).emit("assigned-user", { psychologistId: req.user._id });
 
       request.status = "accepted";
     } else {
@@ -133,8 +134,6 @@ export const respondToRequest = async (req, res) => {
     return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
-
-
 
 /**
  * 📋 Obtiene todas las solicitudes pendientes para el psicólogo
@@ -183,7 +182,7 @@ export const assignPsychologistAutomatically = async (userId) => {
         await Notification.create({ psychologistId: psychologist._id, userId });
       }
 
-      // 🔥 Emitimos evento en tiempo real
+      // 🔥 Emitimos evento en tiempo real a los psicólogos
       try {
         getIO().emit("new-request", { userId });
       } catch (error) {

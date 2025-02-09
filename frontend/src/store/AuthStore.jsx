@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
 const AUTHENTICATION_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/auth" : "/api/auth";
 const AUTOEVALUATION_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/autoevaluation" : "/api/autoevaluation";
@@ -25,6 +26,12 @@ axios.interceptors.response.use(
   }
 );
 
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  withCredentials: true,
+  transports: ["websocket"],
+});
+
+
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -33,6 +40,7 @@ export const useAuthStore = create((set, get) => ({
   error: null,
   isLoading: false,
   isCheckingAuth: true,
+  pendingRequests: [],
 
   questions: [],
   calculatedResults: null,
@@ -131,23 +139,28 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      const response = await axios.get(`${AUTHENTICATION_API}/check-auth`, { withCredentials: true });
+      const response = await axios.get(`${AUTHENTICATION_API}/check-auth`);
       if (!response.data.user) throw new Error("Usuario no autenticado");
-  
+
       set({
         user: response.data.user,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
-  
-      console.log(`El usuario es ${response.data.user.role}`);
+
+      console.log(`✅ Usuario autenticado como ${response.data.user.role}`);
+
+      // ✅ Unir al psicólogo a su sala en `Socket.io`
+      if (response.data.user.role === "psychologist") {
+        socket.emit("join-psychologist-room", response.data.user._id);
+      }
+
       await get().fetchCart();
     } catch (error) {
       console.warn("⚠️ checkAuth falló:", error.message);
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
     }
   },
-  
   
   
   login: async (email, password) => {
@@ -636,42 +649,56 @@ getShortContextualizationAnswers: async (packageId) => {
     }
   },
 
+ // ==========================
+  //     GESTIÓN DE SOLICITUDES PAR PSICOLOGOS
   // ==========================
-//  PSICÓLOGOS: Gestión de Solicitudes
-// ==========================
-fetchPendingRequests: async () => {
-  try {
-    const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
-    return response.data.requests || [];
-  } catch (error) {
-    console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
-    return [];
-  }
-},
+  fetchPendingRequests: async () => {
+    try {
+      const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`);
+      set({ pendingRequests: response.data.requests || [] });
+    } catch (error) {
+      console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
+    }
+  },
 
+  respondToRequest: async (requestId, action) => {
+    try {
+      await axios.post(`${PSYCHOLOGIST_API}/respond-request`, { requestId, action });
 
-respondToRequest: async (requestId, action) => {
-  try {
-    await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true });
-    return true;
-  } catch (error) {
-    return false;
-  }
-},
+      // ✅ Emitir evento a `Socket.io`
+      socket.emit("request-handled", { requestId, action });
 
-assignUserToPsychologist: async (userId, psychologistId) => {
-  try {
-    await axios.post(
-      "/api/psychologist/assign-user", // ✅ URL corregida
-      { userId, psychologistId },
-      { withCredentials: true }
-    );
-    return true;
-  } catch (error) {
-    console.error("❌ Error al asignar usuario a psicólogo:", error);
-    return false;
-  }
-},
+      toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+      await get().fetchPendingRequests();
+    } catch (error) {
+      toast.error("Error al procesar la solicitud.");
+    }
+  },
+
+  // ==========================
+  //     EVENTOS DE SOCKET.IO
+  // ==========================
+  listenToSocketEvents: () => {
+    socket.on("new-request", async () => {
+      toast.info("📩 Nueva solicitud de paciente recibida.");
+      await get().fetchPendingRequests();
+    });
+
+    socket.on("request-removed", async ({ userId }) => {
+      set((state) => ({
+        pendingRequests: state.pendingRequests.filter((req) => req.userId !== userId),
+      }));
+      toast.info("📩 Una solicitud fue eliminada.");
+    });
+
+    socket.on("assigned-user", async ({ psychologistId }) => {
+      if (get().user?._id === psychologistId) {
+        toast.success("🎉 Se te ha asignado un nuevo paciente.");
+        await get().fetchPendingRequests();
+      }
+    });
+  },
 
   
 }));
+useAuthStore.getState().listenToSocketEvents();
