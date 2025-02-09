@@ -4,6 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./db/connectDB.js";
 import path from "path";
+import { createServer } from "http";
+import { initSocket, getIO } from "./socket.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import contextualizationRoute from "./routes/contextualization.routes.js";
@@ -37,6 +39,18 @@ app.use(
   })
 );
 
+// 🔥 **CREAR SERVIDOR HTTP**
+const server = createServer(app);
+
+// ✅ **INICIALIZAR SOCKET.IO**
+initSocket(server);
+
+// 📌 **Emitir eventos desde otros módulos**
+export const emitPsychologistRequest = (userId) => {
+  getIO().emit("newPsychologistRequest", { userId });
+};
+
+// 🔥 **Configurar Rutas**
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contextualization", verifyToken, contextualizationRoute);
@@ -61,7 +75,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const PORT = process.env.PORT || 4001;
-const server = app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   try {
     await connectDB();
     console.log(`✅ Servidor corriendo en el puerto ${PORT}`);

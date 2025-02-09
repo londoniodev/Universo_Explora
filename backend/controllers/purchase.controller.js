@@ -14,7 +14,6 @@ export const handlePurchase = async (req, res) => {
 
     console.log(`🛒 Procesando compra para el usuario: ${userId}`);
 
-    // 📌 Procesar cada test comprado y generar un acceso
     const results = [];
     for (const test of purchasedTests) {
       const token = generateTestAccessToken({ userId, packageId: test.id }, null);
@@ -29,14 +28,13 @@ export const handlePurchase = async (req, res) => {
       results.push(newAccess);
     }
 
-    // 📌 Vaciar carrito y actualizar compras del usuario
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { 
         $push: { purchasedTests: purchasedTests.map((test) => ({ ...test })) },
         $set: { cart: [] }
       },
-      { new: true } // ✅ Devolvemos el usuario actualizado
+      { new: true }
     ).select("-password");
 
     console.log("✅ Compra realizada, asignando psicólogo...");
@@ -44,7 +42,7 @@ export const handlePurchase = async (req, res) => {
     let psychologist = null;
     try {
       const assignResult = await assignPsychologistAutomatically(userId);
-      if (assignResult?.success) {
+      if (assignResult?.success && assignResult.psychologist) {
         psychologist = assignResult.psychologist;
         console.log(`✅ Psicólogo asignado: ${psychologist.name}`);
       } else {
@@ -61,7 +59,7 @@ export const handlePurchase = async (req, res) => {
         : "Compra realizada con éxito, pero no se pudo asignar un psicólogo automáticamente.",
       results,
       psychologist,
-      user: updatedUser, // ✅ Enviamos el usuario actualizado en la respuesta
+      user: updatedUser,
     });
 
   } catch (error) {
