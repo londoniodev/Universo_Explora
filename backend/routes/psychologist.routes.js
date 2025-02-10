@@ -3,9 +3,9 @@ import { verifyToken } from "../middleware/verifyToken.js";
 import { isPsychologist } from "../middleware/auth.middleware.js";
 import { 
   psychologistDashboard, 
-  assignPsychologistAutomatically, 
   getPendingRequests, 
-  respondToRequest 
+  respondToRequest, 
+  handleAutoAssignment 
 } from "../controllers/psychologist.controller.js";
 
 const router = express.Router();
@@ -15,27 +15,15 @@ router.use(verifyToken);
 router.use(isPsychologist); // 🔥 Se aplica a todas las rutas de psicólogos
 
 // 📊 Dashboard del psicólogo
-router.get("/dashboard", psychologistDashboard);
+router.get("/dashboard", psychologistDashboard); // Se cambió la ruta para evitar conflicto con `/requests`
 
 // 📩 Obtener solicitudes pendientes de asignación
-router.get("/pending-requests", getPendingRequests);
+router.get("/requests", getPendingRequests); // ✅ Ruta corregida
 
 // ✅ Psicólogo responde a la solicitud de asignación
-router.post("/respond-request", respondToRequest);
+router.post("/requests/respond", respondToRequest); // ✅ Ruta corregida
 
-// 🔄 Asignación automática de psicólogos con manejo de errores
-router.post("/assign-auto", async (req, res) => {
-  try {
-    const { userId } = req.body;
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "Falta el userId en la solicitud" });
-    }
-    const result = await assignPsychologistAutomatically(userId);
-    return res.status(result.success ? 200 : 500).json(result);
-  } catch (error) {
-    console.error("❌ Error en /assign-auto:", error);
-    return res.status(500).json({ success: false, message: "Error interno del servidor" });
-  }
-});
+// 🔄 Asignación automática de psicólogos
+router.post("/requests/assign-auto", handleAutoAssignment);
 
 export default router;

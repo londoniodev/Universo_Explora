@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     lastLogin: { type: Date, default: Date.now },
     isVerified: { type: Boolean, default: false },
     resultsSent: { type: Boolean, default: false },
+
     cart: [
       {
         testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test", required: true },
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema(
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
+
     purchasedTests: [
       {
         id: { type: mongoose.Schema.Types.ObjectId, ref: "Test", required: true },
@@ -35,6 +37,7 @@ const userSchema = new mongoose.Schema(
         quantity: { type: Number, required: true, default: 1 },
       },
     ],
+
     testProgress: {
       contextualization: {
         type: String,
@@ -52,12 +55,11 @@ const userSchema = new mongoose.Schema(
         enum: ["locked", "inProgress", "completed"],
       },
     },
-    psychologistAssigned: {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-      name: { type: String, default: null },
-      email: { type: String, default: null },
-      specialization: { type: String, default: null },
-    },
+
+    psychologistAssigned: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+
+    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Request" }],
+
     resetPasswordToken: { type: String },
     resetPasswordExpiresAt: { type: Date },
     verificationToken: { type: String },

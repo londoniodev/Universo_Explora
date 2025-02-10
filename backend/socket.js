@@ -9,7 +9,7 @@ export const initSocket = (server) => {
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
-    transports: ["websocket", "polling"], // 🔥 Permite WebSockets pero con fallback a polling
+    transports: ["websocket", "polling"], // Permite WebSockets pero con fallback a polling
   });
 
   io.on("connection", (socket) => {
@@ -23,11 +23,15 @@ export const initSocket = (server) => {
       }
     });
 
-    // ✅ Manejo de errores en conexión
-    socket.on("error", (err) => {
-      console.error(`⚠️ Error en el socket ${socket.id}:`, err.message);
+    // ✅ Permitir que el psicólogo deje la sala al desconectarse
+    socket.on("leave-psychologist-room", (psychologistId) => {
+      if (psychologistId) {
+        socket.leave(`psychologist-${psychologistId}`);
+        console.log(`👋 Psicólogo ${psychologistId} salió de su sala.`);
+      }
     });
 
+    // ✅ Notificar desconexión
     socket.on("disconnect", (reason) => {
       console.log(`🔴 Cliente desconectado: ${socket.id} (${reason})`);
     });
@@ -36,6 +40,7 @@ export const initSocket = (server) => {
   console.log("✅ Socket.io inicializado");
 };
 
+// 📌 Obtener la instancia de `io` en otros archivos
 export const getIO = () => {
   if (!io) {
     throw new Error("Socket.io no está inicializado.");

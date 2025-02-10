@@ -79,7 +79,7 @@ app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
 
-// 📌 **Modo Producción: Servir el frontend**
+// ✅ Servir el Frontend en Producción
 if (isProduction) {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
   app.get("*", (req, res) => {
@@ -87,11 +87,11 @@ if (isProduction) {
   });
 }
 
-// 🔥 **Iniciar servidor y conectar DB**
+// ✅ Iniciar el servidor y conectar a MongoDB
 const startServer = async () => {
   try {
     await connectDB(MONGO_URI);
-    console.log(`✅ Conectado a MongoDB en ${MONGO_URI}`);
+    console.log(`✅ Conectado a MongoDB: ${MONGO_URI}`);
 
     server.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
@@ -99,16 +99,15 @@ const startServer = async () => {
 
   } catch (error) {
     console.error("❌ Error al conectar a la base de datos:", error);
-    process.exit(1);
+    process.exit(1); // 📌 Si la BD falla, se detiene el servidor
   }
 };
 
 startServer();
 
-// 📌 **Cerrar servidor correctamente en SIGINT**
+// ✅ Manejar cierre del servidor de forma segura
 process.on("SIGINT", async () => {
   console.log("\n🔴 Cerrando servidor...");
-
   server.close(() => {
     console.log("✅ Servidor cerrado correctamente.");
     process.exit(0);

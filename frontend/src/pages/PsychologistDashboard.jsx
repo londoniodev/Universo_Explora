@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaUserFriends, FaClipboardList, FaCalendarAlt, FaEnvelope, FaChartLine } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,10 @@ import { io } from "socket.io-client";
 // 🔥 Conectar con `Socket.io`
 const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,
-  transports: ["websocket"],
+  transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 3000,
 });
 
 const PsychologistDashboard = () => {
@@ -22,6 +25,7 @@ const PsychologistDashboard = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [notes, setNotes] = useState({});
+  const dropdownRef = useRef(null);
 
   // ✅ Unir al psicólogo a su sala de `Socket.io`
   useEffect(() => {
@@ -39,27 +43,31 @@ const PsychologistDashboard = () => {
 
   // ✅ Escuchar eventos en tiempo real con `Socket.io`
   useEffect(() => {
-    const updatePendingRequests = async () => await fetchPendingRequests();
-    const updateAssignedUsers = async () => await fetchAssignedUsers();
-
-    socket.on("new-request", updatePendingRequests);
-    socket.on("request-removed", ({ userId }) => {
-      setPendingRequests((prevRequests) => prevRequests.filter(req => req.userId !== userId));
-      setPendingRequestCount((prevCount) => Math.max(0, prevCount - 1));
+    socket.on("new-request", ({ userId }) => {
+      console.log(`📩 Nueva solicitud recibida para el usuario: ${userId}`);
+      setPendingRequests((prev) => [...prev, { _id: userId, userId }]);
+      setPendingRequestCount((prev) => prev + 1);
     });
 
     socket.on("assigned-user", ({ psychologistId }) => {
       if (psychologistId === user?._id) {
-        updateAssignedUsers();
+        fetchAssignedUsers();
       }
     });
 
+    socket.on("request-removed", ({ userId }) => {
+      console.log(`❌ Eliminando solicitud del usuario: ${userId}`);
+      setPendingRequests((prev) => prev.filter((req) => req.userId !== userId));
+      setPendingRequestCount((prev) => Math.max(0, prev - 1));
+    });
+
     return () => {
-      socket.off("new-request", updatePendingRequests);
+      socket.off("new-request");
+      socket.off("assigned-user");
       socket.off("request-removed");
-      socket.off("assigned-user", updateAssignedUsers);
     };
   }, [user?._id]);
+  
 
   // ✅ Obtener pacientes asignados
   const fetchAssignedUsers = async () => {
@@ -74,24 +82,30 @@ const PsychologistDashboard = () => {
   // ✅ Obtener solicitudes pendientes
   const fetchPendingRequests = async () => {
     try {
-      const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
+      const response = await axios.get("/api/psychologist/requests", { withCredentials: true });
       setPendingRequests(response.data.requests);
       setPendingRequestCount(response.data.requests.length);
     } catch (error) {
+      console.error("⚠️ Error al obtener solicitudes pendientes:", error);
       toast.error("Error al obtener solicitudes pendientes.");
     }
   };
+  
 
   // ✅ Aceptar o rechazar solicitudes
   const handleRequestResponse = async (requestId, action) => {
     try {
-      await axios.post("/api/psychologist/respond-request", { requestId, action }, { withCredentials: true });
+      console.log(`🔄 Enviando solicitud de ${action} para requestId: ${requestId}`);
+
+      await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
+
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
 
       // 🔄 Actualizar listas en tiempo real
-      await fetchAssignedUsers();
-      await fetchPendingRequests();
+      fetchAssignedUsers();
+      fetchPendingRequests();
     } catch (error) {
+      console.error("❌ Error al procesar la solicitud:", error);
       toast.error("Error al procesar la solicitud.");
     }
   };
@@ -141,7 +155,7 @@ const PsychologistDashboard = () => {
                 </thead>
                 <tbody>
                   {pendingRequests.map((req) => (
-                    <tr key={req._id}>
+                    <tr key={req._id || req.userId}>
                       <td className="border border-gray-300 px-4 py-2">{req.userId?.name || "Desconocido"}</td>
                       <td className="border border-gray-300 px-4 py-2">{req.userId?.email || "No disponible"}</td>
                       <td className="border border-gray-300 px-4 py-2 flex gap-2">
@@ -160,38 +174,32 @@ const PsychologistDashboard = () => {
           </div>
         );
 
-        case "patients":
-          return (
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Pacientes Asignados</h2>
-              {assignedUsers.length === 0 ? (
-                <p>No tienes pacientes asignados.</p>
-              ) : (
-                <table className="w-full border-collapse border border-gray-300">
-                  <thead>
-                    <tr className="bg-gray-200">
-                      <th className="border border-gray-300 px-4 py-2">Nombre</th>
-                      <th className="border border-gray-300 px-4 py-2">Email</th>
-                      <th className="border border-gray-300 px-4 py-2">Acciones</th>
+      case "patients":
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Pacientes Asignados</h2>
+            {assignedUsers.length === 0 ? (
+              <p>No tienes pacientes asignados.</p>
+            ) : (
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 px-4 py-2">Nombre</th>
+                    <th className="border border-gray-300 px-4 py-2">Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignedUsers.map((user) => (
+                    <tr key={user._id}>
+                      <td className="border border-gray-300 px-4 py-2">{user.name}</td>
+                      <td className="border border-gray-300 px-4 py-2">{user.email}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {assignedUsers.map((user) => (
-                      <tr key={user._id}>
-                        <td className="border border-gray-300 px-4 py-2">{user.name}</td>
-                        <td className="border border-gray-300 px-4 py-2">{user.email}</td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
-                            Ver Detalles
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          );
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
 
         case "calendar":
           return <div>Calendario</div>;
@@ -249,7 +257,7 @@ const PsychologistDashboard = () => {
           <h1 className="text-xl font-bold">Dashboard del Psicólogo</h1>
 
           {/* 📌 Menú de Usuario */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               className="flex items-center gap-2 focus:outline-none"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -288,5 +296,4 @@ const PsychologistDashboard = () => {
     </div>
   );
 };
-
 export default PsychologistDashboard;

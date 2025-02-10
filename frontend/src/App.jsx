@@ -116,7 +116,7 @@ const App = () => {
   useEffect(() => {
     if (user?.role === "psychologist") {
       socket.on("new-request", () => {
-        toast.info("Tienes una nueva solicitud de paciente.");
+        toast.success("Tienes una nueva solicitud de paciente.");
       });
 
       socket.on("assigned-user", ({ psychologistId }) => {

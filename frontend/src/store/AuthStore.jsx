@@ -10,6 +10,7 @@ const SIXTEENPFQUESTIONS_API = import.meta.env.MODE === "development" ? "http://
 const SIXTEENPFANSWERS_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/answers" : "/api/answers";
 const CART_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/cart" : "/api/cart";
 const PURCHASE_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/purchase" : "/api/purchase";
+const PSYCHOLOGIST_API = import.meta.env.VITE_PSYCHOLOGIST_API || "/api/psychologist";
 
 axios.defaults.withCredentials = true; 
 axios.defaults.baseURL = import.meta.env.MODE === "development" ? "http://localhost:4001" : "/";
@@ -680,7 +681,7 @@ getShortContextualizationAnswers: async (packageId) => {
   // ==========================
   listenToSocketEvents: () => {
     socket.on("new-request", async () => {
-      toast.info("📩 Nueva solicitud de paciente recibida.");
+      toast.success("📩 Nueva solicitud de paciente recibida.");
       await get().fetchPendingRequests();
     });
 
@@ -688,7 +689,7 @@ getShortContextualizationAnswers: async (packageId) => {
       set((state) => ({
         pendingRequests: state.pendingRequests.filter((req) => req.userId !== userId),
       }));
-      toast.info("📩 Una solicitud fue eliminada.");
+      toast.success("📩 Una solicitud fue eliminada.");
     });
 
     socket.on("assigned-user", async ({ psychologistId }) => {
