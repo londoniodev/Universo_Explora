@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -12,7 +12,20 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+
+  // 📌 Verificar si el usuario viene de un registro de psicólogo
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const pendingApproval = params.get("pendingApproval") === "true";
+
+    if (pendingApproval) {
+      toast("Tu solicitud está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
+        icon: "📩",
+      });
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

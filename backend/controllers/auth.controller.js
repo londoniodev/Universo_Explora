@@ -67,6 +67,62 @@ export const signup = async (req, res) => {
   }
 };
 
+export const registerPsychologist = async (req, res) => {
+  try {
+    const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
+
+    // ✅ Validar campos requeridos
+    if (!name || !last_name || !birthdate || !phone || !city || !gender || !email || !password || !idCardNumber) {
+      return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
+    }
+
+    // ✅ Validar archivos subidos (documentos)
+    if (!req.files || !req.files.profilePicture || !req.files.degreeCertificate) {
+      return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
+    }
+
+    // ✅ Verificar si el email ya existe
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: "El usuario ya está registrado." });
+    }
+
+    // ✅ Hashear la contraseña
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    // ✅ Crear nuevo psicólogo (pendiente de aprobación)
+    const psychologist = new User({
+      name,
+      last_name,
+      birthdate,
+      phone,
+      city,
+      gender,
+      email,
+      password: hashedPassword,
+      role: "psychologist",
+      experienceYears,
+      idCardNumber,
+      profilePicture: req.files.profilePicture[0].path, // 📂 Ruta de la foto de perfil
+      degreeCertificate: req.files.degreeCertificate[0].path, // 📂 Ruta del acta de grado
+      isApproved: false, // 🔹 El admin debe aprobarlo manualmente
+    });
+
+    await psychologist.save();
+
+    // ✅ Enviar correo de verificación
+    await sendVerificationEmail(psychologist.email, psychologist._id.toString());
+
+    res.status(201).json({
+      success: true,
+      message: "Registro exitoso. Esperando aprobación del administrador.",
+    });
+  } catch (error) {
+    console.error("❌ Error en el registro de psicólogos:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
+
 export const verifyCode = async (req, res) => {
   const { code } = req.body;
 

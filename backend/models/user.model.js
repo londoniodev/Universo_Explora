@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     resultsSent: { type: Boolean, default: false },
 
+    // 📌 Datos específicos del psicólogo
+    documentId: { type: String, trim: true, unique: true, sparse: true }, // Número de cédula
+    experienceYears: { type: Number, min: 0, default: 0 }, // Años de experiencia
+    profilePicture: { type: String, default: "" }, // URL de la foto de perfil
+    degreeCertificate: { type: String, default: "" }, // URL del acta de grado
+    professionalCard: { type: String, default: "" }, // URL de la tarjeta profesional
+    isApproved: { type: Boolean, default: false }, // Validación manual por el admin
+
     cart: [
       {
         testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test", required: true },

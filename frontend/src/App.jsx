@@ -20,6 +20,7 @@ import SixteenPfTest from "./assets/components/SixteenPfTest.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import GraphicResults from "./assets/components/GraphicResults.jsx";
 import ShortContextualizationAnswer from "./assets/components/ContextualizationShort.jsx";
+import RegisterPsychologist from "./pages/Psychologist_components/RegisterPsychologist.jsx"; // 🔥 Importamos la nueva página
 import PsychologistDashboard from "./pages/PsychologistDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ThankYouPage from "./pages/ThankYouPage.jsx";
@@ -138,6 +139,7 @@ const App = () => {
     { path: "/", element: <Home /> },
     { path: "/api/auth/login", element: <RedirectAuthenticatedUser><Login /></RedirectAuthenticatedUser> },
     { path: "/api/auth/signup", element: <RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser> },
+    { path: "/api/auth/register-psychologist", element: <RedirectAuthenticatedUser><RegisterPsychologist /></RedirectAuthenticatedUser> }, // ✅ Nueva ruta
     { path: "/verify-code", element: <VerifyEmail /> },
     { path: "/api/auth/forgot-password", element: <RedirectAuthenticatedUser><ForgotPassword /></RedirectAuthenticatedUser> },
     { path: "/recovery-password/:token", element: <RedirectAuthenticatedUser><RecoveryPassword /></RedirectAuthenticatedUser> },

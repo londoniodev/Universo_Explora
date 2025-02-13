@@ -1,5 +1,6 @@
 import Home_navbar from './Home_components/Home_navbar.jsx';
 import HeroSection from './Home_components/HeroSection.jsx';
+import VideoSection from './Home_components/VideoSection.jsx';
 import Opening from './Home_components/opening.jsx';
 import AboutUs from './Home_components/AboutUs.jsx';
 import AccompanimentSection from './Home_components/AccompanimentSection.jsx';
@@ -13,6 +14,7 @@ const HomePage = () => {
       <div className="relative overflow-hidden w-full h-full bg-[#101010]">
         <Home_navbar />
         <HeroSection />
+        <VideoSection />
         <Opening/>
         <AboutUs />
         <AccompanimentSection />

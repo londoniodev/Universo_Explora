@@ -185,6 +185,28 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+   // ==========================
+  //  REGISTRO PARA PSICÓLOGOS
+  // ==========================
+  registerPsychologist: async (formData) => {
+    try {
+      set({ isLoading: true });
+  
+      const response = await axios.post(`${PSYCHOLOGIST_API}/register`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }, // 🔥 Necesario para subir archivos
+      });
+  
+      set({ isLoading: false });
+  
+      toast.success("Registro exitoso. Espera la aprobación del administrador.");
+      return response.data;
+    } catch (error) {
+      set({ isLoading: false });
+      toast.error(error.response?.data?.message || "Error al registrarse.");
+      return null;
+    }
+  },
+
   fetchUserData: async () => {
     try {
       const response = await axios.get(`${AUTHENTICATION_API}/my-account`, { withCredentials: true });
