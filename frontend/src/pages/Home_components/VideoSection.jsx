@@ -1,8 +1,8 @@
 import React from 'react';
 
 const VideoSection = () => {
-  // Reemplaza este enlace con el enlace compartido de tu video en Google Drive
-  const videoUrl = "https://drive.google.com/file/d/1297HN_X2SpuVpMhE2A1sbuYTl7BNAn4c/preview";
+  // Enlace de vista previa de Google Drive
+  const videoUrl = "https://drive.google.com/file/d/1nanrW_FdnMM2DYvFZ6ic1W7AZ3aHoWSC/preview";
 
   return (
     <div className="video-section">
