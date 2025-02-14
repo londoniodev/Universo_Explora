@@ -185,15 +185,18 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-   // ==========================
-  //  REGISTRO PARA PSICÓLOGOS
   // ==========================
+  //     SIGNUP FOR PSYCHOLOGISTS
+  // ==========================
+
   registerPsychologist: async (formData) => {
     try {
       set({ isLoading: true });
   
+      console.log("📤 Enviando formData:", Object.fromEntries(formData.entries())); // 🛠 Verificar datos antes de enviarlos
+
       const response = await axios.post(`${PSYCHOLOGIST_API}/register`, formData, {
-        headers: { "Content-Type": "multipart/form-data" }, // 🔥 Necesario para subir archivos
+        headers: { "Content-Type": "multipart/form-data" },
       });
   
       set({ isLoading: false });
@@ -206,6 +209,7 @@ export const useAuthStore = create((set, get) => ({
       return null;
     }
   },
+  
 
   fetchUserData: async () => {
     try {

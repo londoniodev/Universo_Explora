@@ -21,6 +21,7 @@ const storage = multer.diskStorage({
 
     // 🔥 Generar nombre con marca de tiempo y UUID
     const newFilename = `${file.fieldname}-${timestamp}-${uniqueId}${ext}`;
+    console.log("🔹 Guardando archivo:", newFilename); 
     cb(null, newFilename);
   },
 });

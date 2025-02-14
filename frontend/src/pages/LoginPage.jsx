@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -12,27 +12,28 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
-
-  // 📌 Verificar si el usuario viene de un registro de psicólogo
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const pendingApproval = params.get("pendingApproval") === "true";
-
-    if (pendingApproval) {
-      toast("Tu solicitud está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
-        icon: "📩",
-      });
-    }
-  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+  
     try {
-      await login(email, password);
+      const user = await login(email, password);
+  
+      if (user.role === "psychologist" && !user.isApproved) {
+        toast("Tu solicitud está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
+          icon: "⏳",
+          duration: 7000,
+        });
+  
+        setTimeout(() => {
+          navigate("/api/auth/login");
+        }, 7000);
+  
+        return;
+      }
+  
       toast.success("Inicio de sesión exitoso.");
       navigate("/api/auth/dashboard");
     } catch (error) {
@@ -41,6 +42,7 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
+  
 
   const containerVariants = {
     hidden: { opacity: 0 },

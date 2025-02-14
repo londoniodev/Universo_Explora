@@ -24,10 +24,11 @@ export const handleAutoAssignment = async (req, res) => {
 
 export const psychologistDashboard = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "psychologist") {
+    if (!req.user) {
       return res.status(403).json({ success: false, message: "Acceso denegado" });
     }
 
+    // Buscar en `User` los pacientes que tienen asignado este psicólogo
     const assignedUsers = await User.find({ psychologistAssigned: req.user._id })
       .select("-password")
       .populate("psychologistAssigned", "name email");
@@ -74,13 +75,7 @@ export const respondToRequest = async (req, res) => {
       // ✅ Eliminar TODAS las solicitudes del usuario (ya tiene psicólogo asignado)
       await Request.deleteMany({ userId: user._id });
 
-      // ✅ Eliminar la solicitud de `requests` de todos los psicólogos
-      await User.updateMany(
-        { role: "psychologist" }, 
-        { $pull: { requests: user._id } } // 🔥 Eliminar la solicitud en `requests`
-      );
-
-      // ✅ Notificar a TODOS los psicólogos para eliminar la solicitud
+      // ✅ Notificar a todos los psicólogos para eliminar la solicitud
       getIO().emit("request-removed", { userId: user._id });
 
       return res.status(200).json({ success: true, message: "Solicitud aceptada correctamente." });
@@ -88,11 +83,6 @@ export const respondToRequest = async (req, res) => {
     } else if (action === "reject") {
       // ✅ Eliminar SOLO la solicitud del psicólogo que la rechazó
       await Request.deleteOne({ _id: requestId });
-
-      // ✅ Eliminar de `requests` solo en el psicólogo que rechazó
-      await User.findByIdAndUpdate(req.user._id, { 
-        $pull: { requests: user._id } // 🔥 Eliminar de `requests` solo en el psicólogo actual
-      });
 
       // ✅ Notificar SOLO al psicólogo que rechazó la solicitud
       getIO().to(`psychologist-${req.user._id}`).emit("request-removed", { userId: user._id });
@@ -111,13 +101,14 @@ export const respondToRequest = async (req, res) => {
  */
 export const getPendingRequests = async (req, res) => {
   try {
-    console.log("🔍 Buscando solicitudes pendientes para:", req.user?._id);
+    console.log("🔍 Buscando solicitudes pendientes para psicólogo:", req.user?._id);
 
-    if (!req.user || !req.user._id) {
+    if (!req.user) {
       return res.status(400).json({ success: false, message: "Usuario no autenticado" });
     }
 
-    const requests = await Request.find({ psychologistId: req.user._id }).populate("userId", "name email");
+    const requests = await Request.find({ psychologistId: req.user._id })
+      .populate("userId", "name email");
 
     console.log("📋 Solicitudes encontradas:", requests);
 
@@ -147,24 +138,18 @@ export const assignPsychologistAutomatically = async (userId) => {
       return { success: true, message: "Esperando respuesta de los psicólogos." };
     }
 
-    const availablePsychologists = await User.find({ role: "psychologist" });
+    // Buscar psicólogos disponibles en `Psychologist`, no en `User`
+    const availablePsychologists = await Psychologist.find({ isApproved: true });
 
     if (availablePsychologists.length === 0) {
       return { success: false, message: "No hay psicólogos disponibles" };
     }
 
-    // Crear solicitudes y agregarlas a `requests` de cada psicólogo
-    const requests = [];
-    for (const psychologist of availablePsychologists) {
-      requests.push({
-        psychologistId: psychologist._id,
-        userId,
-      });
-
-      await User.findByIdAndUpdate(psychologist._id, { 
-        $push: { requests: userId }  // 🔥 Añadir la solicitud en `requests`
-      });
-    }
+    // Crear solicitudes para cada psicólogo
+    const requests = availablePsychologists.map(psychologist => ({
+      psychologistId: psychologist._id,
+      userId,
+    }));
 
     await Request.insertMany(requests);
 

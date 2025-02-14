@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../Oauth_nodemailer/Oauth2.nodemailer.config.js";
 import { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
 import { User } from "../models/user.model.js";
+import { Psychologist } from "../models/psychologist.model.js";
 
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -69,59 +70,65 @@ export const signup = async (req, res) => {
 
 export const registerPsychologist = async (req, res) => {
   try {
+
     const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
+
+    // ✅ Convertir `experienceYears` a número
+    const yearsOfExperience = parseInt(experienceYears, 10);
 
     // ✅ Validar campos requeridos
     if (!name || !last_name || !birthdate || !phone || !city || !gender || !email || !password || !idCardNumber) {
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
     }
 
-    // ✅ Validar archivos subidos (documentos)
-    if (!req.files || !req.files.profilePicture || !req.files.degreeCertificate) {
+    // ✅ Verificar archivos
+    const profilePicture = req.files["profilePicture"]?.[0]?.path || "";
+    const degreeCertificate = req.files["degreeCertificate"]?.[0]?.path || "";
+    const professionalCard = req.files["professionalCard"]?.[0]?.path || "";
+
+    if (!profilePicture || !degreeCertificate) {
       return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
     }
 
-    // ✅ Verificar si el email ya existe
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: "El usuario ya está registrado." });
+    // ✅ Verificar si el email ya existe en `psychologists`
+    const psychologistExists = await Psychologist.findOne({ email });
+    if (psychologistExists) {
+      return res.status(400).json({ success: false, message: "El psicólogo ya está registrado." });
     }
 
     // ✅ Hashear la contraseña
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // ✅ Crear nuevo psicólogo (pendiente de aprobación)
-    const psychologist = new User({
+    // ✅ Crear perfil en `psychologists`
+    const psychologist = new Psychologist({
       name,
       last_name,
-      birthdate,
+      birthdate: new Date(birthdate), // Convertir a tipo `Date`
       phone,
       city,
       gender,
       email,
       password: hashedPassword,
-      role: "psychologist",
-      experienceYears,
-      idCardNumber,
-      profilePicture: req.files.profilePicture[0].path, // 📂 Ruta de la foto de perfil
-      degreeCertificate: req.files.degreeCertificate[0].path, // 📂 Ruta del acta de grado
-      isApproved: false, // 🔹 El admin debe aprobarlo manualmente
+      documentId: idCardNumber,
+      experienceYears: yearsOfExperience,
+      profilePicture,
+      degreeCertificate,
+      professionalCard,
+      isApproved: false,
     });
 
     await psychologist.save();
-
-    // ✅ Enviar correo de verificación
-    await sendVerificationEmail(psychologist.email, psychologist._id.toString());
 
     res.status(201).json({
       success: true,
       message: "Registro exitoso. Esperando aprobación del administrador.",
     });
+
   } catch (error) {
-    console.error("❌ Error en el registro de psicólogos:", error);
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
+
 
 export const verifyCode = async (req, res) => {
   const { code } = req.body;

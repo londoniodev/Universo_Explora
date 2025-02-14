@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaUpload } from "react-icons/fa";
-import Select from "react-select"; // Importar react-select
+import { FaEye, FaEyeSlash, FaUpload, FaTimes } from "react-icons/fa";
+import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../PasswordStrenghtMeter.jsx";
 import { useAuthStore } from "../../store/AuthStore.jsx";
 import toast from "react-hot-toast";
-import "country-flag-icons/3x2/flags.css"; // Estilos para las banderas
+import "country-flag-icons/3x2/flags.css";
 
 // Lista de códigos de país con banderas y longitudes
 const countryCodes = [
@@ -35,6 +35,12 @@ const RegisterPsychologist = () => {
     professionalCard: null,
   });
 
+  const [previewImages, setPreviewImages] = useState({
+    profilePicture: null,
+    degreeCertificate: null,
+    professionalCard: null,
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -49,36 +55,46 @@ const RegisterPsychologist = () => {
   // Manejo de archivos
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData(prev => ({ ...prev, [name]: files[0] }));
+    if (files && files[0]) {
+      const file = files[0];
+      setFormData(prev => ({ ...prev, [name]: file }));
+      setPreviewImages(prev => ({
+        ...prev,
+        [name]: URL.createObjectURL(file), // Crear una URL para la vista previa
+      }));
+    }
   };
 
-  // Manejo de cambios en el código de país
+  // Eliminar la vista previa de la imagen
+  const removeImagePreview = (name) => {
+    setPreviewImages(prev => ({
+      ...prev,
+      [name]: null,
+    }));
+    setFormData(prev => ({ ...prev, [name]: null }));
+  };
+
   const handleCountryChange = (selectedOption) => {
     setFormData(prev => ({ ...prev, phoneCode: selectedOption.value }));
   };
 
-  // Validación y envío
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verifica la edad
     if (new Date().getFullYear() - new Date(formData.birthdate).getFullYear() < 18) {
       toast.error("Debes ser mayor de 18 años");
       return;
     }
 
-    // Obtén el país seleccionado
     const selectedCountry = countryCodes.find(
       (country) => country.code === formData.phoneCode
     );
 
-    // Verifica la longitud del número de teléfono
     if (formData.phoneNumber.length !== selectedCountry.length) {
       toast.error(`El número de teléfono debe tener ${selectedCountry.length} dígitos`);
       return;
     }
 
-    // Combina el código de país y el número de teléfono
     const fullPhoneNumber = `${formData.phoneCode}${formData.phoneNumber}`;
 
     setIsLoading(true);
@@ -86,13 +102,18 @@ const RegisterPsychologist = () => {
     
     Object.entries({
       ...formData,
-      phone: fullPhoneNumber, // Envía el número completo
+      phone: fullPhoneNumber,
     }).forEach(([key, value]) => value && finalFormData.append(key, value));
 
     try {
       await registerPsychologist(finalFormData);
-      toast.success("Registro exitoso. Espera aprobación.");
-      navigate("/login");
+      toast.success("Registro exitoso. Un administrador revisará tu Tu solicitud. Recibirás un correo cuando sea validada.", {
+        duration: 10000,
+      });
+    
+      setTimeout(() => {
+        navigate("/api/auth/login");
+      }, 1000);
     } catch (error) {
       toast.error(error.message || "Error en registro");
     } finally {
@@ -100,7 +121,6 @@ const RegisterPsychologist = () => {
     }
   };
 
-  // Opciones para el selector de códigos de país
   const countryOptions = countryCodes.map((country) => ({
     value: country.code,
     label: (
@@ -112,15 +132,15 @@ const RegisterPsychologist = () => {
   }));
 
   return (
-    <div id="container" className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-[70%] bg-[#202020] rounded-2xl shadow-lg p-6 md:p-8">
+    <div id="container" className="min-h-screen flex items-center justify-center p-4 bg-gray-900">
+      <div className="w-[70%] bg-[#202020] rounded-xl shadow-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-100 text-center mb-8">
           Registro de Psicólogo
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-100 border-b pb-2">
+            <h2 className="text-lg font-semibold text-gray-100 border-b border-gray-600 pb-2">
               Información Personal
             </h2>
             
@@ -161,28 +181,40 @@ const RegisterPsychologist = () => {
                         onChange={handleCountryChange}
                         className="w-full md:w-72" // Responsivo
                         classNamePrefix="react-select"
+                        isSearchable={false} // Deshabilita la búsqueda/edición manual
                         styles={{
                         control: (base) => ({
                             ...base,
-                            border: "1px solid #e2e8f0",
+                            border: "1px solid #4a5568",
                             borderRadius: "0.5rem",
                             padding: "0.5rem", // Más padding
                             boxShadow: "none",
+                            backgroundColor: "transparent",
+                            color: "white",
                             "&:hover": {
-                            borderColor: "#e2e8f0",
+                            borderColor: "#4a5568",
                             },
+                        }),
+                        singleValue: (base) => ({
+                            ...base,
+                            color: "white",
+                        }),
+                        input: (base) => ({
+                            ...base,
+                            color: "white",
                         }),
                         menu: (base) => ({
                             ...base,
                             borderRadius: "0.5rem",
                             marginTop: "0.5rem",
+                            backgroundColor: "#2d3748",
                         }),
                         option: (base, { isFocused, isSelected }) => ({
                             ...base,
-                            backgroundColor: isFocused ? "#3b82f6" : isSelected ? "#3b82f6" : "white",
-                            color: isFocused || isSelected ? "white" : "#1a1a1a",
+                            backgroundColor: isFocused ? "#4a5568" : isSelected ? "#4a5568" : "#2d3748",
+                            color: isFocused || isSelected ? "white" : "#e2e8f0",
                             "&:active": {
-                            backgroundColor: "#3b82f6",
+                            backgroundColor: "#4a5568",
                             },
                         }),
                         }}
@@ -194,7 +226,7 @@ const RegisterPsychologist = () => {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         placeholder="Número de teléfono"
-                        className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="flex-1 px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-white placeholder-gray-400"
                         required
                     />
                     </div>
@@ -207,14 +239,14 @@ const RegisterPsychologist = () => {
                 required
               />
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-600">
+                <label className="block text-sm font-medium text-gray-100">
                   Género
                 </label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-white"
                   required
                 >
                   <option value="" disabled>Seleccionar...</option>
@@ -227,7 +259,7 @@ const RegisterPsychologist = () => {
 
           {/* Sección de Credenciales */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            <h2 className="text-lg font-semibold text-gray-100 border-b border-gray-600 pb-2">
               Credenciales
             </h2>
             
@@ -241,7 +273,7 @@ const RegisterPsychologist = () => {
             />
             
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-600">
+              <label className="block text-sm font-medium text-gray-100">
                 Contraseña
               </label>
               <div className="relative">
@@ -250,7 +282,7 @@ const RegisterPsychologist = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg pr-10"
+                  className="w-full px-4 py-2 border border-gray-600 rounded-lg pr-10 bg-transparent text-white placeholder-gray-400"
                   required
                 />
                 <button
@@ -284,7 +316,7 @@ const RegisterPsychologist = () => {
 
           {/* Sección de Documentos */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-700 border-b pb-2">
+            <h2 className="text-lg font-semibold text-gray-100 border-b border-gray-600 pb-2">
               Documentos Requeridos
             </h2>
             
@@ -292,18 +324,24 @@ const RegisterPsychologist = () => {
               label="Foto de Perfil"
               name="profilePicture"
               onChange={handleFileChange}
+              preview={previewImages.profilePicture}
+              onRemove={() => removeImagePreview("profilePicture")}
               required
             />
             <FileUpload
               label="Acta de Grado"
               name="degreeCertificate"
               onChange={handleFileChange}
+              preview={previewImages.degreeCertificate}
+              onRemove={() => removeImagePreview("degreeCertificate")}
               required
             />
             <FileUpload
               label="Tarjeta Profesional"
               name="professionalCard"
               onChange={handleFileChange}
+              preview={previewImages.professionalCard}
+              onRemove={() => removeImagePreview("professionalCard")}
               required
             />
           </div>
@@ -324,7 +362,7 @@ const RegisterPsychologist = () => {
 // Componente reutilizable para inputs
 const InputField = ({ label, type = "text", name, value, onChange, required }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-medium text-gray-600">
+    <label className="block text-sm font-medium text-gray-100">
       {label}
     </label>
     <input
@@ -332,21 +370,21 @@ const InputField = ({ label, type = "text", name, value, onChange, required }) =
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-white placeholder-gray-400"
       required={required}
     />
   </div>
 );
 
 // Componente para subida de archivos
-const FileUpload = ({ label, name, onChange, required }) => (
+const FileUpload = ({ label, name, onChange, preview, onRemove, required }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-medium text-gray-600">
+    <label className="block text-sm font-medium text-gray-100">
       {label}
     </label>
     <label className="flex items-center gap-2 cursor-pointer">
-      <span className="px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-        <FaUpload className="inline mr-2 text-gray-600" />
+      <span className="px-4 py-2 bg-transparent border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-white">
+        <FaUpload className="inline mr-2 text-gray-100" />
         Seleccionar archivo
       </span>
       <input
@@ -357,6 +395,22 @@ const FileUpload = ({ label, name, onChange, required }) => (
         required={required}
       />
     </label>
+    {preview && (
+      <div className="relative mt-2">
+        <img
+          src={preview}
+          alt="Vista previa"
+          className="w-24 h-24 object-cover rounded-lg"
+        />
+        <button
+          type="button"
+          onClick={onRemove}
+          className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+        >
+          <FaTimes />
+        </button>
+      </div>
+    )}
   </div>
 );
 
