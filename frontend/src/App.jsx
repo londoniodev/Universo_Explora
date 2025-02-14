@@ -107,11 +107,12 @@ const App = () => {
 
   // ✅ Unir al psicólogo a su sala en `Socket.io`
   useEffect(() => {
-    if (user?.role === "psychologist") {
+    if (user?.role === "psychologist" && user?._id) {
       socket.emit("join-psychologist-room", user._id);
       console.log(`📡 Uniendo al psicólogo ${user._id} a su sala...`);
     }
   }, [user]);
+  
 
   // ✅ Escuchar eventos en tiempo real
   useEffect(() => {

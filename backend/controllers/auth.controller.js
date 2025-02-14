@@ -70,7 +70,6 @@ export const signup = async (req, res) => {
 
 export const registerPsychologist = async (req, res) => {
   try {
-
     const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
 
     // ✅ Convertir `experienceYears` a número
@@ -90,17 +89,32 @@ export const registerPsychologist = async (req, res) => {
       return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
     }
 
-    // ✅ Verificar si el email ya existe en `psychologists`
-    const psychologistExists = await Psychologist.findOne({ email });
-    if (psychologistExists) {
-      return res.status(400).json({ success: false, message: "El psicólogo ya está registrado." });
+    // ✅ Verificar si el email ya existe en `users`
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ success: false, message: "Este correo ya está registrado." });
     }
 
     // ✅ Hashear la contraseña
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // ✅ Crear perfil en `psychologists`
+    // ✅ Crear usuario en la colección `users`
+    const user = new User({
+      name,
+      last_name,
+      birthdate,
+      phone,
+      city,
+      gender,
+      email,
+      password: hashedPassword,
+      role: "psychologist", // 🔥 Rol de psicólogo
+    });
+    await user.save();
+
+    // ✅ Crear psicólogo en la colección `psychologists`
     const psychologist = new Psychologist({
+      userId: user._id, // 🔥 Relacionar con el usuario
       name,
       last_name,
       birthdate: new Date(birthdate), // Convertir a tipo `Date`
@@ -108,15 +122,13 @@ export const registerPsychologist = async (req, res) => {
       city,
       gender,
       email,
-      password: hashedPassword,
       documentId: idCardNumber,
       experienceYears: yearsOfExperience,
       profilePicture,
       degreeCertificate,
       professionalCard,
-      isApproved: false,
+      isApproved: false, // 🔥 Por defecto, no está aprobado
     });
-
     await psychologist.save();
 
     res.status(201).json({
@@ -125,6 +137,7 @@ export const registerPsychologist = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("❌ Error en registerPsychologist:", error);
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -163,26 +176,65 @@ export const verifyCode = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
+
     if (!user) {
-      return res.status(400).json({ message: "Credenciales incorrectas" });
+      return res.status(400).json({ success: false, message: "Credenciales incorrectas" });
     }
 
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Credenciales incorrectas" });
+      return res.status(400).json({ success: false, message: "Credenciales incorrectas" });
+    }
+
+    let psychologist = null;
+    if (user.role === "psychologist") {
+      psychologist = await Psychologist.findOne({ userId: user._id });
+
+      if (!psychologist) {
+        psychologist = await Psychologist.findOne({ email: user.email });
+        if (!psychologist) {
+          return res.status(400).json({
+            success: false,
+            message: "No se encontró el perfil de psicólogo asociado a este usuario.",
+          });
+        }
+      }
+
+      // ✅ Si el psicólogo está aprobado pero `isVerified: false`, lo corregimos
+      if (psychologist.isApproved && !user.isVerified) {
+        await User.findByIdAndUpdate(user._id, { isVerified: true }, { new: true });
+        user.isVerified = true;
+      }
+
+      if (!psychologist.isApproved) {
+        return res.status(403).json({ success: false });
+      }
     }
 
     setTokenCookie(res, user._id.toString());
 
-    res.status(200).json({ message: "Inicio de sesión exitoso", user });
+    res.status(200).json({
+      success: true,
+      message: "Inicio de sesión exitoso",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
+        isApproved: psychologist ? psychologist.isApproved : true,
+      },
+    });
+
   } catch (error) {
-    res.status(500).json({ message: "Error al iniciar sesión" });
+    console.error("❌ Error en login:", error);
+    res.status(500).json({ success: false, message: "Error al iniciar sesión" });
   }
 };
+
 
 export const logout = (req, res) => {
   res.clearCookie("token");

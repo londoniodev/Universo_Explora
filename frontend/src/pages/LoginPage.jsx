@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -21,8 +21,29 @@ const LoginPage = () => {
     try {
       const user = await login(email, password);
   
+      if (!user) { 
+        console.warn("⚠️ No se recibió usuario válido después del login.");
+        return;
+      }
+  
+      console.log("📝 Usuario autenticado:", user);
+  
+      // 🔥 Solo redirigir a verificación si NO es psicólogo
+      if (user.isVerified === false && user.role !== "psychologist") {
+        toast("Tu cuenta no está verificada. Revisa tu correo y confirma el código.", {
+          icon: "📩",
+          duration: 7000,
+        });
+  
+        setTimeout(() => {
+          navigate("/api/auth/verify-code");
+        }, 3000);
+        return;
+      }
+  
+      // ✅ Si es psicólogo y no está aprobado
       if (user.role === "psychologist" && !user.isApproved) {
-        toast("Tu solicitud está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
+        toast("Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
           icon: "⏳",
           duration: 7000,
         });
@@ -30,19 +51,25 @@ const LoginPage = () => {
         setTimeout(() => {
           navigate("/api/auth/login");
         }, 7000);
-  
         return;
       }
   
-      toast.success("Inicio de sesión exitoso.");
-      navigate("/api/auth/dashboard");
+      // ✅ Redirigir según el rol
+      const redirectURL = user.role === "admin" ? "/api/auth/admin-dashboard"
+        : user.role === "psychologist" ? "/api/auth/psychologist-dashboard"
+        : "/api/auth/dashboard";
+  
+      console.log("🚀 Redirigiendo a:", redirectURL);
+      navigate(redirectURL);
+  
     } catch (error) {
-      toast.error("Error al iniciar sesión. Verifica tus credenciales.");
+      toast.error("Error inesperado. Intenta de nuevo.");
     } finally {
       setIsLoading(false);
     }
   };
   
+
 
   const containerVariants = {
     hidden: { opacity: 0 },

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const PsychologistSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, required: true, trim: true },
     last_name: { type: String, required: true, trim: true },
     birthdate: { type: Date, required: true },

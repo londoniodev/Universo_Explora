@@ -163,25 +163,79 @@ export const useAuthStore = create((set, get) => ({
     }
   },
   
-  
   login: async (email, password) => {
     try {
       set({ isLoading: true });
+      console.log("🔍 Enviando datos de login:", { email, password });
+
       const response = await axios.post(`${AUTHENTICATION_API}/login`, { email, password }, { withCredentials: true });
-      set({ user: response.data.user, isAuthenticated: true, isLoading: false });
-      toast.dismiss();
+
+      console.log("✅ Respuesta del servidor:", response);
+      console.log("📌 Contenido de response.data:", response.data);
+
+      if (!response || response.status >= 400) {
+        return null; // 🔥 Devuelve `null` si la respuesta no es válida
+      }
+
+      const user = response.data?.user;
+
+      if (!user) {
+        toast.error("Error en la respuesta del servidor.");
+        set({ isLoading: false });
+        return null;
+      }
+
+      if (user.role === "psychologist" && !user.isApproved) {
+        toast("Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
+          icon: "⏳",
+          duration: 7000,
+        });
+
+        setTimeout(() => {
+          set({ isLoading: false, user: null, isAuthenticated: false });
+          navigate("/api/auth/login");
+        }, 7000);
+
+        return null;
+      }
+
+      // ✅ Si todo está bien, autenticamos al usuario
+      set({ user, isAuthenticated: true, isLoading: false });
       toast.success("Inicio de sesión exitoso.");
 
-      await get().fetchCart();
+      // 🔥 **Evitar que un error en `fetchCart` muestre una notificación innecesaria**
+      try {
+        await get().fetchCart();
+      } catch (cartError) {
+        console.warn("⚠️ No se pudo cargar el carrito:", cartError.message);
+      }
+
+      return user; // ✅ Devuelve `user` en lugar de `{ status, message }`
+      
     } catch (error) {
+      console.error("❌ Error en login:", error);
+      console.log("📌 error completo:", JSON.stringify(error, null, 2));
+
       toast.dismiss();
       set({ isLoading: false });
 
-      if (error.response?.status === 401) {
-        toast.error("Credenciales incorrectas. Por favor, verifica tu email y contraseña.");
+      if (!error.response) {
+        toast.error("❌ Error inesperado: No se recibió respuesta del servidor.");
+        return null;
+      }
+
+      const status = error.response.status;
+      const message = error.response.data?.message || "Error al iniciar sesión.";
+
+      if (status === 400) {
+        toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
+      } else if (status === 403) {
+        toast.error("Tu cuenta está pendiente de aprobación. Espera validación del administrador.");
       } else {
         toast.error("Error al iniciar sesión.");
       }
+
+      return null;
     }
   },
 
