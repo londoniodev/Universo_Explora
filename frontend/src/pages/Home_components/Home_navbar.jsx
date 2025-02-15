@@ -29,8 +29,8 @@ const HomeNavbar = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         {[
-          { href: "#Nosotros", label: "Nosotros" },
-          { href: "#Acompañamiento", label: "Acompañamiento" },
+          { href: "#Nosotros", label: "Propósito" },
+          { href: "#Acompañamiento", label: "Programa de Orientación Vocacional" },
           { href: "#Equipo", label: "Equipo" },
           { href: "#Testimonios", label: "Testimonios" },
           { href: "#Contacto", label: "Contáctanos" },

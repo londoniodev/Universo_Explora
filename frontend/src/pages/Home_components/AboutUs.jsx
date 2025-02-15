@@ -36,7 +36,7 @@ const AboutUs = () => {
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 z-10">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={sectionVariants} className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#f8f8f8] to-[#d4d4d4]">
-            Sobre Nosotros
+            Nuestro Propósito 
           </h2>
           <p className="mt-6 text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto">
             En <span className="font-semibold text-white">Explora</span>, empoderamos a las personas para lograr su máximo potencial mediante tecnología avanzada, estrategias personalizadas y acompañamiento continuo.
