@@ -9,6 +9,7 @@ import { FaGithub, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { useEffect } from "react";
 import Mauro from "../../assets/images/Mauro.jpeg";
 import MauroBackground from "../../assets/images/MauroBackground.jpeg";
+import Alvaro from "../../assets/images/Alvaro_portrait.jpeg";
 
 const TeamCarousel = () => {
   const { ref, inView } = useInView({ threshold: 0.2 });
@@ -39,10 +40,9 @@ const TeamCarousel = () => {
       name: "Álvaro Londoño",
       role: "Co Fundador & CTO | Administrador & Analista de Datos.",
       description: "Nuestro CTO optimiza el sistema para brindarte recomendaciones basadas en tendencias, profesiones emergentes y el mercado laboral.",
+      profileImage: Alvaro,
       backgroundImage:
-        "https://images.unsplash.com/photo-1554151228-14d9def656e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
-      profileImage:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=150",
+        "https://plus.unsplash.com/premium_photo-1739037172419-98ead2ee574f?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       socialLinks: {
         github: "https://github.com",
         facebook: "https://facebook.com",
@@ -53,10 +53,10 @@ const TeamCarousel = () => {
       name: "Juan Carlos Zambrano",
       role: "Ingeniero de Software",
       description: "El arquitecto de Explora, creando experiencias rápidas, intuitivas y sin límites.",
-      backgroundImage:
-        "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
       profileImage:
-        "https://images.unsplash.com/photo-1502767089025-657258bf0411?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=150",
+        "https://imengine.prod.srp.navigacloud.com/?uuid=97E920D1-2FFF-4A73-B4D8-7E32C7B45D55&type=primary&q=75&width=1024",
+      backgroundImage:
+        "https://images.unsplash.com/photo-1738941331717-b3da7bd713b3?q=80&w=1490&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       socialLinks: {
         github: "https://github.com",
         facebook: "https://facebook.com",
@@ -118,7 +118,7 @@ const TeamCarousel = () => {
                 style={{
                   backgroundImage: `url(${member.backgroundImage})`,
                   backgroundSize: "cover",
-                  backgroundPosition: "left top 0%",
+                  backgroundPosition: "left top, 0%",
                   backgroundRepeat: "no-repeat",
                 }}
               >
