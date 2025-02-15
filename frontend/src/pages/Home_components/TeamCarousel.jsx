@@ -50,7 +50,7 @@ const TeamCarousel = () => {
       },
     },
     {
-      name: "Juan Carlos Zambrano",
+      name: "Juan Montenegro",
       role: "Ingeniero de Software",
       description: "El arquitecto de Explora, creando experiencias rápidas, intuitivas y sin límites.",
       profileImage:
