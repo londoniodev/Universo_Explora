@@ -26,9 +26,6 @@ const LoginPage = () => {
         return;
       }
   
-      console.log("📝 Usuario autenticado:", user);
-  
-      // 🔥 Solo redirigir a verificación si NO es psicólogo
       if (user.isVerified === false && user.role !== "psychologist") {
         toast("Tu cuenta no está verificada. Revisa tu correo y confirma el código.", {
           icon: "📩",
@@ -41,7 +38,6 @@ const LoginPage = () => {
         return;
       }
   
-      // ✅ Si es psicólogo y no está aprobado
       if (user.role === "psychologist" && !user.isApproved) {
         toast("Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
           icon: "⏳",
@@ -54,12 +50,10 @@ const LoginPage = () => {
         return;
       }
   
-      // ✅ Redirigir según el rol
       const redirectURL = user.role === "admin" ? "/api/auth/admin-dashboard"
         : user.role === "psychologist" ? "/api/auth/psychologist-dashboard"
         : "/api/auth/dashboard";
   
-      console.log("🚀 Redirigiendo a:", redirectURL);
       navigate(redirectURL);
   
     } catch (error) {

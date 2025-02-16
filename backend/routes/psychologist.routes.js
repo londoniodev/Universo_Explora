@@ -18,8 +18,8 @@ router.post(
 );
 
 router.get("/dashboard", verifyToken, isPsychologist, psychologistDashboard);
-router.get("/requests", verifyToken, isPsychologist, getPendingRequests);
+router.get("/pending-requests", verifyToken, isPsychologist, getPendingRequests);
 router.post("/requests/respond", verifyToken, isPsychologist, respondToRequest);
-router.post("/requests/assign-auto", verifyToken, isPsychologist, handleAutoAssignment);
+router.post("/requests/assign-auto", verifyToken, handleAutoAssignment);
 
 export default router;

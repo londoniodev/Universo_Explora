@@ -149,16 +149,13 @@ export const useAuthStore = create((set, get) => ({
         isCheckingAuth: false,
       });
 
-      console.log(`✅ Usuario autenticado como ${response.data.user.role}`);
 
-      // ✅ Unir al psicólogo a su sala en `Socket.io`
       if (response.data.user.role === "psychologist") {
         socket.emit("join-psychologist-room", response.data.user._id);
       }
 
       await get().fetchCart();
     } catch (error) {
-      console.warn("⚠️ checkAuth falló:", error.message);
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
     }
   },
@@ -166,15 +163,11 @@ export const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     try {
       set({ isLoading: true });
-      console.log("🔍 Enviando datos de login:", { email, password });
 
       const response = await axios.post(`${AUTHENTICATION_API}/login`, { email, password }, { withCredentials: true });
 
-      console.log("✅ Respuesta del servidor:", response);
-      console.log("📌 Contenido de response.data:", response.data);
-
       if (!response || response.status >= 400) {
-        return null; // 🔥 Devuelve `null` si la respuesta no es válida
+        return null;
       }
 
       const user = response.data?.user;
@@ -199,22 +192,18 @@ export const useAuthStore = create((set, get) => ({
         return null;
       }
 
-      // ✅ Si todo está bien, autenticamos al usuario
       set({ user, isAuthenticated: true, isLoading: false });
       toast.success("Inicio de sesión exitoso.");
 
-      // 🔥 **Evitar que un error en `fetchCart` muestre una notificación innecesaria**
       try {
         await get().fetchCart();
       } catch (cartError) {
         console.warn("⚠️ No se pudo cargar el carrito:", cartError.message);
       }
 
-      return user; // ✅ Devuelve `user` en lugar de `{ status, message }`
+      return user;
       
     } catch (error) {
-      console.error("❌ Error en login:", error);
-      console.log("📌 error completo:", JSON.stringify(error, null, 2));
 
       toast.dismiss();
       set({ isLoading: false });
@@ -247,8 +236,6 @@ export const useAuthStore = create((set, get) => ({
     try {
       set({ isLoading: true });
   
-      console.log("📤 Enviando formData:", Object.fromEntries(formData.entries())); // 🛠 Verificar datos antes de enviarlos
-
       const response = await axios.post(`${PSYCHOLOGIST_API}/register`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -279,7 +266,7 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     try {
       await axios.post(`${AUTHENTICATION_API}/logout`);
-      set({ user: null, isAuthenticated: false, isCheckingAuth: false }); // Agregamos isCheckingAuth: false
+      set({ user: null, isAuthenticated: false, isCheckingAuth: false });
       toast.success("Sesión cerrada correctamente");
     } catch (error) {
       toast.error("Error al cerrar sesión");
@@ -317,34 +304,53 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ==========================
-  //       COMPRAR TESTS
-  // ==========================
-  buyTests: async (purchasedTests) => {
-    try {
-      toast.dismiss();
-      const response = await axios.post(
-        `${PURCHASE_API}`,
-        { purchasedTests, paymentMethod: "manual" },
+// ==========================
+//       COMPRAR TESTS
+// ==========================
+buyTests: async (purchasedTests) => {
+  try {
+    toast.dismiss();
+
+    const response = await axios.post(
+      `${PURCHASE_API}`,
+      { purchasedTests, paymentMethod: "manual" },
+      { withCredentials: true }
+    );
+
+    if (response.data.success) {
+      set((state) => ({
+        user: { ...state.user, purchasedTests: response.data.user.purchasedTests }
+      }));
+
+      toast.success("Compra realizada con éxito.");
+
+      const userId = get()?.user?._id; // 📌 Corrección: Obtener `_id` en lugar de `id`
+      if (!userId) {
+        console.warn("⚠️ No se pudo asignar un psicólogo: `userId` es undefined.");
+        return null;
+      }
+
+      console.log("📩 Solicitando asignación de psicólogo para el usuario:", userId);
+      
+      await axios.post(
+        `${PSYCHOLOGIST_API}/requests/assign-auto`,
+        { userId },
         { withCredentials: true }
       );
-  
-      if (response.data.success) {
-        // ✅ Ahora actualiza `purchasedTests` en `user`
-        set((state) => ({
-          user: { ...state.user, purchasedTests: response.data.user.purchasedTests }
-        }));
-        
-        toast.dismiss();
-        toast.success("Compra realizada con éxito.");
-        return response;
-      }
-      throw new Error(response.data.message || "Error desconocido");
-    } catch (error) {
-      toast.error(error.message || "Error al realizar la compra.");
-      return null;
+
+      socket.emit("new-request", { userId });
+
+      return response;
     }
-  },
+
+    throw new Error(response.data.message || "Error desconocido");
+
+  } catch (error) {
+    console.error("❌ Error al procesar la compra:", error.response?.data || error);
+    toast.error(error.response?.data?.message || "Error al realizar la compra.");
+    return null;
+  }
+},
 
   // ==========================
   //    ACCESOS A LOS PAQUETES
@@ -735,18 +741,33 @@ getShortContextualizationAnswers: async (packageId) => {
   // ==========================
   fetchPendingRequests: async () => {
     try {
-      const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`);
-      set({ pendingRequests: response.data.requests || [] });
+      console.log("🔄 Consultando solicitudes pendientes...");
+      
+      const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`, { withCredentials: true });
+  
+      if (response.data.success && Array.isArray(response.data.requests)) {
+        if (response.data.requests.length > 0) {
+          set({ pendingRequests: response.data.requests });
+          console.log(`📋 Solicitudes pendientes recibidas: ${response.data.requests.length}`);
+        } else {
+          console.warn("⚠️ No hay nuevas solicitudes. Manteniendo estado actual.");
+        }
+      } else {
+        console.warn("⚠️ Respuesta inválida. No se actualizarán solicitudes.");
+      }
     } catch (error) {
       console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
     }
   },
+  
+  // ==========================
+  //     RESPONDER SOLICITUDES DE PSICOLOGOS PARA USUARIOS
+  // ==========================
 
   respondToRequest: async (requestId, action) => {
     try {
       await axios.post(`${PSYCHOLOGIST_API}/respond-request`, { requestId, action });
 
-      // ✅ Emitir evento a `Socket.io`
       socket.emit("request-handled", { requestId, action });
 
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);

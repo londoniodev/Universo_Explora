@@ -20,7 +20,7 @@ const setTokenCookie = (res, userId) => {
 
 
 export const signup = async (req, res) => {
-  const { name, last_name, birthdate, phone, city, gender, customGender, email, password } = req.body;
+  const { name, last_name, birthdate, phone, city, gender, customGender, email, password, role } = req.body;
 
   try {
     if (!email || !password || !name || !last_name || !birthdate || !phone || !city || !gender) {
@@ -33,22 +33,33 @@ export const signup = async (req, res) => {
     }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
-
     const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
-    const user = new User({
+
+    const newUser = {
       name,
       last_name,
       birthdate,
       phone,
       city,
-      gender : gender === "custom" ? customGender : gender,
+      gender: gender === "custom" ? customGender : gender,
       email,
       password: hashedPassword,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
-    });
+      role: role || "user",
+    };
 
+    if (role === "psychologist") {
+      newUser.documentId = req.body.documentId || "";
+      newUser.experienceYears = req.body.experienceYears || 0;
+      newUser.profilePicture = req.body.profilePicture || "";
+      newUser.degreeCertificate = req.body.degreeCertificate || "";
+      newUser.professionalCard = req.body.professionalCard || "";
+    }
+    
+    const user = new User(newUser);
     await user.save();
+
     await sendVerificationEmail(user.email, user.id.toString());
 
     setTokenCookie(res, user._id.toString());
@@ -68,7 +79,6 @@ export const signup = async (req, res) => {
   }
 };
 
-
 export const registerPsychologist = async (req, res) => {
   try {
     const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
@@ -79,7 +89,6 @@ export const registerPsychologist = async (req, res) => {
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
     }
 
-    // ✅ Verificar archivos
     const profilePicture = req.files["profilePicture"]?.[0]?.path || "";
     const degreeCertificate = req.files["degreeCertificate"]?.[0]?.path || "";
     const professionalCard = req.files["professionalCard"]?.[0]?.path || "";
@@ -88,16 +97,13 @@ export const registerPsychologist = async (req, res) => {
       return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
     }
 
-    // ✅ Verificar si el email ya existe en `users`
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ success: false, message: "Este correo ya está registrado." });
     }
 
-    // ✅ Hashear la contraseña
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // ✅ Crear usuario en la colección `users` con los datos completos
     const user = new User({
       name,
       last_name,
@@ -107,21 +113,20 @@ export const registerPsychologist = async (req, res) => {
       gender,
       email,
       password: hashedPassword,
-      role: "psychologist", // 🔥 Rol de psicólogo
+      role: "psychologist",
       documentId: idCardNumber,
       experienceYears: yearsOfExperience,
       profilePicture,
       degreeCertificate,
       professionalCard,
-      isApproved: false, // 🔥 Por defecto, no está aprobado
+      isApproved: false,
     });
 
     await user.save();
 
-    // ✅ Crear un documento en la colección `Psychologist`
     const psychologist = new Psychologist({
       userId: user._id,
-      isApproved: false, // 🔥 Para control de acceso
+      isApproved: false,
     });
 
     await psychologist.save();
@@ -132,7 +137,6 @@ export const registerPsychologist = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error en registerPsychologist:", error);
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -198,7 +202,6 @@ export const login = async (req, res) => {
         }
       }
 
-      // ✅ Si el psicólogo está aprobado pero `isVerified: false`, lo corregimos
       if (psychologist.isApproved && !user.isVerified) {
         await User.findByIdAndUpdate(user._id, { isVerified: true }, { new: true });
         user.isVerified = true;
@@ -225,7 +228,6 @@ export const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error en login:", error);
     res.status(500).json({ success: false, message: "Error al iniciar sesión" });
   }
 };

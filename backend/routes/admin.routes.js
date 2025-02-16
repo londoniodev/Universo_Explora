@@ -5,9 +5,8 @@ import { getAllUsers, updateUserRole, deleteUser } from "../controllers/admin.co
 
 const router = express.Router();
 
-router.use(verifyToken); // ✅ Aplica autenticación
+router.use(verifyToken);
 
-// Rutas protegidas solo para administradores
 router.get("/users", isAdmin, getAllUsers);
 router.put("/users/:userId/role", isAdmin, updateUserRole);
 router.delete("/users/:userId", isAdmin, deleteUser);

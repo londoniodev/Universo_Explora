@@ -9,38 +9,32 @@ export const initSocket = (server) => {
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
-    transports: ["websocket", "polling"], // Permite WebSockets pero con fallback a polling
+    transports: ["websocket", "polling"],
   });
 
   io.on("connection", (socket) => {
-    console.log(`🟢 Cliente conectado: ${socket.id}`);
-
-    // ✅ Unir al psicólogo a su sala cuando se conecta
+    console.log("🟢 Nuevo cliente conectado:", socket.id);
+  
     socket.on("join-psychologist-room", (psychologistId) => {
       if (psychologistId) {
         socket.join(`psychologist-${psychologistId}`);
-        console.log(`👥 Psicólogo ${psychologistId} unido a su sala.`);
+        console.log(`✅ Psicólogo ${psychologistId} se unió a la sala psychologist-${psychologistId}`);
       }
     });
-
-    // ✅ Permitir que el psicólogo deje la sala al desconectarse
+  
     socket.on("leave-psychologist-room", (psychologistId) => {
       if (psychologistId) {
         socket.leave(`psychologist-${psychologistId}`);
-        console.log(`👋 Psicólogo ${psychologistId} salió de su sala.`);
+        console.log(`❌ Psicólogo ${psychologistId} salió de la sala psychologist-${psychologistId}`);
       }
     });
-
-    // ✅ Notificar desconexión
+  
     socket.on("disconnect", (reason) => {
-      console.log(`🔴 Cliente desconectado: ${socket.id} (${reason})`);
+      console.log(`🔴 Cliente desconectado: ${socket.id} - Razón: ${reason}`);
     });
   });
-
-  console.log("✅ Socket.io inicializado");
 };
 
-// 📌 Obtener la instancia de `io` en otros archivos
 export const getIO = () => {
   if (!io) {
     throw new Error("Socket.io no está inicializado.");

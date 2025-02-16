@@ -7,7 +7,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-// 🔥 Conectar con `Socket.io`
 const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,
   transports: ["websocket", "polling"],
@@ -27,24 +26,19 @@ const PsychologistDashboard = () => {
   const [notes, setNotes] = useState({});
   const dropdownRef = useRef(null);
 
-  // ✅ Unir al psicólogo a su sala de `Socket.io`
   useEffect(() => {
     if (user?._id) {
       socket.emit("join-psychologist-room", user._id);
-      console.log(`📡 Uniendo al psicólogo ${user._id} a su sala...`);
     }
   }, [user?._id]);
 
-  // ✅ Cargar datos al iniciar
   useEffect(() => {
     fetchAssignedUsers();
     fetchPendingRequests();
   }, []);
 
-  // ✅ Escuchar eventos en tiempo real con `Socket.io`
   useEffect(() => {
     socket.on("new-request", ({ userId }) => {
-      console.log(`📩 Nueva solicitud recibida para el usuario: ${userId}`);
       setPendingRequests((prev) => [...prev, { _id: userId, userId }]);
       setPendingRequestCount((prev) => prev + 1);
     });
@@ -56,7 +50,6 @@ const PsychologistDashboard = () => {
     });
 
     socket.on("request-removed", ({ userId }) => {
-      console.log(`❌ Eliminando solicitud del usuario: ${userId}`);
       setPendingRequests((prev) => prev.filter((req) => req.userId !== userId));
       setPendingRequestCount((prev) => Math.max(0, prev - 1));
     });
@@ -69,7 +62,6 @@ const PsychologistDashboard = () => {
   }, [user?._id]);
   
 
-  // ✅ Obtener pacientes asignados
   const fetchAssignedUsers = async () => {
     try {
       const response = await axios.get("/api/psychologist/dashboard", { withCredentials: true });
@@ -79,38 +71,31 @@ const PsychologistDashboard = () => {
     }
   };
 
-  // ✅ Obtener solicitudes pendientes
   const fetchPendingRequests = async () => {
     try {
       const response = await axios.get("/api/psychologist/requests", { withCredentials: true });
       setPendingRequests(response.data.requests);
       setPendingRequestCount(response.data.requests.length);
     } catch (error) {
-      console.error("⚠️ Error al obtener solicitudes pendientes:", error);
       toast.error("Error al obtener solicitudes pendientes.");
     }
   };
   
 
-  // ✅ Aceptar o rechazar solicitudes
   const handleRequestResponse = async (requestId, action) => {
     try {
-      console.log(`🔄 Enviando solicitud de ${action} para requestId: ${requestId}`);
 
       await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
 
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
 
-      // 🔄 Actualizar listas en tiempo real
       fetchAssignedUsers();
       fetchPendingRequests();
     } catch (error) {
-      console.error("❌ Error al procesar la solicitud:", error);
       toast.error("Error al procesar la solicitud.");
     }
   };
 
-  // ✅ Guardar notas
   const handleSaveNote = async (userId) => {
     try {
       await axios.post("/api/psychologist/save-note", { userId, note: notes[userId] }, { withCredentials: true });
@@ -120,14 +105,12 @@ const PsychologistDashboard = () => {
     }
   };
 
-  // ✅ Cerrar sesión
   const handleLogout = async () => {
     await logout();
     localStorage.getItem("hasSeenWelcomeNotification");
     navigate("/api/auth/login");
   };
 
-  // 🔥 Renderizar el contenido dinámico
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
@@ -238,7 +221,6 @@ const PsychologistDashboard = () => {
               {icon}
               {label}
 
-              {/* 🔴 Indicador de notificaciones en "Solicitudes Pendientes" */}
               {id === "requests" && pendingRequestCount > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
                   {pendingRequestCount}
@@ -250,11 +232,9 @@ const PsychologistDashboard = () => {
       </div>
 
       <div className="flex-1 bg-[#142946]">
-        {/* Header */}
         <div className="flex items-center justify-between bg-[#142946] p-4">
           <h1 className="text-xl font-bold">Dashboard del Psicólogo</h1>
 
-          {/* Menú de Usuario */}
           <div className="relative" ref={dropdownRef}>
             <button
               className="flex items-center gap-2 focus:outline-none"
@@ -266,7 +246,6 @@ const PsychologistDashboard = () => {
               </div>
             </button>
 
-            {/* Menú desplegable */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
                 <button

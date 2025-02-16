@@ -28,10 +28,8 @@ import LoadingSpinner from "./pages/LoadingSpinner.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { useAuthStore } from "./store/AuthStore.jsx";
 
-// 🔥 Conectar con `Socket.io`
 const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true, transports: ["websocket"],});
 
-// 🔹 Ruta protegida que valida autenticación y roles
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
   const location = useLocation();
@@ -40,13 +38,11 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated || !user) return <Navigate to="/api/auth/login" replace />;
   if (!user.isVerified) return <Navigate to="/verify-code" replace />;
 
-  // 🔹 Definir rutas permitidas según el rol
   const roleRoutes = {
     admin: ["/api/auth/admin-dashboard"],
     psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/dashboard/my-account"],
   };
 
-  // 🔹 Si el usuario intenta acceder a una ruta no permitida, redirigirlo
   if (user.role in roleRoutes && !roleRoutes[user.role].includes(location.pathname)) {
     return <Navigate to={roleRoutes[user.role][0]} replace />;
   }
@@ -56,7 +52,6 @@ const ProtectedRoute = ({ children }) => {
 
 ProtectedRoute.propTypes = { children: PropTypes.node.isRequired };
 
-// 🔹 Redirección de usuario autenticado según su rol
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
@@ -87,14 +82,12 @@ const App = () => {
     user
   } = useAuthStore();
 
-  // ✅ Verificar autenticación y cargar datos iniciales
   useEffect(() => {
     checkAuth()
       .then(fetchCart)
       .catch((err) => console.warn("Error al verificar autenticación:", err.message));
   }, []);
 
-  // ✅ Notificación antes de la expiración de sesión
   useEffect(() => {
     const tokenExpiration = localStorage.getItem("tokenExpiration");
     if (tokenExpiration) {
@@ -105,7 +98,6 @@ const App = () => {
     }
   }, []);
 
-  // ✅ Unir al psicólogo a su sala en `Socket.io`
   useEffect(() => {
     if (user?.role === "psychologist" && user?._id) {
       socket.emit("join-psychologist-room", user._id);
@@ -114,7 +106,6 @@ const App = () => {
   }, [user]);
   
 
-  // ✅ Escuchar eventos en tiempo real
   useEffect(() => {
     if (user?.role === "psychologist") {
       socket.on("new-request", () => {

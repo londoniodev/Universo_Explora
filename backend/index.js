@@ -31,17 +31,13 @@ app.use(
   })
 );
 
-// 🔥 **Crear servidor HTTP**
 const server = createServer(app);
 
-// ✅ **Inicializar Socket.io**
 initSocket(server);
 
-// 📌 **Emitir eventos desde otros módulos**
 export const emitPsychologistRequest = (userId) => {
   const io = getIO();
   io.emit("newPsychologistRequest", { userId });
-  console.log(`📢 Enviando evento de solicitud de psicólogo para el usuario: ${userId}`);
 };
 
 // 🔥 **Configurar Rutas**
@@ -62,7 +58,6 @@ import { verifyToken } from "./middleware/verifyToken.js";
 import testAccessRoutes from "./routes/testAccess.routes.js";
 import packageRoutes from "./routes/Package.routes.js";
 
-// 🔥 Registrar rutas protegidas
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contextualization", verifyToken, contextualizationRoute);
@@ -80,7 +75,6 @@ app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
 app.use("uploads/psychologists", express.static("uploads"))
 
-// ✅ Servir el Frontend en Producción
 if (isProduction) {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
   app.get("*", (req, res) => {
@@ -88,29 +82,27 @@ if (isProduction) {
   });
 }
 
-// ✅ Iniciar el servidor y conectar a MongoDB
 const startServer = async () => {
   try {
     await connectDB(MONGO_URI);
-    console.log(`✅ Conectado a MongoDB: ${MONGO_URI}`);
+    console.log(`Conectado a MongoDB: ${MONGO_URI}`);
 
     server.listen(PORT, () => {
-      console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+      console.log(`Servidor corriendo en el puerto ${PORT}`);
     });
 
   } catch (error) {
-    console.error("❌ Error al conectar a la base de datos:", error);
-    process.exit(1); // 📌 Si la BD falla, se detiene el servidor
+    console.error("Error al conectar a la base de datos:", error);
+    process.exit(1);
   }
 };
 
 startServer();
 
-// ✅ Manejar cierre del servidor de forma segura
 process.on("SIGINT", async () => {
-  console.log("\n🔴 Cerrando servidor...");
+  console.log("\n Cerrando servidor...");
   server.close(() => {
-    console.log("✅ Servidor cerrado correctamente.");
+    console.log("Servidor cerrado correctamente.");
     process.exit(0);
   });
 });

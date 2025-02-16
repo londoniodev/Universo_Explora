@@ -7,14 +7,12 @@ import { useAuthStore } from "../../store/AuthStore.jsx";
 import toast from "react-hot-toast";
 import "country-flag-icons/3x2/flags.css";
 
-// Lista de códigos de país con banderas y longitudes
 const countryCodes = [
   { code: "+57", country: "Colombia", flag: "CO", length: 10 },
   { code: "+52", country: "México", flag: "MX", length: 10 },
   { code: "+1", country: "Estados Unidos", flag: "US", length: 10 },
   { code: "+34", country: "España", flag: "ES", length: 9 },
   { code: "+54", country: "Argentina", flag: "AR", length: 10 },
-  // Agrega más códigos de país aquí...
 ];
 
 const RegisterPsychologist = () => {
@@ -22,8 +20,8 @@ const RegisterPsychologist = () => {
     name: "",
     last_name: "",
     birthdate: "",
-    phoneCode: "+57", // Código de país por defecto
-    phoneNumber: "", // Número de teléfono
+    phoneCode: "+57",
+    phoneNumber: "",
     city: "",
     gender: "",
     email: "",
@@ -46,13 +44,11 @@ const RegisterPsychologist = () => {
   const navigate = useNavigate();
   const { registerPsychologist } = useAuthStore();
 
-  // Manejo de cambios
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Manejo de archivos
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
@@ -60,12 +56,11 @@ const RegisterPsychologist = () => {
       setFormData(prev => ({ ...prev, [name]: file }));
       setPreviewImages(prev => ({
         ...prev,
-        [name]: URL.createObjectURL(file), // Crear una URL para la vista previa
+        [name]: URL.createObjectURL(file),
       }));
     }
   };
 
-  // Eliminar la vista previa de la imagen
   const removeImagePreview = (name) => {
     setPreviewImages(prev => ({
       ...prev,
@@ -172,22 +167,21 @@ const RegisterPsychologist = () => {
                   Teléfono
                 </label>
                 <div className="flex gap-2">
-                    {/* Selector de código de país con banderas */}
                     <Select
                         options={countryOptions}
                         value={countryOptions.find(
                         (option) => option.value === formData.phoneCode
                         )}
                         onChange={handleCountryChange}
-                        className="w-full md:w-72" // Responsivo
+                        className="w-full md:w-72"
                         classNamePrefix="react-select"
-                        isSearchable={false} // Deshabilita la búsqueda/edición manual
+                        isSearchable={false}
                         styles={{
                         control: (base) => ({
                             ...base,
                             border: "1px solid #4a5568",
                             borderRadius: "0.5rem",
-                            padding: "0.5rem", // Más padding
+                            padding: "0.5rem",
                             boxShadow: "none",
                             backgroundColor: "transparent",
                             color: "white",
@@ -219,7 +213,6 @@ const RegisterPsychologist = () => {
                         }),
                         }}
                     />
-                    {/* Input para el número de teléfono */}
                     <input
                         type="number"
                         name="phoneNumber"
@@ -257,7 +250,6 @@ const RegisterPsychologist = () => {
             </div>
           </div>
 
-          {/* Sección de Credenciales */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-100 border-b border-gray-600 pb-2">
               Credenciales
@@ -314,7 +306,6 @@ const RegisterPsychologist = () => {
             />
           </div>
 
-          {/* Sección de Documentos */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-100 border-b border-gray-600 pb-2">
               Documentos Requeridos
@@ -359,7 +350,6 @@ const RegisterPsychologist = () => {
   );
 };
 
-// Componente reutilizable para inputs
 const InputField = ({ label, type = "text", name, value, onChange, required }) => (
   <div className="space-y-2">
     <label className="block text-sm font-medium text-gray-100">
@@ -376,7 +366,6 @@ const InputField = ({ label, type = "text", name, value, onChange, required }) =
   </div>
 );
 
-// Componente para subida de archivos
 const FileUpload = ({ label, name, onChange, preview, onRemove, required }) => (
   <div className="space-y-2">
     <label className="block text-sm font-medium text-gray-100">

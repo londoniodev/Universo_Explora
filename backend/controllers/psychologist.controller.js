@@ -1,3 +1,4 @@
+import { Psychologist } from "../models/psychologist.model.js";
 import { User } from "../models/user.model.js";
 import { Request } from "../models/request_for_psychologists.model.js";
 import { getIO } from "../socket.js";
@@ -17,7 +18,6 @@ export const handleAutoAssignment = async (req, res) => {
     const result = await assignPsychologistAutomatically(userId);
     return res.status(result.success ? 200 : 500).json(result);
   } catch (error) {
-    console.error("❌ Error en asignación automática:", error);
     return res.status(500).json({ success: false, message: "Error interno del servidor" });
   }
 };
@@ -40,7 +40,6 @@ export const psychologistDashboard = async (req, res) => {
       maxAllowed: MAX_USERS_PER_WEEK,
     });
   } catch (error) {
-    console.error("❌ Error en el dashboard del psicólogo:", error);
     return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
@@ -51,7 +50,6 @@ export const psychologistDashboard = async (req, res) => {
  */
 export const respondToRequest = async (req, res) => {
   try {
-    console.log("📩 Solicitud recibida en respondToRequest:", req.body);
 
     const { requestId, action } = req.body;
 
@@ -72,12 +70,6 @@ export const respondToRequest = async (req, res) => {
       user.psychologistAssigned = req.user._id;
       await user.save();
 
-      // ✅ Eliminar TODAS las solicitudes del usuario (ya tiene psicólogo asignado)
-      await Request.deleteMany({ userId: user._id });
-
-      // ✅ Notificar a todos los psicólogos para eliminar la solicitud
-      getIO().emit("request-removed", { userId: user._id });
-
       return res.status(200).json({ success: true, message: "Solicitud aceptada correctamente." });
 
     } else if (action === "reject") {
@@ -91,7 +83,6 @@ export const respondToRequest = async (req, res) => {
     }
 
   } catch (error) {
-    console.error("❌ Error al responder solicitud:", error);
     return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
@@ -101,20 +92,25 @@ export const respondToRequest = async (req, res) => {
  */
 export const getPendingRequests = async (req, res) => {
   try {
-    console.log("🔍 Buscando solicitudes pendientes para psicólogo:", req.user?._id);
-
-    if (!req.user) {
-      return res.status(400).json({ success: false, message: "Usuario no autenticado" });
+    if (!req.user || !req.user._id || req.user.role !== "psychologist") {
+      console.warn("❌ Acceso denegado: Usuario no autenticado o no es psicólogo.");
+      return res.status(403).json({ success: false, message: "Acceso denegado" });
     }
 
-    const requests = await Request.find({ psychologistId: req.user._id })
-      .populate("userId", "name email");
+    console.log(`🔍 Obteniendo solicitudes para el psicólogo: ${req.user._id}`);
 
-    console.log("📋 Solicitudes encontradas:", requests);
+    const requests = await Request.find({ psychologistId: req.user._id }).populate("userId", "name email");
+
+    if (!requests.length) {
+      console.warn("⚠️ No hay solicitudes pendientes.");
+    }
+
+    console.log(`📋 Solicitudes encontradas: ${requests.length}`);
 
     return res.status(200).json({ success: true, requests });
+
   } catch (error) {
-    console.error("❌ Error al obtener solicitudes:", error);
+    console.error("❌ Error en getPendingRequests:", error);
     return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
@@ -124,42 +120,51 @@ export const getPendingRequests = async (req, res) => {
  */
 export const assignPsychologistAutomatically = async (userId) => {
   try {
+    console.log(`🔍 Buscando usuario con ID: ${userId}`);
     const user = await User.findById(userId);
     if (!user) {
+      console.warn("❌ Usuario no encontrado.");
       return { success: false, message: "Usuario no encontrado" };
     }
 
     if (user.psychologistAssigned) {
+      console.log("✅ Usuario ya tiene un psicólogo asignado.");
       return { success: true, psychologist: user.psychologistAssigned };
     }
 
     const existingRequest = await Request.findOne({ userId });
     if (existingRequest) {
+      console.log("⏳ Ya existe una solicitud en curso.");
       return { success: true, message: "Esperando respuesta de los psicólogos." };
     }
 
-    // Buscar psicólogos disponibles en `Psychologist`, no en `User`
-    const availablePsychologists = await Psychologist.find({ isApproved: true });
+    console.log("🔍 Buscando psicólogos disponibles en la BD...");
+    
+    // 🔹 Ahora buscamos en `Psychologist`, no en `User`
+    const approvedPsychologists = await Psychologist.find({ isApproved: true }).populate("userId");
 
-    if (availablePsychologists.length === 0) {
+    console.log(`📋 Psicólogos aprobados encontrados: ${approvedPsychologists.length}`);
+    
+    if (approvedPsychologists.length === 0) {
+      console.warn("⚠️ No hay psicólogos disponibles.");
       return { success: false, message: "No hay psicólogos disponibles" };
     }
 
     // Crear solicitudes para cada psicólogo
-    const requests = availablePsychologists.map(psychologist => ({
-      psychologistId: psychologist._id,
+    const requests = approvedPsychologists.map(psychologist => ({
+      psychologistId: psychologist.userId._id,
       userId,
+      status: "pending"
     }));
 
     await Request.insertMany(requests);
+    console.log(`📩 Se enviaron solicitudes a ${approvedPsychologists.length} psicólogos.`);
 
-    console.log(`📢 Enviando evento 'new-request' para el usuario: ${userId}`);
     getIO().emit("new-request", { userId });
 
     return { success: true, message: "Solicitudes enviadas a todos los psicólogos disponibles." };
-
   } catch (error) {
-    console.error("❌ Error en la asignación automática:", error);
+    console.error("❌ Error en assignPsychologistAutomatically:", error);
     return { success: false, message: "Error en el servidor" };
   }
 };
