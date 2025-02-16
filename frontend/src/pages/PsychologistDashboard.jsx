@@ -123,7 +123,7 @@ const PsychologistDashboard = () => {
   // ✅ Cerrar sesión
   const handleLogout = async () => {
     await logout();
-    localStorage.removeItem("hasSeenWelcomeNotification");
+    localStorage.getItem("hasSeenWelcomeNotification");
     navigate("/api/auth/login");
   };
 
@@ -133,7 +133,7 @@ const PsychologistDashboard = () => {
       case "dashboard":
         return (
           <div>
-            <h2 className="text-2xl font-bold mb-4">Bienvenido, {user?.name}</h2>
+            <h2 className="text-2xl font-bold mb-4"></h2>
             <p className="text-gray-600">Aquí puedes gestionar tus pacientes y actividades.</p>
           </div>
         );
@@ -217,8 +217,7 @@ const PsychologistDashboard = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* 📌 Sidebar */}
-      <div className="w-1/5 bg-blue-900 text-white p-6">
+      <div className="w-1/5 bg-[#0E223F] text-white p-6">
         <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
         <nav className="space-y-4">
           {[
@@ -233,7 +232,7 @@ const PsychologistDashboard = () => {
               key={id}
               onClick={() => setActiveSection(id)}
               className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-                activeSection === id ? "bg-blue-700" : "hover:bg-blue-800"
+                activeSection === id ? "bg-gradient-to-r from-[#3B48B4] to-[#345AC3]" : "hover:bg-gradient-to-r from-[#3B48B4] to-[#345AC3]"
               }`}
             >
               {icon}
@@ -250,26 +249,24 @@ const PsychologistDashboard = () => {
         </nav>
       </div>
 
-      {/* 📌 Contenido Principal */}
-      <div className="flex-1 bg-gray-100">
-        {/* 📌 Header */}
-        <div className="flex items-center justify-between bg-white p-4 shadow-md">
+      <div className="flex-1 bg-[#142946]">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-[#142946] p-4">
           <h1 className="text-xl font-bold">Dashboard del Psicólogo</h1>
 
-          {/* 📌 Menú de Usuario */}
+          {/* Menú de Usuario */}
           <div className="relative" ref={dropdownRef}>
             <button
               className="flex items-center gap-2 focus:outline-none"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              {/* 🧑‍⚕️ Avatar del usuario */}
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+              <h1 className="text-gray-300">¡Hola, <span className="text-white font-medium">{user?.name}</span>!</h1>
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
                 <span className="text-gray-700 font-bold">{user?.name?.charAt(0)}</span>
               </div>
-              <span className="text-gray-700 font-medium">{user?.name}</span>
             </button>
 
-            {/* 🔽 Menú desplegable */}
+            {/* Menú desplegable */}
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
                 <button

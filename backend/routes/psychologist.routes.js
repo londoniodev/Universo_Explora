@@ -16,6 +16,7 @@ router.post(
   ]),
   registerPsychologist
 );
+
 router.get("/dashboard", verifyToken, isPsychologist, psychologistDashboard);
 router.get("/requests", verifyToken, isPsychologist, getPendingRequests);
 router.post("/requests/respond", verifyToken, isPsychologist, respondToRequest);

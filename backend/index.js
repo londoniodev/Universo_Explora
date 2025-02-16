@@ -78,6 +78,7 @@ app.use("/api/short-contextualization", verifyToken, shortcontextualizationRoute
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
+app.use("uploads/psychologists", express.static("uploads"))
 
 // ✅ Servir el Frontend en Producción
 if (isProduction) {

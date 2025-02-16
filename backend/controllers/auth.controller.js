@@ -68,14 +68,13 @@ export const signup = async (req, res) => {
   }
 };
 
+
 export const registerPsychologist = async (req, res) => {
   try {
     const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
 
-    // ✅ Convertir `experienceYears` a número
     const yearsOfExperience = parseInt(experienceYears, 10);
 
-    // ✅ Validar campos requeridos
     if (!name || !last_name || !birthdate || !phone || !city || !gender || !email || !password || !idCardNumber) {
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
     }
@@ -98,7 +97,7 @@ export const registerPsychologist = async (req, res) => {
     // ✅ Hashear la contraseña
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // ✅ Crear usuario en la colección `users`
+    // ✅ Crear usuario en la colección `users` con los datos completos
     const user = new User({
       name,
       last_name,
@@ -109,19 +108,6 @@ export const registerPsychologist = async (req, res) => {
       email,
       password: hashedPassword,
       role: "psychologist", // 🔥 Rol de psicólogo
-    });
-    await user.save();
-
-    // ✅ Crear psicólogo en la colección `psychologists`
-    const psychologist = new Psychologist({
-      userId: user._id, // 🔥 Relacionar con el usuario
-      name,
-      last_name,
-      birthdate: new Date(birthdate), // Convertir a tipo `Date`
-      phone,
-      city,
-      gender,
-      email,
       documentId: idCardNumber,
       experienceYears: yearsOfExperience,
       profilePicture,
@@ -129,6 +115,15 @@ export const registerPsychologist = async (req, res) => {
       professionalCard,
       isApproved: false, // 🔥 Por defecto, no está aprobado
     });
+
+    await user.save();
+
+    // ✅ Crear un documento en la colección `Psychologist`
+    const psychologist = new Psychologist({
+      userId: user._id,
+      isApproved: false, // 🔥 Para control de acceso
+    });
+
     await psychologist.save();
 
     res.status(201).json({
