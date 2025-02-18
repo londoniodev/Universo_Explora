@@ -5,8 +5,7 @@ import { sendVerificationEmail } from "../Oauth_nodemailer/Oauth2.nodemailer.con
 import { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
 import { User } from "../models/user.model.js";
 import { Psychologist } from "../models/psychologist.model.js";
-import fs from "fs";
-import path from "path";
+
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
   const isProduction = process.env.NODE_ENV === "production";
@@ -433,54 +432,6 @@ export const updatePsychologistAccountInfo = async (req, res) => {
 
   } catch (error) {
     console.error("Error actualizando psicólogo:", error);
-    return res.status(500).json({ success: false, message: "Error del servidor" });
-  }
-};
-
-//---------------------------------------------
-// DELETE PSYCHOLOGIST IMAGES FROM SERVER
-//---------------------------------------------
-export const deletePsychologistImages = async (req, res) => {
-  try {
-    const psychologist = await User.findById(req.userId);
-
-    if (!psychologist || psychologist.role !== "psychologist") {
-      return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
-    }
-
-    // 🔥 Ruta base donde se almacenan las imágenes en el servidor
-    const uploadDir = path.join(process.cwd(), "uploads", "psychologists");
-
-    // 📌 Función para eliminar un archivo
-    const deleteFile = (filePath) => {
-      if (filePath) {
-        const fullPath = path.join(uploadDir, filePath);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
-          console.log(`🗑️ Archivo eliminado: ${fullPath}`);
-        }
-      }
-    };
-
-    // 📌 Eliminar las imágenes asociadas al psicólogo
-    deleteFile(psychologist.profilePicture);
-    deleteFile(psychologist.degreeCertificate);
-    deleteFile(psychologist.professionalCard);
-
-    // 🔥 Borrar las referencias en la base de datos
-    psychologist.profilePicture = "";
-    psychologist.degreeCertificate = "";
-    psychologist.professionalCard = "";
-
-    await psychologist.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Imágenes eliminadas correctamente.",
-    });
-
-  } catch (error) {
-    console.error("❌ Error eliminando imágenes:", error);
     return res.status(500).json({ success: false, message: "Error del servidor" });
   }
 };
