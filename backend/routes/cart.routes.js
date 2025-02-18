@@ -15,28 +15,20 @@ const validateRequest = (req, res, next) => {
 
 const router = express.Router();
 
-router.get('/', verifyToken, getCart);
+router.get( '/', verifyToken, getCart);
 
-router.post(
-  '/',
-  verifyToken,
+router.post( '/', verifyToken,
   body('testId')
     .custom((value) => mongoose.Types.ObjectId.isValid(value))
     .withMessage('ID de test inválido.'),
   body('quantity').isInt({ gt: 0 }).withMessage('La cantidad debe ser mayor a 0.'),
-  validateRequest,
-  addItemToCart
-);
+  validateRequest, addItemToCart );
 
-router.delete(
-  '/item',
-  verifyToken,
+router.delete('/item', verifyToken,
   body('testId')
     .custom((value) => mongoose.Types.ObjectId.isValid(value))
     .withMessage('ID de test inválido.'),
-  validateRequest,
-  removeItemFromCart
-);
+  validateRequest, removeItemFromCart );
 
 router.delete('/', verifyToken, clearCart);
 

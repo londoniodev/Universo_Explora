@@ -7,14 +7,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
-  withCredentials: true,
-  transports: ["websocket", "polling"],
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 3000,
-});
-
 const PsychologistDashboard = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -25,42 +17,59 @@ const PsychologistDashboard = () => {
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [notes, setNotes] = useState({});
   const dropdownRef = useRef(null);
+  const socketRef = useRef(null);
+
 
   useEffect(() => {
-    if (user?._id) {
-      socket.emit("join-psychologist-room", user._id);
+    if (user?.role === "psychologist") {
+      console.log("Imagen de perfil del psicólogo cargada:", user?.profilePicture);
     }
+  }, [user]);
+  
+  useEffect(() => {
+    if (user?._id) {
+      if (!socketRef.current) {
+        socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
+          withCredentials: true,
+          transports: ["websocket", "polling"],
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 3000,
+        });
+
+        socketRef.current.emit("join-psychologist-room", user._id);
+
+        socketRef.current.on("new-request", ({ userId }) => {
+          setPendingRequests((prev) => [...prev, { _id: userId, userId }]);
+          setPendingRequestCount((prev) => prev + 1);
+        });
+
+        socketRef.current.on("assigned-user", ({ psychologistId }) => {
+          if (psychologistId === user?._id) {
+            fetchAssignedUsers();
+          }
+        });
+
+        socketRef.current.on("request-removed", ({ userId }) => {
+          setPendingRequests((prev) => prev.filter((req) => req.userId !== userId));
+          setPendingRequestCount((prev) => Math.max(0, prev - 1));
+        });
+      }
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.emit("leave-psychologist-room", user._id);
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
   }, [user?._id]);
 
   useEffect(() => {
     fetchAssignedUsers();
     fetchPendingRequests();
   }, []);
-
-  useEffect(() => {
-    socket.on("new-request", ({ userId }) => {
-      setPendingRequests((prev) => [...prev, { _id: userId, userId }]);
-      setPendingRequestCount((prev) => prev + 1);
-    });
-
-    socket.on("assigned-user", ({ psychologistId }) => {
-      if (psychologistId === user?._id) {
-        fetchAssignedUsers();
-      }
-    });
-
-    socket.on("request-removed", ({ userId }) => {
-      setPendingRequests((prev) => prev.filter((req) => req.userId !== userId));
-      setPendingRequestCount((prev) => Math.max(0, prev - 1));
-    });
-
-    return () => {
-      socket.off("new-request");
-      socket.off("assigned-user");
-      socket.off("request-removed");
-    };
-  }, [user?._id]);
-  
 
   const fetchAssignedUsers = async () => {
     try {
@@ -73,18 +82,16 @@ const PsychologistDashboard = () => {
 
   const fetchPendingRequests = async () => {
     try {
-      const response = await axios.get("/api/psychologist/requests", { withCredentials: true });
+      const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
       setPendingRequests(response.data.requests);
       setPendingRequestCount(response.data.requests.length);
     } catch (error) {
       toast.error("Error al obtener solicitudes pendientes.");
     }
   };
-  
 
   const handleRequestResponse = async (requestId, action) => {
     try {
-
       await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
 
       toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
@@ -242,7 +249,15 @@ const PsychologistDashboard = () => {
             >
               <h1 className="text-gray-300">¡Hola, <span className="text-white font-medium">{user?.name}</span>!</h1>
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
-                <span className="text-gray-700 font-bold">{user?.name?.charAt(0)}</span>
+                {user?.profilePicture ? (
+                  <img 
+                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/psychologists/${user.profilePicture}`} 
+                    alt="Perfil" 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <span className="text-gray-700 font-bold">{user?.name?.charAt(0)}</span>
+                )}
               </div>
             </button>
 

@@ -9,7 +9,7 @@ const userPackageAccessSchema = new mongoose.Schema(
     expiresAt: { type: Date, required: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
     isPermanent: { type: Boolean, default: false },
-    paymentMethod: { type: String, required: false }, // Ejemplo: "Stripe", "PayPal"
+    paymentMethod: { type: String, required: false }, // Ejemplo: "Stripe", "PayPal o "MercadoPago"
     transactionId: { type: String, required: false }, // ID de la transacción en la pasarela
     paymentStatus: { type: String, default: "pending" }, // "pending", "completed", "failed"
   },

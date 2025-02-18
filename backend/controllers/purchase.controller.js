@@ -12,8 +12,6 @@ export const handlePurchase = async (req, res) => {
       return res.status(400).json({ success: false, message: "Datos de compra inválidos" });
     }
 
-    console.log(`🛒 Procesando compra para el usuario: ${userId}`);
-
     const results = [];
     for (const test of purchasedTests) {
       const token = generateTestAccessToken({ userId, packageId: test.id }, null);
@@ -37,14 +35,11 @@ export const handlePurchase = async (req, res) => {
       { new: true }
     ).select("-password");
 
-    console.log("✅ Compra realizada, asignando psicólogo...");
-
     let psychologist = null;
     try {
       const assignResult = await assignPsychologistAutomatically(userId);
       if (assignResult?.success && assignResult.psychologist) {
         psychologist = assignResult.psychologist;
-        console.log(`✅ Psicólogo asignado: ${psychologist.name}`);
       } else {
         console.warn("⚠️ No se pudo asignar un psicólogo automáticamente.");
       }
@@ -63,7 +58,7 @@ export const handlePurchase = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ ERROR en `handlePurchase`:", error);
+    console.error("ERROR en handlePurchase:", error);
     return res.status(500).json({ success: false, message: "Error al procesar la compra" });
   }
 };

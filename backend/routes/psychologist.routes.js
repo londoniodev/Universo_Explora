@@ -13,9 +13,7 @@ router.post(
     { name: "profilePicture", maxCount: 1 },
     { name: "degreeCertificate", maxCount: 1 },
     { name: "professionalCard", maxCount: 1 },
-  ]),
-  registerPsychologist
-);
+  ]), registerPsychologist);
 
 router.get("/dashboard", verifyToken, isPsychologist, psychologistDashboard);
 router.get("/pending-requests", verifyToken, isPsychologist, getPendingRequests);

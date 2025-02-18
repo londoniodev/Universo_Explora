@@ -7,10 +7,8 @@ import path from "path";
 import { createServer } from "http";
 import { initSocket, getIO } from "./socket.js";
 
-// 🔥 Cargar variables de entorno
 dotenv.config();
 
-// 🔥 Definir entorno (Desarrollo o Producción)
 const isProduction = process.env.NODE_ENV === "production";
 const CLIENT_URL = isProduction ? process.env.CLIENT_URL_PROD : process.env.CLIENT_URL_DEV;
 const MONGO_URI = isProduction ? process.env.MONGO_URI : process.env.MONGO_URI_LOCAL;
@@ -19,7 +17,6 @@ const PORT = process.env.PORT || 4001;
 const app = express();
 const __dirname = path.resolve();
 
-// 🔥 Configurar middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -40,7 +37,6 @@ export const emitPsychologistRequest = (userId) => {
   io.emit("newPsychologistRequest", { userId });
 };
 
-// 🔥 **Configurar Rutas**
 import authRoutes from "./routes/auth.routes.js";
 import contextualizationRoute from "./routes/contextualization.routes.js";
 import autoevaluationRoute from "./routes/autoevaluation.routes.js";
@@ -73,7 +69,8 @@ app.use("/api/short-contextualization", verifyToken, shortcontextualizationRoute
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
-app.use("uploads/psychologists", express.static("uploads"))
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 if (isProduction) {
   app.use(express.static(path.join(__dirname, "frontend/dist")));

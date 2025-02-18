@@ -24,6 +24,12 @@ export const verifyToken = async (req, res, next) => {
 };
 
 export const isPsychologist = (req, res, next) => {
+
+  if (!req.user) {
+    console.warn("❌ isPsychologist - req.user no está definido");
+    return res.status(403).json({ success: false, message: "Acceso denegado - Usuario no autenticado" });
+  }
+
   if (req.user?.role !== "psychologist") {
     return res.status(403).json({ success: false, message: "Acceso denegado" });
   }

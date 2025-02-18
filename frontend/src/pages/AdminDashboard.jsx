@@ -9,7 +9,7 @@ import PsychologistAssignment from "../assets/components/admin/PsychologistAssig
 import PendingRequests from "../assets/components/admin/PendingRequests.jsx";
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
   const [users, setUsers] = useState([]);
   const [psychologists, setPsychologists] = useState([]);
   const [activeTab, setActiveTab] = useState("users");

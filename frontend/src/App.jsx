@@ -101,7 +101,6 @@ const App = () => {
   useEffect(() => {
     if (user?.role === "psychologist" && user?._id) {
       socket.emit("join-psychologist-room", user._id);
-      console.log(`📡 Uniendo al psicólogo ${user._id} a su sala...`);
     }
   }, [user]);
   

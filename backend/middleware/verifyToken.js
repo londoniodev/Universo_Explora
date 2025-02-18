@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js"; // ✅ Importar el modelo de usuario
+import { User } from "../models/user.model.js";
 
 export const verifyToken = async (req, res, next) => {
   let token = req.cookies?.token || null;
@@ -12,6 +12,7 @@ export const verifyToken = async (req, res, next) => {
   }
 
   if (!token) {
+    console.warn("❌ verifyToken - Token no proporcionado");
     return res.status(401).json({ success: false, message: "Token no proporcionado" });
   }
 
@@ -19,15 +20,17 @@ export const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
 
-    // 🔥 Buscar al usuario en la base de datos y asignarlo a req.user
     const user = await User.findById(req.userId).select("-password");
+
     if (!user) {
+      console.warn("❌ verifyToken - Usuario no encontrado");
       return res.status(404).json({ success: false, message: "Usuario no encontrado" });
     }
 
-    req.user = user; // ✅ Ahora `req.user` estará disponible en `isAdmin`
+    req.user = user;
     next();
   } catch (error) {
+    console.error("❌ verifyToken - Token inválido o expirado:", error.message);
     return res.status(401).json({ success: false, message: "Token inválido o expirado" });
   }
 };

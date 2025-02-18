@@ -1,6 +1,5 @@
 import { User } from "../models/user.model.js";
 
-// Obtener todos los usuarios (solo Admin)
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
@@ -10,7 +9,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Cambiar el rol de un usuario
 export const updateUserRole = async (req, res) => {
   const { userId, newRole } = req.body;
 
@@ -33,7 +31,6 @@ export const updateUserRole = async (req, res) => {
   }
 };
 
-// Eliminar un usuario
 export const deleteUser = async (req, res) => {
   const { userId } = req.params;
 

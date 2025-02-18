@@ -142,18 +142,23 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.get(`${AUTHENTICATION_API}/check-auth`);
       if (!response.data.user) throw new Error("Usuario no autenticado");
-
+  
+      let user = response.data.user;
+  
+      if (user.role === "psychologist" && user.profilePicture) {
+        user.profilePicture = `${import.meta.env.VITE_BACKEND_URL}/uploads/psychologists/${user.profilePicture.split('/').pop()}`;
+      }
+  
       set({
-        user: response.data.user,
+        user,
         isAuthenticated: true,
         isCheckingAuth: false,
       });
-
-
-      if (response.data.user.role === "psychologist") {
-        socket.emit("join-psychologist-room", response.data.user._id);
+  
+      if (user.role === "psychologist") {
+        socket.emit("join-psychologist-room", user._id);
       }
-
+  
       await get().fetchCart();
     } catch (error) {
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
@@ -163,59 +168,61 @@ export const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     try {
       set({ isLoading: true });
-
+  
       const response = await axios.post(`${AUTHENTICATION_API}/login`, { email, password }, { withCredentials: true });
-
+  
       if (!response || response.status >= 400) {
         return null;
       }
-
-      const user = response.data?.user;
-
+  
+      let user = response.data?.user;
+  
       if (!user) {
         toast.error("Error en la respuesta del servidor.");
         set({ isLoading: false });
         return null;
       }
-
+  
       if (user.role === "psychologist" && !user.isApproved) {
         toast("Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea validada.", {
           icon: "⏳",
           duration: 7000,
         });
-
+  
         setTimeout(() => {
           set({ isLoading: false, user: null, isAuthenticated: false });
           navigate("/api/auth/login");
         }, 7000);
-
+  
         return null;
       }
-
+  
+      if (user.role === "psychologist" && user.profilePicture) {
+        user.profilePicture = `${import.meta.env.VITE_BACKEND_URL}/uploads/psychologists/${user.profilePicture.split('/').pop()}`;
+      }
+  
       set({ user, isAuthenticated: true, isLoading: false });
       toast.success("Inicio de sesión exitoso.");
-
+  
       try {
         await get().fetchCart();
       } catch (cartError) {
         console.warn("⚠️ No se pudo cargar el carrito:", cartError.message);
       }
-
+  
       return user;
       
     } catch (error) {
-
       toast.dismiss();
       set({ isLoading: false });
-
+  
       if (!error.response) {
         toast.error("❌ Error inesperado: No se recibió respuesta del servidor.");
         return null;
       }
-
+  
       const status = error.response.status;
-      const message = error.response.data?.message || "Error al iniciar sesión.";
-
+  
       if (status === 400) {
         toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
       } else if (status === 403) {
@@ -223,10 +230,11 @@ export const useAuthStore = create((set, get) => ({
       } else {
         toast.error("Error al iniciar sesión.");
       }
-
+  
       return null;
     }
   },
+  
 
   // ==========================
   //     SIGNUP FOR PSYCHOLOGISTS
@@ -324,13 +332,11 @@ buyTests: async (purchasedTests) => {
 
       toast.success("Compra realizada con éxito.");
 
-      const userId = get()?.user?._id; // 📌 Corrección: Obtener `_id` en lugar de `id`
+      const userId = get()?.user?._id;
       if (!userId) {
         console.warn("⚠️ No se pudo asignar un psicólogo: `userId` es undefined.");
         return null;
       }
-
-      console.log("📩 Solicitando asignación de psicólogo para el usuario:", userId);
       
       await axios.post(
         `${PSYCHOLOGIST_API}/requests/assign-auto`,
@@ -346,7 +352,7 @@ buyTests: async (purchasedTests) => {
     throw new Error(response.data.message || "Error desconocido");
 
   } catch (error) {
-    console.error("❌ Error al procesar la compra:", error.response?.data || error);
+    console.error("Error al procesar la compra:", error.response?.data || error);
     toast.error(error.response?.data?.message || "Error al realizar la compra.");
     return null;
   }
@@ -741,16 +747,15 @@ getShortContextualizationAnswers: async (packageId) => {
   // ==========================
   fetchPendingRequests: async () => {
     try {
-      console.log("🔄 Consultando solicitudes pendientes...");
       
       const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`, { withCredentials: true });
   
       if (response.data.success && Array.isArray(response.data.requests)) {
         if (response.data.requests.length > 0) {
           set({ pendingRequests: response.data.requests });
-          console.log(`📋 Solicitudes pendientes recibidas: ${response.data.requests.length}`);
         } else {
           console.warn("⚠️ No hay nuevas solicitudes. Manteniendo estado actual.");
+          set((state) => ({ pendingRequests: state.pendingRequests.length ? state.pendingRequests : [] }));
         }
       } else {
         console.warn("⚠️ Respuesta inválida. No se actualizarán solicitudes.");
@@ -758,7 +763,7 @@ getShortContextualizationAnswers: async (packageId) => {
     } catch (error) {
       console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
     }
-  },
+  },  
   
   // ==========================
   //     RESPONDER SOLICITUDES DE PSICOLOGOS PARA USUARIOS
