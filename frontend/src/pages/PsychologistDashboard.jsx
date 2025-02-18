@@ -251,12 +251,18 @@ const PsychologistDashboard = () => {
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
                 {user?.profilePicture ? (
                   <img 
-                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/psychologists/${user.profilePicture}`} 
-                    alt="Perfil" 
-                    className="w-full h-full object-cover" 
+                    src={user?.profilePicture} 
+                    alt="Foto de perfil" 
+                    className="w-32 h-32 rounded-full object-cover pointer-events-none bg-gray-200"
+                    onError={(e) => { 
+                      console.log("Error cargando la imagen:", e.target.src); 
+                      e.target.src = "https://via.placeholder.com/150"; 
+                    }} 
                   />
                 ) : (
-                  <span className="text-gray-700 font-bold">{user?.name?.charAt(0)}</span>
+                  <span className="text-gray-700 dark:text-gray-200 font-bold text-4xl">
+                    {user?.name?.charAt(0)}
+                  </span>
                 )}
               </div>
             </button>

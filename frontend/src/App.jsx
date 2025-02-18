@@ -20,8 +20,9 @@ import SixteenPfTest from "./assets/components/SixteenPfTest.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import GraphicResults from "./assets/components/GraphicResults.jsx";
 import ShortContextualizationAnswer from "./assets/components/ContextualizationShort.jsx";
-import RegisterPsychologist from "./pages/Psychologist_components/RegisterPsychologist.jsx"; // 🔥 Importamos la nueva página
+import RegisterPsychologist from "./pages/Psychologist_components/RegisterPsychologist.jsx";
 import PsychologistDashboard from "./pages/PsychologistDashboard.jsx";
+import MyAccountPsychologist from "./pages/MyAccountPsychologist.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ThankYouPage from "./pages/ThankYouPage.jsx";
 import LoadingSpinner from "./pages/LoadingSpinner.jsx";
@@ -40,8 +41,9 @@ const ProtectedRoute = ({ children }) => {
 
   const roleRoutes = {
     admin: ["/api/auth/admin-dashboard"],
-    psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/dashboard/my-account"],
+    psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account"],
   };
+  
 
   if (user.role in roleRoutes && !roleRoutes[user.role].includes(location.pathname)) {
     return <Navigate to={roleRoutes[user.role][0]} replace />;
@@ -60,6 +62,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
     if (user.role === "admin") return <Navigate to="/api/auth/admin-dashboard" replace />;
     if (user.role === "psychologist" && location.pathname !== "/api/auth/psychologist-dashboard") {
       return <Navigate to="/api/auth/psychologist-dashboard" replace />;
+
     }
     if (user.role === "user") return <Navigate to="/api/auth/dashboard" replace />;
   }
@@ -130,7 +133,8 @@ const App = () => {
     { path: "/", element: <Home /> },
     { path: "/api/auth/login", element: <RedirectAuthenticatedUser><Login /></RedirectAuthenticatedUser> },
     { path: "/api/auth/signup", element: <RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser> },
-    { path: "/api/auth/register-psychologist", element: <RedirectAuthenticatedUser><RegisterPsychologist /></RedirectAuthenticatedUser> }, // ✅ Nueva ruta
+    { path: "/api/auth/register-psychologist", element: <RedirectAuthenticatedUser><RegisterPsychologist /></RedirectAuthenticatedUser> },
+    { path: "/api/auth/psychologist-dashboard/my-account", element: <ProtectedRoute><MyAccountPsychologist /></ProtectedRoute> },
     { path: "/verify-code", element: <VerifyEmail /> },
     { path: "/api/auth/forgot-password", element: <RedirectAuthenticatedUser><ForgotPassword /></RedirectAuthenticatedUser> },
     { path: "/recovery-password/:token", element: <RedirectAuthenticatedUser><RecoveryPassword /></RedirectAuthenticatedUser> },

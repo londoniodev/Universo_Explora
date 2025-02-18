@@ -742,6 +742,50 @@ getShortContextualizationAnswers: async (packageId) => {
     }
   },
 
+// ==========================
+//      UPDATE INFO PARA PSICÓLOGOS
+// ==========================
+
+fetchPsychologistAccountInfo: async () => {
+  try {
+    const response = await axios.get(`${AUTHENTICATION_API}/psychologist/my-account`, {
+      withCredentials: true,
+    });
+
+    if (response.data.success) {
+      return response.data.psychologist;
+    } else {
+      toast.error("Error al obtener la información del psicólogo.");
+      return null;
+    }
+  } catch (error) {
+    toast.error("Error al obtener los datos del psicólogo.");
+    return null;
+  }
+},
+
+updatePsychologistAccountInfo: async (formData) => {
+  try {
+    const response = await axios.put(`${AUTHENTICATION_API}/psychologist/my-account`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    if (response.data.success) {
+      set({ user: response.data.psychologist });
+
+      toast.success("Perfil actualizado correctamente.");
+      return response.data.psychologist;
+    } else {
+      toast.error("Error al actualizar la información.");
+      return null;
+    }
+  } catch (error) {
+    toast.error("Error al actualizar el perfil.");
+    return null;
+  }
+},
+
  // ==========================
   //     GESTIÓN DE SOLICITUDES PAR PSICOLOGOS
   // ==========================

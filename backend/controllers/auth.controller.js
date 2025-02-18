@@ -89,9 +89,10 @@ export const registerPsychologist = async (req, res) => {
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
     }
 
-    const profilePicture = req.files["profilePicture"]?.[0]?.path || "";
-    const degreeCertificate = req.files["degreeCertificate"]?.[0]?.path || "";
-    const professionalCard = req.files["professionalCard"]?.[0]?.path || "";
+    const profilePicture = req.files["profilePicture"]?.[0]?.filename || "";
+    const degreeCertificate = req.files["degreeCertificate"]?.[0]?.filename || "";
+    const professionalCard = req.files["professionalCard"]?.[0]?.filename || "";
+
 
     if (!profilePicture || !degreeCertificate) {
       return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
@@ -346,6 +347,98 @@ export const updateAccountInfo = async (req, res) => {
   }
 };
 
+
+//---------------------------------------------
+// GET AND UPDATE PSYCHOLOGIST ACCOUNT INFO
+//---------------------------------------------
+
+export const getPsychologistAccountInfo = async (req, res) => {
+  try {
+    const psychologist = await User.findById(req.userId).select("-password");
+
+    if (!psychologist || psychologist.role !== "psychologist") {
+      return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
+    }
+
+    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+
+    psychologist.profilePicture = psychologist.profilePicture
+      ? `${baseUrl}/uploads/psychologists/${psychologist.profilePicture}`
+      : null;
+
+    psychologist.degreeCertificate = psychologist.degreeCertificate
+      ? `${baseUrl}/uploads/psychologists/${psychologist.degreeCertificate}`
+      : null;
+
+    psychologist.professionalCard = psychologist.professionalCard
+      ? `${baseUrl}/uploads/psychologists/${psychologist.professionalCard}`
+      : null;
+
+    return res.status(200).json({ success: true, psychologist });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Error del servidor" });
+  }
+};
+
+export const updatePsychologistAccountInfo = async (req, res) => {
+  try {
+    const psychologist = await User.findById(req.userId);
+
+    if (!psychologist || psychologist.role !== "psychologist") {
+      return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
+    }
+
+    const updates = ["name", "last_name", "phone", "city", "gender", "documentId", "experienceYears"];
+    updates.forEach(field => {
+      if (req.body[field] !== undefined) {
+        psychologist[field] = req.body[field];
+      }
+    });
+
+    if (req.files?.profilePicture) {
+      psychologist.profilePicture = req.files.profilePicture[0].filename;
+    }
+
+    if (req.files?.degreeCertificate) {
+      psychologist.degreeCertificate = req.files.degreeCertificate[0].filename;
+    }
+
+    if (req.files?.professionalCard) {
+      psychologist.professionalCard = req.files.professionalCard[0].filename;
+    }
+
+    await psychologist.save();
+
+    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const updatedPsychologist = psychologist.toObject();
+    
+    updatedPsychologist.profilePicture = psychologist.profilePicture
+      ? `${baseUrl}/uploads/psychologists/${psychologist.profilePicture}`
+      : null;
+
+    updatedPsychologist.degreeCertificate = psychologist.degreeCertificate
+      ? `${baseUrl}/uploads/psychologists/${psychologist.degreeCertificate}`
+      : null;
+
+    updatedPsychologist.professionalCard = psychologist.professionalCard
+      ? `${baseUrl}/uploads/psychologists/${psychologist.professionalCard}`
+      : null;
+
+    return res.status(200).json({
+      success: true,
+      message: "Información actualizada correctamente",
+      psychologist: updatedPsychologist,
+    });
+
+  } catch (error) {
+    console.error("Error actualizando psicólogo:", error);
+    return res.status(500).json({ success: false, message: "Error del servidor" });
+  }
+};
+
+// ---------------------------------------------
+//  MARK RESULTS AS SENT
+// ---------------------------------------------
 export const markResultsAsSent = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
