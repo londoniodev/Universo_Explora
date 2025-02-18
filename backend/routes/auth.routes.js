@@ -1,7 +1,7 @@
 import express from "express";
 import { login, logout, signup, verifyCode, forgotPassword,
     recoveryPassword, checkAuth, getAccountInfo, updateAccountInfo,
-    markResultsAsSent, getPsychologistAccountInfo, updatePsychologistAccountInfo } from "../controllers/auth.controller.js";
+    markResultsAsSent, getPsychologistAccountInfo, updatePsychologistAccountInfo, deletePsychologistImages } from "../controllers/auth.controller.js";
 
 import { verifyToken } from "../middleware/verifyToken.js";
 import upload from "../middleware/upload.js";
@@ -29,6 +29,8 @@ router.put(
       { name: "degreeCertificate", maxCount: 1 },
       { name: "professionalCard", maxCount: 1 },
     ]), updatePsychologistAccountInfo);  
+
+    router.delete("/psychologist/delete-images", verifyToken, deletePsychologistImages);
 
 router.post("/mark-results-as-sent", verifyToken, markResultsAsSent);
 
