@@ -352,7 +352,6 @@ buyTests: async (purchasedTests) => {
     throw new Error(response.data.message || "Error desconocido");
 
   } catch (error) {
-    console.error("Error al procesar la compra:", error.response?.data || error);
     toast.error(error.response?.data?.message || "Error al realizar la compra.");
     return null;
   }
@@ -752,7 +751,6 @@ fetchPsychologistAccountInfo: async () => {
       withCredentials: true,
     });
 
-    console.log("🔍 Datos recibidos del backend:", response.data.psychologist);
 
     if (response.data.success) {
       const psychologist = {
@@ -767,7 +765,6 @@ fetchPsychologistAccountInfo: async () => {
         user: { ...psychologist },
       }));
 
-      console.log("✅ Estado actualizado con la imagen correcta:", psychologist.profilePicture);
 
       return psychologist;
     } else {

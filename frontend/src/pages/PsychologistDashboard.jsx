@@ -19,17 +19,6 @@ const PsychologistDashboard = () => {
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
 
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const updatedUser = await fetchPsychologistAccountInfo();
-      console.log("🔍 Datos actualizados del psicólogo en el Dashboard:", updatedUser);
-    };
-  
-    fetchUserData();
-  }, []);
-  
-  
   
   useEffect(() => {
     if (user?._id) {
