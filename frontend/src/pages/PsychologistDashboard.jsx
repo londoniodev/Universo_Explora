@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const PsychologistDashboard = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, fetchPsychologistAccountInfo } = useAuthStore();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,7 +19,9 @@ const PsychologistDashboard = () => {
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
 
-
+  useEffect(() => {
+    fetchPsychologistAccountInfo();
+  }, []);
   
   useEffect(() => {
     if (user?._id) {
