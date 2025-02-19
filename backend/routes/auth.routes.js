@@ -5,7 +5,6 @@ import { login, logout, signup, verifyCode, forgotPassword,
 
 import { verifyToken } from "../middleware/verifyToken.js";
 import upload from "../middleware/upload.js";
-
 const router = express.Router();
 
 router.post("/logout", logout);

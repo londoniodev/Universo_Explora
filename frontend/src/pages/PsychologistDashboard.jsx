@@ -253,7 +253,7 @@ const PsychologistDashboard = () => {
                   <img 
                     src={user?.profilePicture} 
                     alt="Foto de perfil" 
-                    className="w-32 h-32 rounded-full object-cover pointer-events-none bg-gray-200"
+                    className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
                     onError={(e) => { 
                       console.log("Error cargando la imagen:", e.target.src); 
                       e.target.src = "https://via.placeholder.com/150"; 

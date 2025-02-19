@@ -1,24 +1,16 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import crypto from "crypto";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.config.js";
 
-const uploadDir = path.resolve("uploads/psychologists");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const uniqueId = crypto.randomUUID();
-    const ext = path.extname(file.originalname).toLowerCase();
-
-    const newFilename = `${file.fieldname}-${timestamp}-${uniqueId}${ext}`;
-    cb(null, newFilename);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "psychologists",
+    allowedFormats: ["jpg", "jpeg", "png", "pdf"],
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      return `${file.fieldname}-${timestamp}`;
+    },
   },
 });
 

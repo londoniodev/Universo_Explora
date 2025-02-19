@@ -5,6 +5,7 @@ import { sendVerificationEmail } from "../Oauth_nodemailer/Oauth2.nodemailer.con
 import { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
 import { User } from "../models/user.model.js";
 import { Psychologist } from "../models/psychologist.model.js";
+import cloudinary from "../config/cloudinary.config.js";
 
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -380,6 +381,9 @@ export const getPsychologistAccountInfo = async (req, res) => {
   }
 };
 
+// ---------------------------------------------
+// UPDATE PSYCHOLOGIST ACCOUNT INFO USING CLOUDINARY
+// ---------------------------------------------
 export const updatePsychologistAccountInfo = async (req, res) => {
   try {
     const psychologist = await User.findById(req.userId);
@@ -395,39 +399,31 @@ export const updatePsychologistAccountInfo = async (req, res) => {
       }
     });
 
+    const uploadToCloudinary = async (file, folder, oldUrl) => {
+      if (oldUrl) {
+        const oldPublicId = oldUrl.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`psychologists/${oldPublicId}`);
+      }
+      const result = await cloudinary.uploader.upload(file.path, { folder: `psychologists` });
+      return result.secure_url;
+    };
+
     if (req.files?.profilePicture) {
-      psychologist.profilePicture = req.files.profilePicture[0].filename;
+      psychologist.profilePicture = await uploadToCloudinary(req.files.profilePicture[0], "psychologists", psychologist.profilePicture);
     }
-
     if (req.files?.degreeCertificate) {
-      psychologist.degreeCertificate = req.files.degreeCertificate[0].filename;
+      psychologist.degreeCertificate = await uploadToCloudinary(req.files.degreeCertificate[0], "psychologists", psychologist.degreeCertificate);
     }
-
     if (req.files?.professionalCard) {
-      psychologist.professionalCard = req.files.professionalCard[0].filename;
+      psychologist.professionalCard = await uploadToCloudinary(req.files.professionalCard[0], "psychologists", psychologist.professionalCard);
     }
 
     await psychologist.save();
 
-    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
-    const updatedPsychologist = psychologist.toObject();
-    
-    updatedPsychologist.profilePicture = psychologist.profilePicture
-      ? `${baseUrl}/uploads/psychologists/${psychologist.profilePicture}`
-      : null;
-
-    updatedPsychologist.degreeCertificate = psychologist.degreeCertificate
-      ? `${baseUrl}/uploads/psychologists/${psychologist.degreeCertificate}`
-      : null;
-
-    updatedPsychologist.professionalCard = psychologist.professionalCard
-      ? `${baseUrl}/uploads/psychologists/${psychologist.professionalCard}`
-      : null;
-
     return res.status(200).json({
       success: true,
       message: "Información actualizada correctamente",
-      psychologist: updatedPsychologist,
+      psychologist,
     });
 
   } catch (error) {
