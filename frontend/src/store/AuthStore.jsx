@@ -755,16 +755,17 @@ fetchPsychologistAccountInfo: async () => {
     console.log("🔍 Datos recibidos del backend:", response.data.psychologist);
 
     if (response.data.success) {
-      const psychologist = response.data.psychologist;
+      const psychologist = {
+        ...response.data.psychologist,
+        profilePicture: response.data.psychologist.profilePicture?.startsWith("http")
+          ? response.data.psychologist.profilePicture
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${response.data.psychologist.profilePicture}`,
+      };
 
-      set({
-        user: {
-          ...psychologist,
-          profilePicture: psychologist.profilePicture?.startsWith("http")
-            ? psychologist.profilePicture
-            : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.profilePicture}`,
-        }
-      });
+      set((state) => ({
+        ...state,
+        user: { ...psychologist },
+      }));
 
       console.log("✅ Estado actualizado con la imagen correcta:", psychologist.profilePicture);
 

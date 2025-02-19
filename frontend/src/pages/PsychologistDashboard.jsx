@@ -23,13 +23,12 @@ const PsychologistDashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       const updatedUser = await fetchPsychologistAccountInfo();
-      console.log("🔍 Datos actualizados del psicólogo:", updatedUser);
+      console.log("🔍 Datos actualizados del psicólogo en el Dashboard:", updatedUser);
     };
   
-    if (!user || !user.profilePicture) {
-      fetchUserData();
-    }
-  }, [user]);
+    fetchUserData();
+  }, []);
+  
   
   
   useEffect(() => {
@@ -257,16 +256,16 @@ const PsychologistDashboard = () => {
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
                 {user?.profilePicture ? (
                   <img 
-                  src={user?.profilePicture && user.profilePicture.includes("cloudinary") 
-                    ? user.profilePicture 
-                    : "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"}
-                  alt="Foto de perfil" 
-                  className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
-                  onError={(e) => { 
-                    console.warn("⚠️ Error cargando la imagen:", e.target.src);
-                    e.target.src = "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"; 
-                  }} 
-                />
+                    src={user?.profilePicture && user.profilePicture.includes("cloudinary") 
+                      ? user.profilePicture 
+                      : "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"}
+                    alt="Foto de perfil" 
+                    className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
+                    onError={(e) => { 
+                      console.warn("⚠️ Error cargando la imagen:", e.target.src);
+                      e.target.src = "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"; 
+                    }} 
+                  />
                 ) : (
                   <span className="text-gray-700 dark:text-gray-200 font-bold text-4xl">
                     {user?.name?.charAt(0)}
