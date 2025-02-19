@@ -753,7 +753,14 @@ fetchPsychologistAccountInfo: async () => {
     });
 
     if (response.data.success) {
-      return response.data.psychologist;
+      const psychologist = response.data.psychologist;
+
+      return {
+        ...psychologist,
+        profilePicture: psychologist.profilePicture || "https://res.cloudinary.com/dkandom0b/image/upload/default_avatar.png",
+        degreeCertificate: psychologist.degreeCertificate || null,
+        professionalCard: psychologist.professionalCard || null,
+      };
     } else {
       toast.error("Error al obtener la información del psicólogo.");
       return null;

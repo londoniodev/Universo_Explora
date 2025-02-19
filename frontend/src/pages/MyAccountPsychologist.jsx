@@ -291,7 +291,7 @@ const MyAccountPsychologist = () => {
 };
 
 const ImagePreview = ({ src, alt, label }) => {
-  const fallbackImage = "https://res.cloudinary.com/demo/image/upload/v1627954681/default_avatar.png";
+  const fallbackImage = "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 
   if (!src) return null;
 
