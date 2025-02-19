@@ -757,14 +757,18 @@ fetchPsychologistAccountInfo: async () => {
     if (response.data.success) {
       const psychologist = response.data.psychologist;
 
-      return {
-        ...psychologist,
-        profilePicture: psychologist.profilePicture?.startsWith("http")
-          ? psychologist.profilePicture
-          : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.profilePicture}`,
-        degreeCertificate: psychologist.degreeCertificate,
-        professionalCard: psychologist.professionalCard,
-      };
+      set({
+        user: {
+          ...psychologist,
+          profilePicture: psychologist.profilePicture?.startsWith("http")
+            ? psychologist.profilePicture
+            : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.profilePicture}`,
+        }
+      });
+
+      console.log("✅ Estado actualizado con la imagen correcta:", psychologist.profilePicture);
+
+      return psychologist;
     } else {
       toast.error("Error al obtener la información del psicólogo.");
       return null;
@@ -774,6 +778,7 @@ fetchPsychologistAccountInfo: async () => {
     return null;
   }
 },
+
 
 updatePsychologistAccountInfo: async (formData) => {
   try {
