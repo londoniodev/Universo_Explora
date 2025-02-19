@@ -251,12 +251,12 @@ const PsychologistDashboard = () => {
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-300">
                 {user?.profilePicture ? (
                   <img 
-                    src={user?.profilePicture} 
+                    src={user?.profilePicture.startsWith("http") ? user.profilePicture : `https://res.cloudinary.com/dkandom0b/image/upload/${user.profilePicture}`}
                     alt="Foto de perfil" 
                     className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
                     onError={(e) => { 
                       console.warn("⚠️ Error cargando la imagen:", e.target.src);
-                      e.target.src = "https://res.cloudinary.com/demo/image/upload/v1627954681/default_avatar.png";
+                      e.target.src = "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"; 
                     }} 
                   />
                 ) : (
