@@ -442,7 +442,6 @@ export const updatePsychologistAccountInfo = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error actualizando psicólogo:", error);
     return res.status(500).json({ success: false, message: "Error del servidor" });
   }
 };

@@ -98,7 +98,6 @@ export const assignPsychologistAutomatically = async (userId) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      console.warn("❌ Usuario no encontrado.");
       return { success: false, message: "Usuario no encontrado" };
     }
 
@@ -130,7 +129,6 @@ export const assignPsychologistAutomatically = async (userId) => {
 
     return { success: true, message: "Solicitudes enviadas a todos los psicólogos disponibles." };
   } catch (error) {
-    console.error("Error en assignPsychologistAutomatically:", error);
     return { success: false, message: "Error en el servidor" };
   }
 };
