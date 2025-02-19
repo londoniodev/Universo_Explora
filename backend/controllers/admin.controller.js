@@ -45,3 +45,12 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ success: false, message: "Error al eliminar usuario" });
   }
 };
+
+export const getAllPsychologists = async (req, res) => {
+  try {
+    const psychologists = await User.find({ role: "psychologist" }).select("-password");
+    res.status(200).json({ success: true, psychologists });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error al obtener psicólogos" });
+  }
+};

@@ -28,7 +28,6 @@ const AdminDashboard = () => {
       const [usersResponse, psychologistsResponse, requestsResponse] = await Promise.all([
         axios.get("/api/admin/users", { withCredentials: true }),
         axios.get("/api/admin/psychologists", { withCredentials: true }),
-        useAuthStore.getState().fetchPendingRequests(),
       ]);
       setUsers(usersResponse.data.users);
       setPsychologists(psychologistsResponse.data.psychologists);
