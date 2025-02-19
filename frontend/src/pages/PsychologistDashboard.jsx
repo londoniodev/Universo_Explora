@@ -21,10 +21,17 @@ const PsychologistDashboard = () => {
 
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      const updatedUser = await fetchPsychologistAccountInfo();
+      console.log("🔍 Datos actualizados del psicólogo:", updatedUser);
+    };
+  
     if (user?.role === "psychologist") {
       console.log("Imagen de perfil del psicólogo cargada:", user?.profilePicture);
+      fetchUserData();
     }
-  }, [user]);
+  }, []);
+  
   
   useEffect(() => {
     if (user?._id) {

@@ -759,9 +759,11 @@ fetchPsychologistAccountInfo: async () => {
 
       return {
         ...psychologist,
-        profilePicture: psychologist.profilePicture || "https://res.cloudinary.com/dkandom0b/image/upload/default_avatar.png",
-        degreeCertificate: psychologist.degreeCertificate || null,
-        professionalCard: psychologist.professionalCard || null,
+        profilePicture: psychologist.profilePicture?.startsWith("http")
+          ? psychologist.profilePicture
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.profilePicture}`,
+        degreeCertificate: psychologist.degreeCertificate,
+        professionalCard: psychologist.professionalCard,
       };
     } else {
       toast.error("Error al obtener la información del psicólogo.");
