@@ -752,6 +752,8 @@ fetchPsychologistAccountInfo: async () => {
       withCredentials: true,
     });
 
+    console.log("🔍 Datos recibidos del backend:", response.data.psychologist);
+
     if (response.data.success) {
       const psychologist = response.data.psychologist;
 

@@ -365,9 +365,17 @@ export const getPsychologistAccountInfo = async (req, res) => {
       success: true,
       psychologist: {
         ...psychologist.toObject(),
-        profilePicture: psychologist.profilePicture || null,
-        degreeCertificate: psychologist.degreeCertificate || null,
-        professionalCard: psychologist.professionalCard || null,
+        profilePicture: psychologist.profilePicture?.startsWith("http") 
+          ? psychologist.profilePicture 
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.profilePicture}`,
+        
+        degreeCertificate: psychologist.degreeCertificate?.startsWith("http") 
+          ? psychologist.degreeCertificate 
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.degreeCertificate}`,
+        
+        professionalCard: psychologist.professionalCard?.startsWith("http") 
+          ? psychologist.professionalCard 
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${psychologist.professionalCard}`,
       },
     });
 
@@ -413,13 +421,16 @@ export const updatePsychologistAccountInfo = async (req, res) => {
     };
 
     if (req.files?.profilePicture) {
-      psychologist.profilePicture = await uploadToCloudinary(req.files.profilePicture[0], "psychologists", psychologist.profilePicture);
+      const uploadedImage = await uploadToCloudinary(req.files.profilePicture[0], "psychologists", psychologist.profilePicture);
+      psychologist.profilePicture = uploadedImage.secure_url;
     }
     if (req.files?.degreeCertificate) {
-      psychologist.degreeCertificate = await uploadToCloudinary(req.files.degreeCertificate[0], "psychologists", psychologist.degreeCertificate);
+      const uploadedCertificate = await uploadToCloudinary(req.files.degreeCertificate[0], "psychologists", psychologist.degreeCertificate);
+      psychologist.degreeCertificate = uploadedCertificate.secure_url;
     }
     if (req.files?.professionalCard) {
-      psychologist.professionalCard = await uploadToCloudinary(req.files.professionalCard[0], "psychologists", psychologist.professionalCard);
+      const uploadedCard = await uploadToCloudinary(req.files.professionalCard[0], "psychologists", psychologist.professionalCard);
+      psychologist.professionalCard = uploadedCard.secure_url;
     }
 
     await psychologist.save();
