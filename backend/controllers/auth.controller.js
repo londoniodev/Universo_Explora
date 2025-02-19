@@ -361,21 +361,16 @@ export const getPsychologistAccountInfo = async (req, res) => {
       return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
     }
 
-    const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    return res.status(200).json({
+      success: true,
+      psychologist: {
+        ...psychologist.toObject(),
+        profilePicture: psychologist.profilePicture || null,
+        degreeCertificate: psychologist.degreeCertificate || null,
+        professionalCard: psychologist.professionalCard || null,
+      },
+    });
 
-    psychologist.profilePicture = psychologist.profilePicture
-      ? `${baseUrl}/uploads/psychologists/${psychologist.profilePicture}`
-      : null;
-
-    psychologist.degreeCertificate = psychologist.degreeCertificate
-      ? `${baseUrl}/uploads/psychologists/${psychologist.degreeCertificate}`
-      : null;
-
-    psychologist.professionalCard = psychologist.professionalCard
-      ? `${baseUrl}/uploads/psychologists/${psychologist.professionalCard}`
-      : null;
-
-    return res.status(200).json({ success: true, psychologist });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Error del servidor" });
   }
@@ -401,10 +396,19 @@ export const updatePsychologistAccountInfo = async (req, res) => {
 
     const uploadToCloudinary = async (file, folder, oldUrl) => {
       if (oldUrl) {
-        const oldPublicId = oldUrl.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(`psychologists/${oldPublicId}`);
+        try {
+          const oldPublicId = oldUrl.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(`psychologists/${oldPublicId}`);
+        } catch (err) {
+          console.warn("⚠️ Error eliminando imagen antigua en Cloudinary:", err.message);
+        }
       }
-      const result = await cloudinary.uploader.upload(file.path, { folder: `psychologists` });
+    
+      const result = await cloudinary.uploader.upload(file.path, { 
+        folder: `psychologists`, 
+        secure: true
+      });
+    
       return result.secure_url;
     };
 

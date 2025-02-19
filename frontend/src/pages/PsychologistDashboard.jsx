@@ -255,8 +255,8 @@ const PsychologistDashboard = () => {
                     alt="Foto de perfil" 
                     className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
                     onError={(e) => { 
-                      console.log("Error cargando la imagen:", e.target.src); 
-                      e.target.src = "https://via.placeholder.com/150"; 
+                      console.warn("⚠️ Error cargando la imagen:", e.target.src);
+                      e.target.src = "https://res.cloudinary.com/demo/image/upload/v1627954681/default_avatar.png";
                     }} 
                   />
                 ) : (

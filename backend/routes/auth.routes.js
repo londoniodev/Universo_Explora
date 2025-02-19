@@ -4,7 +4,7 @@ import { login, logout, signup, verifyCode, forgotPassword,
     markResultsAsSent, getPsychologistAccountInfo, updatePsychologistAccountInfo } from "../controllers/auth.controller.js";
 
 import { verifyToken } from "../middleware/verifyToken.js";
-import upload from "../middleware/upload.js";
+import { upload } from "../middleware/upload.middleware.js"; 
 const router = express.Router();
 
 router.post("/logout", logout);

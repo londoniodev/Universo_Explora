@@ -34,18 +34,19 @@ const MyAccountPsychologist = () => {
         if (data) {
           setFormData(data);
           setPreviewImages({
-            profilePicture: data.profilePicture,
-            degreeCertificate: data.degreeCertificate,
-            professionalCard: data.professionalCard,
+            profilePicture: data.profilePicture || "https://res.cloudinary.com/demo/image/upload/v1627954681/default_avatar.png",
+            degreeCertificate: data.degreeCertificate || null,
+            professionalCard: data.professionalCard || null,
           });
         }
       } catch (error) {
         toast.error("Error al obtener los datos del psicólogo");
       }
     };
-
+  
     fetchData();
   }, [fetchPsychologistAccountInfo]);
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,10 +59,10 @@ const MyAccountPsychologist = () => {
       setFormData((prev) => ({ ...prev, [name]: file }));
       setPreviewImages((prev) => ({
         ...prev,
-        [name]: URL.createObjectURL(file),
+        [name]: URL.createObjectURL(file) || prev[name],
       }));
     }
-  };
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,7 +95,6 @@ const MyAccountPsychologist = () => {
           Mi Cuenta
         </motion.h2>
 
-        {/* Sección de imágenes */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -118,7 +118,6 @@ const MyAccountPsychologist = () => {
           />
         </motion.div>
 
-        {/* Formulario */}
         <motion.form
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -127,7 +126,6 @@ const MyAccountPsychologist = () => {
           className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Nombre */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Nombre
@@ -141,7 +139,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Apellido */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Apellido
@@ -155,7 +152,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Correo Electrónico */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Correo Electrónico
@@ -169,7 +165,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Teléfono */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Teléfono
@@ -183,7 +178,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Ciudad */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Ciudad
@@ -197,7 +191,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Género */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Género
@@ -214,7 +207,6 @@ const MyAccountPsychologist = () => {
               </select>
             </div>
 
-            {/* Número de Documento */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Número de Documento
@@ -228,7 +220,6 @@ const MyAccountPsychologist = () => {
               />
             </div>
 
-            {/* Años de Experiencia */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Años de Experiencia
@@ -243,7 +234,6 @@ const MyAccountPsychologist = () => {
             </div>
           </div>
 
-          {/* Inputs de archivos */}
           <div className="mt-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -285,7 +275,6 @@ const MyAccountPsychologist = () => {
             </div>
           </div>
 
-          {/* Botón de guardar */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -301,8 +290,9 @@ const MyAccountPsychologist = () => {
   );
 };
 
-// Componente para previsualizar imágenes
 const ImagePreview = ({ src, alt, label }) => {
+  const fallbackImage = "https://res.cloudinary.com/demo/image/upload/v1627954681/default_avatar.png";
+
   if (!src) return null;
 
   return (
@@ -318,9 +308,10 @@ const ImagePreview = ({ src, alt, label }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          src={src}
+          src={src || fallbackImage}
           alt={alt}
           className="max-w-full max-h-full object-contain pointer-events-none"
+          onError={(e) => { e.target.src = fallbackImage; }}
         />
       </div>
     </motion.div>
