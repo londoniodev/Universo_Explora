@@ -252,7 +252,7 @@ const PsychologistDashboard = () => {
                       ? user.profilePicture 
                       : "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"}
                     alt="Foto de perfil" 
-                    className="w-full h-full rounded-full object-cover pointer-events-none bg-gray-200"
+                    className="w-full h-full rounded-full object-cover pointer-events-none bg-[#101010]"
                     onError={(e) => { 
                       console.warn("⚠️ Error cargando la imagen:", e.target.src);
                       e.target.src = "https://res.cloudinary.com/dkandom0b/image/upload/v1739941412/explora_xnqod9.png"; 

@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 import { Request } from "../models/request_for_psychologists.model.js";
 import { getIO } from "../socket.js";
 
-const MAX_USERS_PER_WEEK = 50;
+const MAX_USERS_PER_WEEK = 10;
 
 export const handleAutoAssignment = async (req, res) => {
   try {

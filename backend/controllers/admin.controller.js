@@ -10,8 +10,9 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const updateUserRole = async (req, res) => {
-  const { userId, newRole } = req.body;
-
+  const { newRole } = req.body;
+  const { userId } = req.params;
+  
   if (!["user", "admin", "psychologist"].includes(newRole)) {
     return res.status(400).json({ success: false, message: "Rol inválido" });
   }
