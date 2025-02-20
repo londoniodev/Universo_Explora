@@ -355,9 +355,10 @@ export const updateAccountInfo = async (req, res) => {
 
 export const getPsychologistAccountInfo = async (req, res) => {
   try {
-    const psychologist = await User.findById(req.userId).select("-password");
+    
+    const psychologist = await User.findById(req.user._id).select("-password");
 
-    if (!psychologist || psychologist.role !== "psychologist") {
+    if (!psychologist || (psychologist.role !== "psychologist" && psychologist.role !== "fallback_psychologist")) {
       return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
     }
 

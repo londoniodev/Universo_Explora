@@ -42,6 +42,7 @@ const ProtectedRoute = ({ children }) => {
   const roleRoutes = {
     admin: ["/api/auth/admin-dashboard"],
     psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account"],
+    fallback_psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account"],
   };
   
 
@@ -59,10 +60,11 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const location = useLocation();
 
   if (isAuthenticated && user?.isVerified) {
+    
     if (user.role === "admin") return <Navigate to="/api/auth/admin-dashboard" replace />;
-    if (user.role === "psychologist" && location.pathname !== "/api/auth/psychologist-dashboard") {
-      return <Navigate to="/api/auth/psychologist-dashboard" replace />;
 
+    if ((user.role === "psychologist" || user.role === "fallback_psychologist") && location.pathname !== "/api/auth/psychologist-dashboard") {
+      return <Navigate to="/api/auth/psychologist-dashboard" replace />;
     }
     if (user.role === "user") return <Navigate to="/api/auth/dashboard" replace />;
   }

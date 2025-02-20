@@ -76,6 +76,7 @@ const PsychologistDashboard = () => {
       toast.error("Error al obtener los usuarios asignados.");
     }
   };
+  
 
   const fetchPendingRequests = async () => {
     try {

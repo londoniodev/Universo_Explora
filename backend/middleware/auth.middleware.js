@@ -30,9 +30,10 @@ export const isPsychologist = (req, res, next) => {
     return res.status(403).json({ success: false, message: "Acceso denegado - Usuario no autenticado" });
   }
 
-  if (req.user?.role !== "psychologist") {
+  if (req.user.role !== "psychologist" && req.user.role !== "fallback_psychologist") {
     return res.status(403).json({ success: false, message: "Acceso denegado" });
   }
+
   next();
 };
 

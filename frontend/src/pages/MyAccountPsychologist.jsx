@@ -42,7 +42,7 @@ const MyAccountPsychologist = () => {
       } catch (error) {
         toast.error("Error al obtener los datos del psicólogo");
       }
-    };
+    };    
   
     fetchData();
   }, [fetchPsychologistAccountInfo]);

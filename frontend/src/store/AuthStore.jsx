@@ -155,7 +155,7 @@ export const useAuthStore = create((set, get) => ({
         isCheckingAuth: false,
       });
   
-      if (user.role === "psychologist") {
+      if (user.role === "psychologist" || user.role === "fallback_psychologist") {
         socket.emit("join-psychologist-room", user._id);
       }
   
@@ -813,7 +813,7 @@ updatePsychologistAccountInfo: async (formData) => {
           set({ pendingRequests: response.data.requests });
         } else {
           console.warn("⚠️ No hay nuevas solicitudes. Manteniendo estado actual.");
-          set((state) => ({ pendingRequests: state.pendingRequests.length ? state.pendingRequests : [] }));
+          set({ pendingRequests: [] });
         }
       } else {
         console.warn("⚠️ Respuesta inválida. No se actualizarán solicitudes.");
