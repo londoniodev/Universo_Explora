@@ -15,6 +15,7 @@ const PsychologistDashboard = () => {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
+  const [newAssignedCount, setNewAssignedCount] = useState(0);
   const [notes, setNotes] = useState({});
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
@@ -63,17 +64,21 @@ const PsychologistDashboard = () => {
           if (user?._id === psychologistId) {
             toast.dismiss();
             toast.success(`📢 ${message}`);
+            
             await fetchAssignedUsers();
             setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+  
+            setNewAssignedCount((prev) => prev + 1);
           }
         });
-        
+  
         socketRef.current.on("update-assigned-users", async () => {
           await fetchAssignedUsers();
           setAssignedUsers(useAuthStore.getState().assignedUsers || []);
         });
-        
+  
         socketRef.current.on("disconnect", () => {
+          console.warn("⚠️ Desconectado del servidor de sockets.");
         });
       }
     }
@@ -234,13 +239,22 @@ const PsychologistDashboard = () => {
           ].map(({ label, icon, id }) => (
             <button
               key={id}
-              onClick={() => setActiveSection(id)}
+              onClick={() => {
+                setActiveSection(id);
+                if (id === "patients") setNewAssignedCount(0);
+              }}
               className={`w-full text-left px-4 py-2 rounded-lg flex items-center gap-2 transition ${
                 activeSection === id ? "bg-gradient-to-r from-[#3B48B4] to-[#345AC3]" : "hover:bg-gradient-to-r from-[#3B48B4] to-[#345AC3]"
               }`}
             >
               {icon}
               {label}
+
+              {id === "patients" && newAssignedCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
+                  {newAssignedCount}
+                </span>
+              )}
 
               {id === "requests" && pendingRequestCount > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
