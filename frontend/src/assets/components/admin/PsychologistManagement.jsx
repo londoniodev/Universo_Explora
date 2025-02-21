@@ -10,23 +10,14 @@ const PsychologistManagement = () => {
   useEffect(() => {
     const fetchPsychologists = async () => {
       try {
-        const response = await axios.get("/api/admin/psychologists-with-patients", { withCredentials: true });
+        const response = await axios.get("/api/admin/psychologists/assigned-users", { withCredentials: true });
 
         if (response.data.success) {
-          console.log("🔍 Datos de psicólogos recibidos:", response.data.psychologists);
-
-          // ✅ Aseguramos que `assignedUsers` sea un array válido
-          const updatedPsychologists = response.data.psychologists.map((p) => ({
-            ...p,
-            assignedUsers: Array.isArray(p.assignedUsers) ? p.assignedUsers : [], // ✅ Nos aseguramos de que siempre haya un array
-          }));
-
-          setPsychologists(updatedPsychologists);
+          setPsychologists(response.data.psychologists);
         } else {
           console.error("⚠️ No se pudieron obtener los psicólogos correctamente.");
         }
       } catch (error) {
-        console.error("❌ Error al obtener la lista de psicólogos:", error);
         toast.error("Error al obtener psicólogos.");
       }
     };
@@ -61,7 +52,6 @@ const PsychologistManagement = () => {
         toast.error("Error al reasignar usuarios.");
       }
     } catch (error) {
-      console.error("❌ Error en la reasignación:", error);
       toast.error("Error en la reasignación.");
     }
   };

@@ -86,7 +86,6 @@ export const assignPsychologist = async (req, res) => {
     return res.status(200).json({ success: true, message: "Usuario reasignado correctamente." });
 
   } catch (error) {
-    console.error("Error en `assignPsychologist`:", error);
     return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -114,7 +113,6 @@ export const getPsychologistsWithAssignedUsers = async (req, res) => {
 
     res.status(200).json({ success: true, psychologists: psychologistsWithUsers });
   } catch (error) {
-    console.error("❌ Error al obtener psicólogos con usuarios asignados:", error);
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -140,7 +138,29 @@ export const getAllPsychologistsWithPatients = async (req, res) => {
 
     res.status(200).json({ success: true, psychologists: psychologistsWithPatients });
   } catch (error) {
-    console.error("❌ Error al obtener psicólogos con pacientes:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
+
+export const reassignUsers = async (req, res) => {
+  try {
+    const { userIds, newPsychologistId } = req.body;
+
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ success: false, message: "Usuarios inválidos." });
+    }
+
+    const newPsychologist = await User.findById(newPsychologistId);
+    if (!newPsychologist || newPsychologist.role !== "psychologist") {
+      return res.status(400).json({ success: false, message: "Psicólogo no válido." });
+    }
+
+    await Promise.all(userIds.map(async (userId) => {
+      await User.findByIdAndUpdate(userId, { psychologistAssigned: newPsychologistId });
+    }));
+
+    res.status(200).json({ success: true, message: "Usuarios reasignados correctamente." });
+  } catch (error) {
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -163,7 +183,6 @@ export const reassignAllPatients = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Todos los pacientes han sido reasignados." });
   } catch (error) {
-    console.error("❌ Error en la reasignación masiva:", error);
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };

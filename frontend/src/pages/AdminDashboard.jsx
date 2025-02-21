@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers, FaChartBar, FaExchangeAlt } from "react-icons/fa";
 import UserManagement from "../assets/components/admin/UserManagement.jsx";
 import PsychologistAssignment from "../assets/components/admin/PsychologistAssignment.jsx";
-import PendingRequests from "../assets/components/admin/PendingRequests.jsx";
 import PsychologistManagement from "../assets/components/admin/PsychologistManagement.jsx";
 import PsychologistReports from "../assets/components/admin/PsychologistReports.jsx";
 import PsychologistReassignment from "../assets/components/admin/PsychologistReassignment.jsx";
@@ -16,7 +15,6 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [psychologists, setPsychologists] = useState([]);
   const [activeTab, setActiveTab] = useState("users");
-  const [pendingRequests, setPendingRequests] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
 
@@ -28,13 +26,12 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [usersResponse, psychologistsResponse, requestsResponse] = await Promise.all([
+      const [usersResponse, psychologistsResponse] = await Promise.all([
         axios.get("/api/admin/users", { withCredentials: true }),
         axios.get("/api/admin/psychologists", { withCredentials: true }),
       ]);
       setUsers(usersResponse.data.users);
       setPsychologists(psychologistsResponse.data.psychologists);
-      setPendingRequests(requestsResponse);
     } catch (error) {
       toast.error("Error al cargar los datos.");
     }
@@ -110,12 +107,6 @@ const AdminDashboard = () => {
           <FaUserCheck /> Asignación de Psicólogos
         </button>
         <button
-          onClick={() => setActiveTab("requests")}
-          className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "requests" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
-        >
-          📩 Solicitudes Pendientes
-        </button>
-        <button
           onClick={() => setActiveTab("reports")}
           className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "reports" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
         >
@@ -133,13 +124,6 @@ const AdminDashboard = () => {
       {activeTab === "assign" && (
         <PsychologistAssignment
           users={filteredUsers.filter((u) => u.role === "user")}
-          psychologists={psychologists}
-          fetchData={fetchData}
-        />
-      )}
-      {activeTab === "requests" && (
-        <PendingRequests
-          pendingRequests={pendingRequests}
           psychologists={psychologists}
           fetchData={fetchData}
         />

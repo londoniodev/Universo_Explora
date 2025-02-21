@@ -853,7 +853,6 @@ fetchPendingRequests: async () => {
         toast.error(response.data.message || "Error al procesar la solicitud.");
       }
     } catch (error) {
-      console.error("Error al procesar la solicitud:", error.message);
       toast.error("Error al procesar la solicitud.");
     }
   },
