@@ -800,42 +800,61 @@ updatePsychologistAccountInfo: async (formData) => {
   }
 },
 
- // ==========================
-  //     GESTIÓN DE SOLICITUDES PAR PSICOLOGOS
-  // ==========================
-  fetchPendingRequests: async () => {
-    try {
-      
-      const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`, { withCredentials: true });
-  
-      if (response.data.success && Array.isArray(response.data.requests)) {
-        if (response.data.requests.length > 0) {
-          set({ pendingRequests: response.data.requests });
-        } else {
-          console.warn("⚠️ No hay nuevas solicitudes. Manteniendo estado actual.");
-          set({ pendingRequests: [] });
-        }
-      } else {
-        console.warn("⚠️ Respuesta inválida. No se actualizarán solicitudes.");
-      }
-    } catch (error) {
-      console.warn("⚠️ No se pudieron obtener solicitudes pendientes:", error);
+// ==========================
+//     GESTIÓN DE SOLICITUDES PARA PSICÓLOGOS
+// ==========================
+fetchPendingRequests: async () => {
+  try {
+    const { user } = get();
+
+    if (!user || !user.role || (user.role !== "psychologist" && user.role !== "fallback_psychologist")) {
+      console.warn("⚠️ Usuario sin permisos intentó obtener solicitudes pendientes.");
+      return;
     }
-  },  
-  
+
+    const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`, { withCredentials: true });
+
+    if (response.data.success && Array.isArray(response.data.requests)) {
+      console.log("📩 Solicitudes obtenidas del backend:", response.data.requests);
+
+      const uniqueRequests = Array.from(new Map(response.data.requests.map(req => [req.userId._id, req])).values());
+
+      set((state) => ({
+        pendingRequests: uniqueRequests,
+        pendingRequestCount: uniqueRequests.length,
+      }));
+    } else {
+      console.warn("⚠️ No se encontraron solicitudes pendientes.");
+    }
+  } catch (error) {
+    console.error("❌ Error al obtener solicitudes pendientes:", error.message);
+  }
+},
+
   // ==========================
   //     RESPONDER SOLICITUDES DE PSICOLOGOS PARA USUARIOS
   // ==========================
 
   respondToRequest: async (requestId, action) => {
     try {
-      await axios.post(`${PSYCHOLOGIST_API}/respond-request`, { requestId, action });
-
-      socket.emit("request-handled", { requestId, action });
-
-      toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
-      await get().fetchPendingRequests();
+      if (!requestId || !["accept", "reject"].includes(action)) {
+        toast.error("Acción no válida.");
+        return;
+      }
+  
+      const response = await axios.post(`${PSYCHOLOGIST_API}/requests/respond`, { requestId, action });
+  
+      if (response.data.success) {
+        socket.emit("request-handled", { requestId, action });
+  
+        toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+  
+        await get().fetchPendingRequests();
+      } else {
+        toast.error(response.data.message || "Error al procesar la solicitud.");
+      }
     } catch (error) {
+      console.error("❌ Error al procesar la solicitud:", error.message);
       toast.error("Error al procesar la solicitud.");
     }
   },

@@ -21,35 +21,39 @@ const PsychologistDashboard = () => {
 
   useEffect(() => {
     fetchPsychologistAccountInfo();
+    fetchAssignedUsers();
+    fetchPendingRequests();
   }, []);
   
   useEffect(() => {
-    if (user?._id) {
+    if (user?._id && user.role !== "fallback_psychologist") { 
       if (!socketRef.current) {
         socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
           withCredentials: true,
           transports: ["websocket", "polling"],
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 3000,
         });
 
         socketRef.current.emit("join-psychologist-room", user._id);
 
-        socketRef.current.on("new-request", ({ userId }) => {
-          setPendingRequests((prev) => [...prev, { _id: userId, userId }]);
-          setPendingRequestCount((prev) => prev + 1);
-        });
-
-        socketRef.current.on("assigned-user", ({ psychologistId }) => {
-          if (psychologistId === user?._id) {
-            fetchAssignedUsers();
+        socketRef.current.on("new-request", async ({ userId }) => {
+          try {
+            const response = await axios.get(`/api/psychologist/pending-requests`, { withCredentials: true });
+            if (response.data.success) {
+              setPendingRequests(response.data.requests);
+              setPendingRequestCount(response.data.requests.length);
+            }
+          } catch (error) {
+            console.warn("⚠️ Error al obtener solicitudes tras notificación:", error);
           }
         });
 
         socketRef.current.on("request-removed", ({ userId }) => {
-          setPendingRequests((prev) => prev.filter((req) => req.userId !== userId));
+          setPendingRequests((prev) => prev.filter((req) => req.userId._id !== userId));
           setPendingRequestCount((prev) => Math.max(0, prev - 1));
+        });
+
+        socketRef.current.on("disconnect", () => {
+          console.warn("⚠️ Desconectado del servidor de sockets.");
         });
       }
     }
@@ -63,28 +67,25 @@ const PsychologistDashboard = () => {
     };
   }, [user?._id]);
 
-  useEffect(() => {
-    fetchAssignedUsers();
-    fetchPendingRequests();
-  }, []);
 
   const fetchAssignedUsers = async () => {
     try {
       const response = await axios.get("/api/psychologist/dashboard", { withCredentials: true });
       setAssignedUsers(response.data.assignedUsers || []);
     } catch (error) {
-      toast.error("Error al obtener los usuarios asignados.");
+      toast.error("❌ Error al obtener los usuarios asignados.");
     }
   };
-  
 
   const fetchPendingRequests = async () => {
     try {
       const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
-      setPendingRequests(response.data.requests);
-      setPendingRequestCount(response.data.requests.length);
+      if (response.data.success) {
+        setPendingRequests(response.data.requests);
+        setPendingRequestCount(response.data.requests.length);
+      }
     } catch (error) {
-      toast.error("Error al obtener solicitudes pendientes.");
+      console.warn("⚠️ Error al obtener solicitudes pendientes:", error);
     }
   };
 
@@ -92,12 +93,16 @@ const PsychologistDashboard = () => {
     try {
       await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
 
-      toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+      toast.success(`✅ Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+      
+      if (action === "accept" && socketRef.current) {
+        socketRef.current.emit("request-removed", { requestId });
+      }
 
-      fetchAssignedUsers();
-      fetchPendingRequests();
+      await fetchAssignedUsers();
+      await fetchPendingRequests();
     } catch (error) {
-      toast.error("Error al procesar la solicitud.");
+      toast.error("❌ Error al procesar la solicitud.");
     }
   };
 

@@ -41,7 +41,6 @@ export const psychologistDashboard = async (req, res) => {
 
 export const respondToRequest = async (req, res) => {
   try {
-
     const { requestId, action } = req.body;
 
     const request = await Request.findById(requestId);
@@ -58,20 +57,46 @@ export const respondToRequest = async (req, res) => {
       user.psychologistAssigned = req.user._id;
       await user.save();
 
-      return res.status(200).json({ success: true, message: "Solicitud aceptada correctamente." });
+      await Request.deleteMany({ userId: user._id });
 
-    } else if (action === "reject") {
+      getIO().emit("request-removed", { userId: user._id });
+
+      return res.status(200).json({ success: true, message: "Solicitud aceptada correctamente." });
+    }
+
+    if (action === "reject") {
       await Request.deleteOne({ _id: requestId });
+
+      const remainingRequests = await Request.find({ userId: user._id });
+
+      if (remainingRequests.length === 0) {
+        console.warn(`⚠️ Todos los psicólogos rechazaron la solicitud de ${user._id}, asignando al fallback_psychologist...`);
+
+        const fallbackPsychologist = await User.findOne({ role: "fallback_psychologist" });
+
+        if (!fallbackPsychologist) {
+          console.error("❌ No se encontró un fallback_psychologist en la base de datos.");
+          return res.status(500).json({ success: false, message: "No hay fallback_psychologist disponible." });
+        }
+
+        user.psychologistAssigned = fallbackPsychologist._id;
+        await user.save();
+
+        getIO().to(`psychologist-${fallbackPsychologist._id}`).emit("assigned-user", { psychologistId: fallbackPsychologist._id });
+
+        return res.status(200).json({ success: true, message: "Asignado automáticamente al fallback_psychologist." });
+      }
 
       getIO().to(`psychologist-${req.user._id}`).emit("request-removed", { userId: user._id });
 
       return res.status(200).json({ success: true, message: "Solicitud rechazada correctamente." });
     }
-
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error en el servidor" });
+    console.error("❌ Error en `respondToRequest`:", error);
+    return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
+
 
 export const getPendingRequests = async (req, res) => {
   try {
@@ -80,11 +105,11 @@ export const getPendingRequests = async (req, res) => {
       return res.status(403).json({ success: false, message: "Acceso denegado" });
     }
 
-    const requests = await Request.find({ psychologistId: req.user._id }).populate("userId", "name email");
-
-    if (!requests.length) {
-      console.warn("⚠️ No hay solicitudes pendientes.");
-    }
+    const requests = await Request.find({ psychologistId: req.user._id })
+      .populate({
+        path: "userId",
+        select: "name email",
+      });
 
     return res.status(200).json({ success: true, requests });
 
@@ -111,14 +136,16 @@ export const assignPsychologistAutomatically = async (userId) => {
     }
 
     const approvedPsychologists = await Psychologist.find({ isApproved: true })
-      .populate("userId")
-      .sort({ assignedUsersCount: 1 })
+      .populate({ path: "userId", match: { role: "psychologist" } })
+      .sort({ assignedUsersCount: 1 });
 
-    if (approvedPsychologists.length > 0) {
-      const requests = approvedPsychologists.map(psychologist => ({
+    const availablePsychologists = approvedPsychologists.filter(psychologist => psychologist.userId);
+
+    if (availablePsychologists.length > 0) {
+      const requests = availablePsychologists.map(psychologist => ({
         psychologistId: psychologist.userId._id,
         userId,
-        status: "pending"
+        status: "pending",
       }));
 
       await Request.insertMany(requests);
@@ -127,8 +154,8 @@ export const assignPsychologistAutomatically = async (userId) => {
       return { success: true, message: "Solicitudes enviadas a los psicólogos disponibles." };
     }
 
-    console.warn("⚠️ No hay psicólogos disponibles, intentando asignar al fallback_psychologist...");
-    
+    console.warn("⚠️ No hay psicólogos disponibles, asignando directamente al fallback_psychologist...");
+
     const fallbackPsychologist = await User.findOne({ role: "fallback_psychologist" });
 
     if (!fallbackPsychologist) {
@@ -140,7 +167,6 @@ export const assignPsychologistAutomatically = async (userId) => {
     await user.save();
 
     return { success: true, psychologist: fallbackPsychologist, message: "Usuario asignado al fallback_psychologist automáticamente." };
-
   } catch (error) {
     console.error("Error en la asignación automática de psicólogo:", error);
     return { success: false, message: "Error en el servidor." };
