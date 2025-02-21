@@ -118,3 +118,52 @@ export const getPsychologistsWithAssignedUsers = async (req, res) => {
     res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
+
+export const getAllPsychologistsWithPatients = async (req, res) => {
+  try {
+    const psychologists = await User.find({ role: "psychologist" })
+      .select("-password")
+      .lean();
+
+    const psychologistsWithPatients = await Promise.all(
+      psychologists.map(async (psych) => {
+        const assignedUsers = await User.find({ psychologistAssigned: psych._id })
+          .select("name last_name email");
+
+        return {
+          ...psych, 
+          assignedUsers,
+          assignedPatients: assignedUsers.length,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, psychologists: psychologistsWithPatients });
+  } catch (error) {
+    console.error("❌ Error al obtener psicólogos con pacientes:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
+
+
+export const reassignAllPatients = async (req, res) => {
+  try {
+    const { fromPsychologist, toPsychologist } = req.body;
+
+    if (!fromPsychologist || !toPsychologist || fromPsychologist === toPsychologist) {
+      return res.status(400).json({ success: false, message: "Datos inválidos para reasignación." });
+    }
+
+    const patients = await User.find({ psychologistAssigned: fromPsychologist });
+
+    await User.updateMany(
+      { psychologistAssigned: fromPsychologist },
+      { psychologistAssigned: toPsychologist }
+    );
+
+    res.status(200).json({ success: true, message: "Todos los pacientes han sido reasignados." });
+  } catch (error) {
+    console.error("❌ Error en la reasignación masiva:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};

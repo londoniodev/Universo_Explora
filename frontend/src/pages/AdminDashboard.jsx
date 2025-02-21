@@ -3,11 +3,13 @@ import { useAuthStore } from "../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers } from "react-icons/fa";
+import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers, FaChartBar, FaExchangeAlt } from "react-icons/fa";
 import UserManagement from "../assets/components/admin/UserManagement.jsx";
 import PsychologistAssignment from "../assets/components/admin/PsychologistAssignment.jsx";
 import PendingRequests from "../assets/components/admin/PendingRequests.jsx";
 import PsychologistManagement from "../assets/components/admin/PsychologistManagement.jsx";
+import PsychologistReports from "../assets/components/admin/PsychologistReports.jsx";
+import PsychologistReassignment from "../assets/components/admin/PsychologistReassignment.jsx";
 
 const AdminDashboard = () => {
   const { logout } = useAuthStore();
@@ -113,11 +115,21 @@ const AdminDashboard = () => {
         >
           📩 Solicitudes Pendientes
         </button>
+        <button
+          onClick={() => setActiveTab("reports")}
+          className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "reports" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+        >
+          <FaChartBar /> Reporte Psicólogos
+        </button>
+        <button
+          onClick={() => setActiveTab("reassign")}
+          className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "reassign" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+        >
+          <FaExchangeAlt /> Reasignación Masiva
+        </button>
       </div>
 
-      {activeTab === "users" && (
-        <UserManagement users={filteredUsers} fetchData={fetchData} />
-      )}
+      {activeTab === "users" && <UserManagement users={filteredUsers} fetchData={fetchData} />}
       {activeTab === "assign" && (
         <PsychologistAssignment
           users={filteredUsers.filter((u) => u.role === "user")}
@@ -133,6 +145,8 @@ const AdminDashboard = () => {
         />
       )}
       {activeTab === "psychologists" && <PsychologistManagement />}
+      {activeTab === "reports" && <PsychologistReports />}
+      {activeTab === "reassign" && <PsychologistReassignment />}
     </div>
   );
 };
