@@ -3,10 +3,12 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const PsychologistAssignment = ({ users, psychologists, fetchData }) => {
-  const [selectedPsychologist, setSelectedPsychologist] = useState("");
+  const [selectedPsychologists, setSelectedPsychologists] = useState({});
 
   const handleAssignPsychologist = async (userId) => {
-    if (!selectedPsychologist) {
+    const psychologistId = selectedPsychologists[userId];
+  
+    if (!psychologistId) {
       toast.error("Selecciona un psicólogo.");
       return;
     }
@@ -14,22 +16,22 @@ const PsychologistAssignment = ({ users, psychologists, fetchData }) => {
     try {
       const response = await axios.post(
         "/api/admin/assign-psychologist",
-        { userId, psychologistId: selectedPsychologist },
+        { userId, psychologistId },
         { withCredentials: true }
       );
   
       if (response.data.success) {
         toast.success("Usuario asignado a un psicólogo.");
-        setSelectedPsychologist(""); // 🔥 Resetear selección después de asignar
-        fetchData(); // 🔥 Refrescar la lista
+        setSelectedPsychologists((prev) => ({ ...prev, [userId]: "" }));
+        fetchData();
       } else {
         toast.error(response.data.message);
       }
-  
     } catch (error) {
       toast.error("Error al asignar psicólogo.");
     }
-  };  
+  };
+  
 
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg">
@@ -49,8 +51,13 @@ const PsychologistAssignment = ({ users, psychologists, fetchData }) => {
               <td className="p-2 border">{u.email}</td>
               <td className="p-2 border flex justify-center gap-3">
                 <select
-                  value={selectedPsychologist}
-                  onChange={(e) => setSelectedPsychologist(e.target.value)}
+                  value={selectedPsychologists[u._id] || ""}
+                  onChange={(e) =>
+                    setSelectedPsychologists((prev) => ({
+                      ...prev,
+                      [u._id]: e.target.value,
+                    }))
+                  }
                   className="border p-1 rounded-md"
                 >
                   <option value="">Seleccionar Psicólogo...</option>

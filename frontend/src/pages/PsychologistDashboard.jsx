@@ -51,7 +51,7 @@ const PsychologistDashboard = () => {
               setPendingRequestCount(response.data.requests.length);
             }
           } catch (error) {
-            console.warn("⚠️ Error al obtener solicitudes tras notificación:", error);
+            console.warn("Error al obtener solicitudes tras notificación:", error);
           }
         });
   
@@ -71,6 +71,17 @@ const PsychologistDashboard = () => {
             setNewAssignedCount((prev) => prev + 1);
           }
         });
+
+        socketRef.current.on("reassigned-user", async ({ psychologistId, userId, message }) => {
+          if (user?._id === psychologistId) {
+            toast.dismiss();
+            toast.success(`${message}`, {duration: 7000});
+  
+            await fetchAssignedUsers();
+            setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+            setNewAssignedCount((prev) => prev + 1);
+          }
+        });
   
         socketRef.current.on("update-assigned-users", async () => {
           await fetchAssignedUsers();
@@ -78,7 +89,7 @@ const PsychologistDashboard = () => {
         });
   
         socketRef.current.on("disconnect", () => {
-          console.warn("⚠️ Desconectado del servidor de sockets.");
+          console.warn("Desconectado del servidor de sockets.");
         });
       }
     }

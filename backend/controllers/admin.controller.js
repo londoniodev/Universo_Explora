@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { getIO } from "../socket.js";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -53,5 +54,39 @@ export const getAllPsychologists = async (req, res) => {
     res.status(200).json({ success: true, psychologists });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error al obtener psicólogos" });
+  }
+};
+
+export const assignPsychologist = async (req, res) => {
+  try {
+    const { userId, psychologistId } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado." });
+    }
+
+    const newPsychologist = await User.findById(psychologistId);
+    if (!newPsychologist || newPsychologist.role !== "psychologist") {
+      return res.status(400).json({ success: false, message: "Psicólogo no válido." });
+    }
+
+    const oldPsychologistId = user.psychologistAssigned;
+    user.psychologistAssigned = psychologistId;
+    await user.save();
+
+    const io = getIO();
+
+    io.to(`psychologist-${psychologistId}`).emit("reassigned-user", {
+      psychologistId,
+      userId,
+      message: `📢 Se te ha reasignado un nuevo paciente: ${user.name}`,
+    });
+
+    return res.status(200).json({ success: true, message: "Usuario reasignado correctamente." });
+
+  } catch (error) {
+    console.error("Error en `assignPsychologist`:", error);
+    return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };

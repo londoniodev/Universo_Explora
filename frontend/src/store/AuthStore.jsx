@@ -808,7 +808,7 @@ fetchPendingRequests: async () => {
     const { user } = get();
 
     if (!user || !user.role || (user.role !== "psychologist" && user.role !== "fallback_psychologist")) {
-      console.warn("⚠️ Usuario sin permisos intentó obtener solicitudes pendientes.");
+      console.warn("Usuario sin permisos intentó obtener solicitudes pendientes.");
       return;
     }
 
@@ -823,10 +823,10 @@ fetchPendingRequests: async () => {
         pendingRequestCount: uniqueRequests.length,
       }));
     } else {
-      console.warn("⚠️ No se encontraron solicitudes pendientes.");
+      console.warn("No se encontraron solicitudes pendientes.");
     }
   } catch (error) {
-    console.error("❌ Error al obtener solicitudes pendientes:", error.message);
+    console.error("Error al obtener solicitudes pendientes:", error.message);
   }
 },
 
@@ -853,7 +853,7 @@ fetchPendingRequests: async () => {
         toast.error(response.data.message || "Error al procesar la solicitud.");
       }
     } catch (error) {
-      console.error("❌ Error al procesar la solicitud:", error.message);
+      console.error("Error al procesar la solicitud:", error.message);
       toast.error("Error al procesar la solicitud.");
     }
   },
@@ -867,12 +867,11 @@ fetchPendingRequests: async () => {
 
       if (response.data.success) {
         set(() => ({ assignedUsers: response.data.assignedUsers }));
-        console.log("✅ Usuarios asignados actualizados:", response.data.assignedUsers);
       } else {
-        console.warn("⚠️ No se encontraron usuarios asignados.");
+        console.warn("No se encontraron usuarios asignados.");
       }
     } catch (error) {
-      console.error("❌ Error al obtener usuarios asignados:", error.message);
+      console.error("Error al obtener usuarios asignados:", error.message);
     }
   },
 
@@ -900,7 +899,7 @@ listenToSocketEvents: () => {
       if (typeof get().fetchAssignedUsers === "function") {
         await get().fetchAssignedUsers();
       } else {
-        console.warn("⚠️ fetchAssignedUsers no está definido en AuthStore.");
+        console.warn("fetchAssignedUsers no está definido en AuthStore.");
       }
     }
   });
@@ -909,7 +908,7 @@ listenToSocketEvents: () => {
     if (typeof get().fetchAssignedUsers === "function") {
       await get().fetchAssignedUsers();
     } else {
-      console.warn("⚠️ fetchAssignedUsers no está definido en AuthStore.");
+      console.warn("fetchAssignedUsers no está definido en AuthStore.");
     }
   });
 },

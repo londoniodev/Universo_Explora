@@ -19,13 +19,11 @@ export const initSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`✅ Nuevo cliente conectado: ${socket.id}`);
 
     socket.on("join-psychologist-room", (psychologistId) => {
       if (psychologistId) {
         socket.join(`psychologist-${psychologistId}`);
         connectedUsers.set(socket.id, psychologistId);
-        console.log(`✅ Psicólogo ${psychologistId} se unió a la sala psychologist-${psychologistId}`);
 
         socket.emit("joined-room", { message: "Te has unido a la sala de solicitudes pendientes." });
       } else {
@@ -37,36 +35,33 @@ export const initSocket = (server) => {
       if (psychologistId) {
         socket.leave(`psychologist-${psychologistId}`);
         connectedUsers.delete(socket.id);
-        console.log(`🔴 Psicólogo ${psychologistId} salió de la sala psychologist-${psychologistId}`);
       }
     });
 
     socket.on("disconnect", (reason) => {
       const userId = connectedUsers.get(socket.id);
       if (userId) {
-        console.log(`❌ Cliente desconectado: ${socket.id} - Psicólogo: ${userId} - Razón: ${reason}`);
         connectedUsers.delete(socket.id);
       } else {
-        console.log(`❌ Cliente desconectado: ${socket.id} - Razón: ${reason}`);
+        console.log(`Cliente desconectado`);
       }
     });
 
     socket.on("new-request", ({ userId }) => {
-      console.log(`📩 Nueva solicitud de paciente recibida para userId: ${userId}`);
       io.emit("new-request", { userId });
     });
 
     socket.on("request-removed", ({ userId }) => {
-      console.log(`🗑️ Eliminando solicitud de userId: ${userId}`);
       io.emit("request-removed", { userId });
     });
 
     socket.on("assigned-user", ({ psychologistId, userId, message }) => {
-      console.log(`📢 Notificando a psicólogo ${psychologistId} sobre la asignación de ${userId}`);
       io.to(`psychologist-${psychologistId}`).emit("assigned-user", { psychologistId, userId, message });
-
-      console.log(`🔄 Enviando evento de actualización a psychologist-${psychologistId}`);
       io.to(`psychologist-${psychologistId}`).emit("update-assigned-users");
+    });
+
+    socket.on("reassigned-user", ({ psychologistId, userId, message }) => {
+      io.to(`psychologist-${psychologistId}`).emit("reassigned-user", { psychologistId, userId, message });
     });
   });
 
