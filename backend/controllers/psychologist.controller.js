@@ -75,14 +75,17 @@ export const respondToRequest = async (req, res) => {
         const fallbackPsychologist = await User.findOne({ role: "fallback_psychologist" });
 
         if (!fallbackPsychologist) {
-          console.error("❌ No se encontró un fallback_psychologist en la base de datos.");
           return res.status(500).json({ success: false, message: "No hay fallback_psychologist disponible." });
         }
 
         user.psychologistAssigned = fallbackPsychologist._id;
         await user.save();
 
-        getIO().to(`psychologist-${fallbackPsychologist._id}`).emit("assigned-user", { psychologistId: fallbackPsychologist._id });
+        getIO().to(`psychologist-${fallbackPsychologist._id}`).emit("assigned-user", {
+          psychologistId: fallbackPsychologist._id,
+          userId: user._id,
+          message: `Se te ha asignado un nuevo paciente: ${user.name}`,
+        });
 
         return res.status(200).json({ success: true, message: "Asignado automáticamente al fallback_psychologist." });
       }
@@ -92,7 +95,6 @@ export const respondToRequest = async (req, res) => {
       return res.status(200).json({ success: true, message: "Solicitud rechazada correctamente." });
     }
   } catch (error) {
-    console.error("❌ Error en `respondToRequest`:", error);
     return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
@@ -159,16 +161,22 @@ export const assignPsychologistAutomatically = async (userId) => {
     const fallbackPsychologist = await User.findOne({ role: "fallback_psychologist" });
 
     if (!fallbackPsychologist) {
-      console.error("❌ No se encontró un fallback_psychologist en la base de datos.");
       return { success: false, message: "No hay fallback_psychologist disponible." };
     }
 
     user.psychologistAssigned = fallbackPsychologist._id;
     await user.save();
 
+    getIO().to(`psychologist-${fallbackPsychologist._id}`).emit("assigned-user", {
+      psychologistId: fallbackPsychologist._id,
+      userId: user._id,
+      message: `Se te ha asignado automáticamente un nuevo paciente: ${user.name}.`,
+    });
+
+    getIO().to(`psychologist-${fallbackPsychologist._id}`).emit("update-assigned-users");
+
     return { success: true, psychologist: fallbackPsychologist, message: "Usuario asignado al fallback_psychologist automáticamente." };
   } catch (error) {
-    console.error("Error en la asignación automática de psicólogo:", error);
     return { success: false, message: "Error en el servidor." };
   }
 };

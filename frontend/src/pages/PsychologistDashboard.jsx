@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const PsychologistDashboard = () => {
-  const { user, logout, fetchPsychologistAccountInfo } = useAuthStore();
+  const { user, logout, fetchPsychologistAccountInfo, fetchAssignedUsers } = useAuthStore();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,20 +21,27 @@ const PsychologistDashboard = () => {
 
   useEffect(() => {
     fetchPsychologistAccountInfo();
-    fetchAssignedUsers();
+  
+    const updateAssignedUsers = async () => {
+      await fetchAssignedUsers();
+      setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+    };
+
+    updateAssignedUsers();
     fetchPendingRequests();
   }, []);
   
+
   useEffect(() => {
-    if (user?._id && user.role !== "fallback_psychologist") { 
+    if (user?._id) {
       if (!socketRef.current) {
         socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
           withCredentials: true,
           transports: ["websocket", "polling"],
         });
-
+  
         socketRef.current.emit("join-psychologist-room", user._id);
-
+  
         socketRef.current.on("new-request", async ({ userId }) => {
           try {
             const response = await axios.get(`/api/psychologist/pending-requests`, { withCredentials: true });
@@ -46,18 +53,31 @@ const PsychologistDashboard = () => {
             console.warn("⚠️ Error al obtener solicitudes tras notificación:", error);
           }
         });
-
+  
         socketRef.current.on("request-removed", ({ userId }) => {
           setPendingRequests((prev) => prev.filter((req) => req.userId._id !== userId));
           setPendingRequestCount((prev) => Math.max(0, prev - 1));
         });
-
+  
+        socketRef.current.on("assigned-user", async ({ psychologistId, userId, message }) => {
+          if (user?._id === psychologistId) {
+            toast.dismiss();
+            toast.success(`📢 ${message}`);
+            await fetchAssignedUsers();
+            setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+          }
+        });
+        
+        socketRef.current.on("update-assigned-users", async () => {
+          await fetchAssignedUsers();
+          setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+        });
+        
         socketRef.current.on("disconnect", () => {
-          console.warn("⚠️ Desconectado del servidor de sockets.");
         });
       }
     }
-
+  
     return () => {
       if (socketRef.current) {
         socketRef.current.emit("leave-psychologist-room", user._id);
@@ -66,16 +86,7 @@ const PsychologistDashboard = () => {
       }
     };
   }, [user?._id]);
-
-
-  const fetchAssignedUsers = async () => {
-    try {
-      const response = await axios.get("/api/psychologist/dashboard", { withCredentials: true });
-      setAssignedUsers(response.data.assignedUsers || []);
-    } catch (error) {
-      toast.error("❌ Error al obtener los usuarios asignados.");
-    }
-  };
+  
 
   const fetchPendingRequests = async () => {
     try {

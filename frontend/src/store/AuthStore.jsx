@@ -815,7 +815,6 @@ fetchPendingRequests: async () => {
     const response = await axios.get(`${PSYCHOLOGIST_API}/pending-requests`, { withCredentials: true });
 
     if (response.data.success && Array.isArray(response.data.requests)) {
-      console.log("📩 Solicitudes obtenidas del backend:", response.data.requests);
 
       const uniqueRequests = Array.from(new Map(response.data.requests.map(req => [req.userId._id, req])).values());
 
@@ -860,28 +859,60 @@ fetchPendingRequests: async () => {
   },
 
   // ==========================
-  //     EVENTOS DE SOCKET.IO
+  //     OBTENER USUARIOS ASIGNADOS
   // ==========================
-  listenToSocketEvents: () => {
-    socket.on("new-request", async () => {
-      toast.success("📩 Nueva solicitud de paciente recibida.");
-      await get().fetchPendingRequests();
-    });
+  fetchAssignedUsers: async () => {
+    try {
+      const response = await axios.get(`${PSYCHOLOGIST_API}/dashboard`, { withCredentials: true });
 
-    socket.on("request-removed", async ({ userId }) => {
-      set((state) => ({
-        pendingRequests: state.pendingRequests.filter((req) => req.userId !== userId),
-      }));
-      toast.success("📩 Una solicitud fue eliminada.");
-    });
-
-    socket.on("assigned-user", async ({ psychologistId }) => {
-      if (get().user?._id === psychologistId) {
-        toast.success("🎉 Se te ha asignado un nuevo paciente.");
-        await get().fetchPendingRequests();
+      if (response.data.success) {
+        set(() => ({ assignedUsers: response.data.assignedUsers }));
+        console.log("✅ Usuarios asignados actualizados:", response.data.assignedUsers);
+      } else {
+        console.warn("⚠️ No se encontraron usuarios asignados.");
       }
-    });
+    } catch (error) {
+      console.error("❌ Error al obtener usuarios asignados:", error.message);
+    }
   },
+
+  
+// ==========================
+//     EVENTOS DE SOCKET.IO
+// ==========================
+listenToSocketEvents: () => {
+  socket.on("new-request", async () => {
+    toast.success("📩 Nueva solicitud de paciente recibida.");
+    await get().fetchPendingRequests();
+  });
+
+  socket.on("request-removed", async ({ userId }) => {
+    set((state) => ({
+      pendingRequests: state.pendingRequests.filter((req) => req.userId !== userId),
+    }));
+    toast.success("📩 Una solicitud fue eliminada.");
+  });
+
+  socket.on("assigned-user", async ({ psychologistId, userId, message }) => {
+    if (get().user?._id === psychologistId) {
+      toast.success(`📢 ${message}`);
+
+      if (typeof get().fetchAssignedUsers === "function") {
+        await get().fetchAssignedUsers();
+      } else {
+        console.warn("⚠️ fetchAssignedUsers no está definido en AuthStore.");
+      }
+    }
+  });
+
+  socket.on("update-assigned-users", async () => {
+    if (typeof get().fetchAssignedUsers === "function") {
+      await get().fetchAssignedUsers();
+    } else {
+      console.warn("⚠️ fetchAssignedUsers no está definido en AuthStore.");
+    }
+  });
+},
 
   
 }));

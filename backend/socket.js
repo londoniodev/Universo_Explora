@@ -26,7 +26,7 @@ export const initSocket = (server) => {
         socket.join(`psychologist-${psychologistId}`);
         connectedUsers.set(socket.id, psychologistId);
         console.log(`✅ Psicólogo ${psychologistId} se unió a la sala psychologist-${psychologistId}`);
-    
+
         socket.emit("joined-room", { message: "Te has unido a la sala de solicitudes pendientes." });
       } else {
         console.warn("⚠️ Intento de unirse a una sala con un ID inválido.");
@@ -59,6 +59,14 @@ export const initSocket = (server) => {
     socket.on("request-removed", ({ userId }) => {
       console.log(`🗑️ Eliminando solicitud de userId: ${userId}`);
       io.emit("request-removed", { userId });
+    });
+
+    socket.on("assigned-user", ({ psychologistId, userId, message }) => {
+      console.log(`📢 Notificando a psicólogo ${psychologistId} sobre la asignación de ${userId}`);
+      io.to(`psychologist-${psychologistId}`).emit("assigned-user", { psychologistId, userId, message });
+
+      console.log(`🔄 Enviando evento de actualización a psychologist-${psychologistId}`);
+      io.to(`psychologist-${psychologistId}`).emit("update-assigned-users");
     });
   });
 
