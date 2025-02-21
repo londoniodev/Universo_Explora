@@ -879,6 +879,7 @@ fetchPendingRequests: async () => {
 // ==========================
 //     EVENTOS DE SOCKET.IO
 // ==========================
+
 listenToSocketEvents: () => {
   socket.on("new-request", async () => {
     toast.success("📩 Nueva solicitud de paciente recibida.");
