@@ -7,6 +7,7 @@ import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers } from "reac
 import UserManagement from "../assets/components/admin/UserManagement.jsx";
 import PsychologistAssignment from "../assets/components/admin/PsychologistAssignment.jsx";
 import PendingRequests from "../assets/components/admin/PendingRequests.jsx";
+import PsychologistManagement from "../assets/components/admin/PsychologistManagement.jsx";
 
 const AdminDashboard = () => {
   const { logout } = useAuthStore();
@@ -95,6 +96,12 @@ const AdminDashboard = () => {
           <FaUsers /> Gestión de Usuarios
         </button>
         <button
+          onClick={() => setActiveTab("psychologists")}
+          className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "psychologists" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+        >
+          <FaUserShield /> Gestión de Psicólogos
+        </button>
+        <button
           onClick={() => setActiveTab("assign")}
           className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "assign" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
         >
@@ -125,6 +132,7 @@ const AdminDashboard = () => {
           fetchData={fetchData}
         />
       )}
+      {activeTab === "psychologists" && <PsychologistManagement />}
     </div>
   );
 };

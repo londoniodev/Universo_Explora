@@ -90,3 +90,31 @@ export const assignPsychologist = async (req, res) => {
     return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
+
+export const getPsychologistsWithAssignedUsers = async (req, res) => {
+  try {
+    const psychologists = await User.find({ role: "psychologist" })
+      .populate("psychologistAssigned", "name last_name email")
+      .select("name last_name email psychologistAssigned");
+
+    const psychologistsWithUsers = await Promise.all(
+      psychologists.map(async (psychologist) => {
+        const assignedUsers = await User.find({ psychologistAssigned: psychologist._id })
+          .select("name last_name email");
+
+        return {
+          _id: psychologist._id,
+          name: psychologist.name,
+          last_name: psychologist.last_name,
+          email: psychologist.email,
+          assignedUsers,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, psychologists: psychologistsWithUsers });
+  } catch (error) {
+    console.error("❌ Error al obtener psicólogos con usuarios asignados:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
