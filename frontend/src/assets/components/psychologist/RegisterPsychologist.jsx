@@ -2,8 +2,8 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash, FaUpload, FaTimes } from "react-icons/fa";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
-import PasswordStrengthMeter from "../PasswordStrenghtMeter.jsx";
-import { useAuthStore } from "../../store/AuthStore.jsx";
+import PasswordStrengthMeter from "../../../pages/PasswordStrenghtMeter.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import toast from "react-hot-toast";
 import "country-flag-icons/3x2/flags.css";
 

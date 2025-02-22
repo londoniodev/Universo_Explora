@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuthStore } from "../store/AuthStore.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 

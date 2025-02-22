@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../store/AuthStore.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { useRef, useEffect } from "react";

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { useAuthStore } from "../store/AuthStore.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers, FaChartBar, FaExchangeAlt } from "react-icons/fa";
-import UserManagement from "../assets/components/admin/UserManagement.jsx";
-import PsychologistAssignment from "../assets/components/admin/PsychologistAssignment.jsx";
-import PsychologistManagement from "../assets/components/admin/PsychologistManagement.jsx";
-import PsychologistReports from "../assets/components/admin/PsychologistReports.jsx";
-import PsychologistReassignment from "../assets/components/admin/PsychologistReassignment.jsx";
+import UserManagement from "./UserManagement.jsx";
+import PsychologistAssignment from "./PsychologistAssignment.jsx";
+import PsychologistManagement from "./PsychologistManagement.jsx";
+import PsychologistReports from "./PsychologistReports.jsx";
+import PsychologistReassignment from "./PsychologistReassignment.jsx";
 
 const AdminDashboard = () => {
   const { logout } = useAuthStore();

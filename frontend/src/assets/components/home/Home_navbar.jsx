@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaLock, FaUserPlus, FaBars, FaTimes } from "react-icons/fa";
 import { motion } from "framer-motion";
-import Logo from "../../assets/images/explora.png";
+import Logo from "../../images/explora.png";
 
 const HomeNavbar = () => {
   const [activeNav, setActiveNav] = useState("#Nosotros");

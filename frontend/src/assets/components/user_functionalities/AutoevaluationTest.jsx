@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
-import LoadingSpinner from "../../pages/LoadingSpinner.jsx";
+import LoadingSpinner from "../../../pages/LoadingSpinner.jsx";
 
 const AutoevaluationTest = ({ loadAnswers, saveAnswers, completeTest }) => {
   const { packageId } = useParams();
@@ -61,7 +61,6 @@ const AutoevaluationTest = ({ loadAnswers, saveAnswers, completeTest }) => {
         }
       } catch (error) {
         setError("Error al cargar las respuestas.");
-        toast.error("Error al cargar las respuestas.");
       } finally {
         setIsLoading(false);
       }
@@ -117,7 +116,6 @@ const AutoevaluationTest = ({ loadAnswers, saveAnswers, completeTest }) => {
       }
     } catch (err) {
       setError("Error al guardar las respuestas.");
-      toast.error("Error al guardar las respuestas.");
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/AuthStore.jsx";
-import Navbar from "../pages/Home_components/Home_navbar.jsx";
+import Navbar from "../assets/components/home/Home_navbar.jsx";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import "../assets/css/forgot.css";

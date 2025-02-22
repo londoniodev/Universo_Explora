@@ -7,9 +7,9 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { FaGithub, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { useEffect } from "react";
-import Mauro from "../../assets/images/Mauro.jpeg";
-import MauroBackground from "../../assets/images/MauroBackground.jpeg";
-import Alvaro from "../../assets/images/Alvaro_portrait.jpeg";
+import Mauro from "../../images/Mauro.jpeg";
+import MauroBackground from "../../images/MauroBackground.jpeg";
+import Alvaro from "../../images/Alvaro_portrait.jpeg";
 
 const TeamCarousel = () => {
   const { ref, inView } = useInView({ threshold: 0.2 });

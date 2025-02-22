@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const BuyTests = () => {
-  const { cart, addToCart, fetchCart } = useCart(); // 🔥 `fetchCart` para asegurar que el carrito se actualiza
+  const { cart, addToCart, fetchCart } = useCart();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,9 +24,9 @@ const BuyTests = () => {
     setIsLoading(true);
     try {
       await addToCart(pkg, 1);
-      await fetchCart(); // 🔄 Actualizar el carrito después de agregar el producto
+      await fetchCart();
 
-      const updatedCart = [...cart, { testId: pkg.testId, quantity: 1 }]; // 🔥 Asegurar que obtenemos el carrito actualizado
+      const updatedCart = [...cart, { testId: pkg.testId, quantity: 1 }];
       const quantityInCart = updatedCart.filter((item) => item.testId === pkg.testId).length;
 
       toast.dismiss();
@@ -111,7 +111,7 @@ const BuyTests = () => {
                       price: currentPrice,
                     })
                   }
-                  disabled={isLoading} // 🔒 Bloquea el botón mientras está procesando
+                  disabled={isLoading}
                   className={`w-full ${
                     isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
                   } text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg`}

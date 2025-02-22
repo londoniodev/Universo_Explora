@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import { ArrowLeft, Mail } from "lucide-react";
-import Navbar from "../pages/Home_components/Home_navbar.jsx";
+import Navbar from "../assets/components/home/Home_navbar.jsx";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import '../assets/css/forgot.css'

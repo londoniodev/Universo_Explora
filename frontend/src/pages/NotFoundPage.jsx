@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Footer from "../pages/Home_components/Footer.jsx";
-import Nav from "../pages/Home_components/Home_navbar.jsx";
+import Footer from "../assets/components/home/Footer.jsx";
+import Nav from "../assets/components/home/Home_navbar.jsx";
 
 const NotFoundPage = () => {
   return (

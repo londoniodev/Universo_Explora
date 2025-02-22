@@ -1,11 +1,11 @@
-import Navbar from "../components/NavBar.jsx";
-import AutoevaluationGraphic from "../components/AutoevaluationGraphic.jsx";
-import Sixteenpfgraphic from "../components/Sixteenpfgraphic.jsx";
-import ActivityEvaluationGraphic from "../components/ActivityEvaluationGraphic.jsx";
-import { useAuthStore } from "../../store/AuthStore.jsx";
+import Navbar from "../NavBar.jsx";
+import AutoevaluationGraphic from "../user_functionalities/ActivityEvaluationGraphic.jsx";
+import Sixteenpfgraphic from "../user_functionalities/Sixteenpfgraphic.jsx";
+import ActivityEvaluationGraphic from "../user_functionalities/ActivityEvaluationGraphic.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import { useEffect, useRef, useState } from "react";
-import NoData from "../../assets/images/nodata.png";
-import Explora from "../../assets/images/explora.png";
+import NoData from "../../../assets/images/nodata.png";
+import Explora from "../../../assets/images/explora.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import html2canvas from "html2canvas";

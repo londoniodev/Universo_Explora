@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { FaUserFriends, FaClipboardList, FaCalendarAlt, FaEnvelope, FaChartLine } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/AuthStore.jsx";
+import { useAuthStore } from "../../../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
