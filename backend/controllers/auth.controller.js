@@ -1,8 +1,7 @@
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail } from "../Oauth_nodemailer/Oauth2.nodemailer.config.js";
-import { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
 import { User } from "../models/user.model.js";
 import { Psychologist } from "../models/psychologist.model.js";
 import cloudinary from "../config/cloudinary.config.js";
@@ -82,29 +81,37 @@ export const signup = async (req, res) => {
 
 export const registerPsychologist = async (req, res) => {
   try {
-    const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
 
+    const { name, last_name, birthdate, phone, city, gender, email, password, experienceYears, idCardNumber } = req.body;
     const yearsOfExperience = parseInt(experienceYears, 10);
 
     if (!name || !last_name || !birthdate || !phone || !city || !gender || !email || !password || !idCardNumber) {
+      console.log("Faltan campos obligatorios.");
       return res.status(400).json({ success: false, message: "Todos los campos son obligatorios." });
     }
 
-    const profilePicture = req.files["profilePicture"]?.[0]?.filename || "";
-    const degreeCertificate = req.files["degreeCertificate"]?.[0]?.filename || "";
-    const professionalCard = req.files["professionalCard"]?.[0]?.filename || "";
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      console.log("El correo ya está registrado.");
+      return res.status(400).json({ success: false, message: "Este correo ya está registrado." });
+    }
 
+    const documentExists = await User.findOne({ documentId: idCardNumber });
+    if (documentExists) {
+      console.log("La cédula ya está registrada.");
+      return res.status(400).json({ success: false, message: "Esta cédula ya está registrada." });
+    }
+
+    const profilePicture = req.files?.["profilePicture"]?.[0]?.path || "";
+    const degreeCertificate = req.files?.["degreeCertificate"]?.[0]?.path || "";
+    const professionalCard = req.files?.["professionalCard"]?.[0]?.path || "";
 
     if (!profilePicture || !degreeCertificate) {
       return res.status(400).json({ success: false, message: "Debe subir la foto de perfil y el acta de grado." });
     }
 
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: "Este correo ya está registrado." });
-    }
-
     const hashedPassword = await bcryptjs.hash(password, 10);
+    console.log("Contraseña cifrada correctamente.");
 
     const user = new User({
       name,

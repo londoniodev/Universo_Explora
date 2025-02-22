@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaUserMd, FaUserCheck } from "react-icons/fa";
 
 const PsychologistManagement = () => {
   const [psychologists, setPsychologists] = useState([]);
@@ -58,7 +59,9 @@ const PsychologistManagement = () => {
 
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">👨‍⚕️ Gestión de Psicólogos</h2>
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <FaUserMd /> Gestión de Psicólogos
+      </h2>
 
       <div className="mb-4">
         <label className="block text-gray-700 font-semibold mb-2">Seleccionar Psicólogo para Reasignación</label>
@@ -86,7 +89,9 @@ const PsychologistManagement = () => {
         <tbody>
           {psychologists.map((p) => (
             <tr key={p._id} className="hover:bg-gray-100">
-              <td className="p-2 border">{p.name} {p.last_name}</td>
+              <td className="p-2 border flex items-center gap-2">
+                <FaUserCheck /> {p.name} {p.last_name}
+              </td>
               <td className="p-2 border">
                 {p.assignedUsers.length > 0 ? (
                   <ul>
@@ -113,10 +118,10 @@ const PsychologistManagement = () => {
       <div className="mt-4 text-right">
         <button
           onClick={handleReassignUsers}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+          className="bg-green-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-600 transition"
           disabled={selectedUsers.length === 0 || !selectedPsychologist}
         >
-          Reasignar Pacientes Seleccionados
+          <FaUserCheck /> Reasignar Pacientes Seleccionados
         </button>
       </div>
     </div>

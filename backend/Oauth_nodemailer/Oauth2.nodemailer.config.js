@@ -1,10 +1,6 @@
 import nodemailer from "nodemailer"
 import { google } from "googleapis"
-import { User } from "../models/user.model.js"
-import mongoose from "mongoose"
 import dotenv from 'dotenv'
-import crypto from 'crypto'
-import { VERIFICATION_EMAIL_TEMPLATE } from "../Oauth_nodemailer/Oauth_templates.js"
 
 dotenv.config();
 
@@ -44,24 +40,3 @@ export const transporter = nodemailer.createTransport({
         rejectUnauthorized: false
     },
 });
-
-
-export const sendVerificationEmail = async (email,userId) => {
-    const verificationToken = crypto.randomInt(100000,999999).toString()
-    const verificationTokenExpiresAt = Date.now() + 15 * 60 * 1000
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new Error('Invalid userId format')
-    }
-
-    const objectId = new mongoose.Types.ObjectId(userId)
-    await User.findByIdAndUpdate(objectId, { verificationToken, verificationTokenExpiresAt })
-
-    const mailOptions = {
-        from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
-        to: email,
-        subject: "Verificación de correo electrónico",
-        html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
-    };
-    transporter.sendMail(mailOptions);
-}

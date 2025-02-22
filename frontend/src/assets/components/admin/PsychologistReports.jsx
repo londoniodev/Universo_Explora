@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaUserMd, FaUserCheck, FaChartBar, FaSearch, FaFilter } from "react-icons/fa";
 
 const PsychologistReports = () => {
   const [psychologists, setPsychologists] = useState([]);
@@ -45,30 +46,40 @@ const PsychologistReports = () => {
 
   return (
     <div className="bg-white p-6 shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold mb-6 text-blue-700">📊 Reporte de Psicólogos</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-blue-700 flex items-center gap-2">
+        <FaChartBar /> Reporte de Psicólogos
+      </h2>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre, apellido o email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-3 rounded-md w-full md:w-2/3 shadow-sm"
-        />
-        <select
-          value={filterPatients}
-          onChange={(e) => setFilterPatients(e.target.value)}
-          className="border p-3 rounded-md shadow-sm"
-        >
-          <option value="">📊 Filtrar por cantidad de pacientes</option>
-          <option value="5">Más de 5 pacientes</option>
-          <option value="10">Más de 10 pacientes</option>
-          <option value="20">Más de 20 pacientes</option>
-        </select>
+        <div className="relative w-full md:w-2/3">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, apellido o email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border p-3 rounded-md w-full shadow-sm pl-10"
+          />
+          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+        </div>
+        <div className="relative">
+          <select
+            value={filterPatients}
+            onChange={(e) => setFilterPatients(e.target.value)}
+            className="border p-3 rounded-md shadow-sm pl-10"
+          >
+            <option value="">Filtrar por cantidad de pacientes</option>
+            <option value="5">Más de 5 pacientes</option>
+            <option value="10">Más de 10 pacientes</option>
+            <option value="20">Más de 20 pacientes</option>
+          </select>
+          <FaFilter className="absolute left-3 top-3 text-gray-400" />
+        </div>
       </div>
 
       <div className="bg-gray-100 p-4 rounded-md shadow-md mb-6">
-        <h3 className="font-bold text-lg">📊 Distribución de Pacientes</h3>
+        <h3 className="font-bold text-lg flex items-center gap-2">
+          <FaChartBar /> Distribución de Pacientes
+        </h3>
         <p className="mt-1">
           <b>🔝 Psicólogo con más pacientes:</b> {maxPatientsPsychologist.name} ({maxPatientsPsychologist.assignedPatients} pacientes)
         </p>
@@ -84,9 +95,13 @@ const PsychologistReports = () => {
               key={p._id}
               className="bg-white border border-gray-300 p-5 rounded-lg shadow-md hover:shadow-lg transition duration-300"
             >
-              <h3 className="text-lg font-bold text-blue-800">{p.name} {p.last_name}</h3>
+              <h3 className="text-lg font-bold text-blue-800 flex items-center gap-2">
+                <FaUserMd /> {p.name} {p.last_name}
+              </h3>
               <p className="text-gray-600">{p.email}</p>
-              <p className="font-semibold text-gray-700 mt-2">🧑‍⚕️ Pacientes asignados: {p.assignedPatients}</p>
+              <p className="font-semibold text-gray-700 mt-2 flex items-center gap-2">
+                <FaUserCheck /> Pacientes asignados: {p.assignedPatients}
+              </p>
             </div>
           ))
         ) : (

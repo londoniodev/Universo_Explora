@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { MdSwapHoriz } from "react-icons/md";
 
 const PsychologistReassignment = () => {
   const [psychologists, setPsychologists] = useState([]);
@@ -49,7 +50,9 @@ const PsychologistReassignment = () => {
 
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">🚀 Reasignación Masiva de Psicólogos</h2>
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <MdSwapHoriz /> Reasignación Masiva de Psicólogos
+      </h2>
 
       <div className="mb-4">
         <label className="block text-gray-700 font-semibold mb-2">Seleccionar Psicólogo a quien QUITAR pacientes</label>
@@ -88,10 +91,10 @@ const PsychologistReassignment = () => {
       <div className="mt-4 text-right">
         <button
           onClick={handleReassignAll}
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+          className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-600 transition"
           disabled={!fromPsychologist || !toPsychologist || fromPsychologist === toPsychologist}
         >
-          Reasignar TODOS los Pacientes
+          <MdSwapHoriz /> Reasignar TODOS los Pacientes
         </button>
       </div>
     </div>

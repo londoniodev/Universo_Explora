@@ -3,12 +3,13 @@ import { useAuthStore } from "../../../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers, FaChartBar, FaExchangeAlt } from "react-icons/fa";
+import { FaSignOutAlt, FaUserShield, FaSearch, FaUserCheck, FaUsers, FaChartBar, FaExchangeAlt, FaUserClock } from "react-icons/fa";
 import UserManagement from "./UserManagement.jsx";
 import PsychologistAssignment from "./PsychologistAssignment.jsx";
 import PsychologistManagement from "./PsychologistManagement.jsx";
 import PsychologistReports from "./PsychologistReports.jsx";
 import PsychologistReassignment from "./PsychologistReassignment.jsx";
+import PendingPsychologists from "./PendingPsychologists.jsx";
 
 const AdminDashboard = () => {
   const { logout } = useAuthStore();
@@ -118,6 +119,12 @@ const AdminDashboard = () => {
         >
           <FaExchangeAlt /> Reasignación Masiva
         </button>
+        <button
+          onClick={() => setActiveTab("pendingPsychologists")}
+          className={`px-5 py-2 rounded-t-md ml-2 ${activeTab === "pendingPsychologists" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+        >
+          <FaUserClock /> Psicólogos Pendientes
+        </button>
       </div>
 
       {activeTab === "users" && <UserManagement users={filteredUsers} fetchData={fetchData} />}
@@ -131,6 +138,7 @@ const AdminDashboard = () => {
       {activeTab === "psychologists" && <PsychologistManagement />}
       {activeTab === "reports" && <PsychologistReports />}
       {activeTab === "reassign" && <PsychologistReassignment />}
+      {activeTab === "pendingPsychologists" && <PendingPsychologists />}
     </div>
   );
 };

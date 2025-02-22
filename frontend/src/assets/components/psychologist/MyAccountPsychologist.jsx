@@ -75,6 +75,7 @@ const MyAccountPsychologist = () => {
       });
 
       await updatePsychologistAccountInfo(formDataToSend);
+      toast.dismiss();
       toast.success("Perfil actualizado correctamente");
     } catch (error) {
       toast.error("Error al actualizar el perfil");

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true, default: "user", enum: ["user", "admin", "psychologist", "fallback_psychologist"] },
     phone: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
-    gender: { type: String, required: true },  
+    gender: { type: String, required: true },
     lastLogin: { type: Date, default: Date.now },
     isVerified: { type: Boolean, default: false },
     resultsSent: { type: Boolean, default: false },

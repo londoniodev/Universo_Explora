@@ -1,3 +1,6 @@
+import { sendApprovalEmail, sendRejectionEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
+import { Psychologist } from "../models/psychologist.model.js";
+import cloudinary from "../config/cloudinary.config.js";
 import { User } from "../models/user.model.js";
 import { getIO } from "../socket.js";
 
@@ -165,7 +168,6 @@ export const reassignUsers = async (req, res) => {
   }
 };
 
-
 export const reassignAllPatients = async (req, res) => {
   try {
     const { fromPsychologist, toPsychologist } = req.body;
@@ -184,5 +186,114 @@ export const reassignAllPatients = async (req, res) => {
     res.status(200).json({ success: true, message: "Todos los pacientes han sido reasignados." });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
+
+export const getPendingPsychologists = async (req, res) => {
+  try {
+    const pendingPsychologists = await Psychologist.find({ isApproved: false })
+      .populate("userId", "name last_name email phone city gender documentId experienceYears profilePicture degreeCertificate professionalCard");
+
+    if (!pendingPsychologists.length) {
+      return res.status(200).json({ success: true, pendingPsychologists: [] });
+    }
+
+    const transformedPsychologists = pendingPsychologists.map(p => ({
+      ...p.toObject(),
+      userId: {
+        ...p.userId.toObject(),
+        profilePicture: p.userId.profilePicture?.startsWith("http")
+          ? p.userId.profilePicture
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${p.userId.profilePicture}`,
+
+        degreeCertificate: p.userId.degreeCertificate?.startsWith("http")
+          ? p.userId.degreeCertificate
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${p.userId.degreeCertificate}`,
+
+        professionalCard: p.userId.professionalCard?.startsWith("http")
+          ? p.userId.professionalCard
+          : `https://res.cloudinary.com/dkandom0b/image/upload/${p.userId.professionalCard}`,
+      }
+    }));
+
+    res.status(200).json({
+      success: true,
+      pendingPsychologists: transformedPsychologists,
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error del servidor." });
+  }
+};
+
+export const approvePsychologist = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const psychologist = await Psychologist.findOne({ userId });
+    if (!psychologist) {
+      return res.status(404).json({ success: false, message: "Psicólogo no encontrado." });
+    }
+
+    psychologist.isApproved = true;
+    await psychologist.save();
+
+    await sendApprovalEmail(psychologist.userId);
+
+    res.status(200).json({ success: true, message: "Psicólogo aprobado con éxito." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error en el servidor." });
+  }
+};
+
+export const rejectPsychologist = async (req, res) => {
+  try {
+    const { userId, reason } = req.body;
+
+    if (!userId || !reason) {
+      return res.status(400).json({ success: false, message: "Faltan datos para procesar la solicitud." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado." });
+    }
+
+    const userEmail = user.email;
+    const userName = `${user.name} ${user.last_name}`;
+
+    const extractPublicId = (url) => {
+      if (!url) return null;
+      const parts = url.split("/");
+      return parts[parts.length - 1].split(".")[0];
+    };
+
+    const imagesToDelete = [
+      extractPublicId(user.profilePicture),
+      extractPublicId(user.degreeCertificate),
+      extractPublicId(user.professionalCard),
+    ].filter(Boolean);
+
+    for (const publicId of imagesToDelete) {
+      try {
+        await cloudinary.uploader.destroy(`psychologists/${publicId}`);
+      } catch (error) {
+        console.error(`⚠️ Error al eliminar imagen ${publicId} de Cloudinary:`, error.message);
+      }
+    }
+
+    if (userEmail) {
+      await sendRejectionEmail(userEmail, userName, reason);
+    } else {
+      console.error("No se pudo enviar el correo: el usuario no tenía email registrado.");
+    }
+
+    await User.findByIdAndDelete(userId);
+    await Psychologist.findOneAndDelete({ userId });
+
+    return res.status(200).json({ success: true, message: "Psicólogo rechazado exitosamente y datos eliminados." });
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Error en el servidor." });
   }
 };
