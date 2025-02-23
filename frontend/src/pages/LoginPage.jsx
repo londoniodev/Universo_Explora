@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Logo from "../assets/images/logominimalistaExplora.png";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/AuthStore.jsx";
-import NightLight from "../assets/images/nightlight.png";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -82,36 +82,25 @@ const LoginPage = () => {
 
   return (
     <motion.div
-      id="container"
-      className="flex items-center justify-center min-h-screen relative overflow-hidden"
+      className="flex items-center justify-center bg-[#101828] min-h-screen relative overflow-hidden"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <img
-        src={NightLight}
-        alt="Light"
-        className="absolute inset-0 h-[50%] top-[50%] w-full pointer-events-none"
-      />
 
       <motion.div
         className="w-full max-w-md bg-transparent p-8 rounded-lg shadow-lg relative z-10"
-        style={{
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          background: "rgba(16, 16, 16, 0.92)",
-        }}
         variants={itemVariants}
       >
-        <motion.h1 className="text-3xl font-bold text-center text-white" variants={itemVariants}>
-          ¡Bienvenido de nuevo!
-        </motion.h1>
-        <motion.p
-          className="text-sm text-gray-400 text-center mt-2"
+        <motion.img
+          src={Logo}
+          alt="Logo"
+          className="w-[18%] h-[18%] mx-auto pointer-events-none"
           variants={itemVariants}
-        >
-          Accede a tu cuenta y continúa donde lo dejaste.
-        </motion.p>
+        />
+        <motion.h1 className="text-3xl font-bold text-center text-white" variants={itemVariants}>
+          Accede a tu cuenta
+        </motion.h1>
         <motion.form className="space-y-6 mt-6" onSubmit={handleLogin} variants={containerVariants}>
           <motion.div variants={itemVariants}>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
@@ -120,7 +109,6 @@ const LoginPage = () => {
             <input
               type="email"
               id="email"
-              placeholder="Ingresa tu correo electrónico"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -134,7 +122,6 @@ const LoginPage = () => {
             <input
               type={showPassword ? "text" : "password"}
               id="password"
-              placeholder="Ingresa tu contraseña"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -151,14 +138,14 @@ const LoginPage = () => {
           <motion.div variants={itemVariants}>
             <Link
               to="/api/auth/forgot-password"
-              className="block text-sm text-blue-400 hover:text-blue-500 transition"
+              className="block text-sm text-[#6589FF] font-semibold"
             >
               ¿Olvidaste tu contraseña?
             </Link>
           </motion.div>
           <motion.button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105"
+            className="w-full py-2 px-4 bg-[#615FFF] text-white rounded-md hover:bg-[#4F4CFF] focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105"
             disabled={isLoading}
             variants={itemVariants}
           >
@@ -168,7 +155,7 @@ const LoginPage = () => {
         <motion.div className="mt-6 text-center" variants={itemVariants}>
           <p className="text-sm text-gray-400">
             ¿No tienes una cuenta?{" "}
-            <Link to="/api/auth/signup" className="text-blue-400 hover:text-blue-500">
+            <Link to="/api/auth/signup" className="text-[#6589FF] font-semibold">
               Registrarme
             </Link>
           </p>
