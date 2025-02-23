@@ -12,7 +12,11 @@ const CART_API = import.meta.env.MODE === "development" ? "http://localhost:4001
 const PURCHASE_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/purchase" : "/api/purchase";
 const PSYCHOLOGIST_API = import.meta.env.VITE_PSYCHOLOGIST_API || "/api/psychologist";
 const SOCKET_SERVER = import.meta.env.MODE === "development" ? "http://localhost:4001" : import.meta.env.VITE_SOCKET_SERVER || "/";
-export const socket = io(SOCKET_SERVER);
+export const socket = io(SOCKET_SERVER, {
+  withCredentials: true,
+  transports: ["websocket"],
+  autoConnect: false,
+});
 
 axios.defaults.withCredentials = true; 
 axios.defaults.baseURL = import.meta.env.MODE === "development" ? "http://localhost:4001" : "/";
@@ -28,13 +32,6 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
-  withCredentials: true,
-  transports: ["websocket"],
-});
-
-
 
 export const useAuthStore = create((set, get) => ({
   user: null,
