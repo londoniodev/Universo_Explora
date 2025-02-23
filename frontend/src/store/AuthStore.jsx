@@ -11,6 +11,8 @@ const SIXTEENPFANSWERS_API = import.meta.env.MODE === "development" ? "http://lo
 const CART_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/cart" : "/api/cart";
 const PURCHASE_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/purchase" : "/api/purchase";
 const PSYCHOLOGIST_API = import.meta.env.VITE_PSYCHOLOGIST_API || "/api/psychologist";
+const SOCKET_SERVER = import.meta.env.MODE === "development" ? "http://localhost:4001" : import.meta.env.VITE_SOCKET_SERVER || "/";
+export const socket = io(SOCKET_SERVER);
 
 axios.defaults.withCredentials = true; 
 axios.defaults.baseURL = import.meta.env.MODE === "development" ? "http://localhost:4001" : "/";

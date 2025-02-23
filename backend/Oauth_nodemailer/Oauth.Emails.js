@@ -1,6 +1,6 @@
 import { 
     PASSWORD_RESET_REQUEST_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, WELCOME_NEW_USER_EMAIL_TEMPLATE,
-    PASSWORD_RESET_SUCCESS_TEMPLATE, APPROVAL_EMAIL_TEMPLATE, REJECTION_EMAIL_TEMPLATE
+    PASSWORD_RESET_SUCCESS_TEMPLATE, APPROVAL_EMAIL_TEMPLATE, REJECTION_EMAIL_TEMPLATE, ACCOUNT_DELETION_EMAIL_TEMPLATE
 } from "../Oauth_nodemailer/Oauth_templates.js"
 import { transporter } from "../Oauth_nodemailer/Oauth2.nodemailer.config.js"
 import crypto from 'crypto'
@@ -113,4 +113,21 @@ export const sendRejectionEmail = async (email, name, reason) => {
     } catch (error) {
         console.error("Error al enviar email de rechazo:", error);
     }
-};
+}
+
+export const sendAccountDeletionEmail = async (email, name, last_name) => {
+    try {
+      const mailOptions = {
+        from: `"Explora Support - NoReply (No Responder)" <${process.env.SMTP_EMAIL}>`,
+        to: email,
+        subject: "Tu cuenta ha sido eliminada",
+        html: ACCOUNT_DELETION_EMAIL_TEMPLATE
+          .replace("{name}", name)
+          .replace("{last_name}", last_name),
+      };
+  
+      await transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.error("Error al enviar email de eliminación de cuenta:", error);
+    }
+}

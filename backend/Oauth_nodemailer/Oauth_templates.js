@@ -95,12 +95,12 @@ export const WELCOME_NEW_USER_EMAIL_TEMPLATE = `
 </head>
 <body>
   <div class="header">
-    <h1>¡Bienvenid@ a universo universoexplora!</h1>
+    <h1>¡Te damos la bienvenida a universoexplora!</h1>
   </div>
   <div class="content">
     <p>Hola {name},</p>
     <p>Nos alegra mucho tenerte con nosotros. Tu cuenta ha sido creada exitosamente y estás listo para empezar.</p>
-    <p>Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos. Puedes encontrarnos en nuestro sitio web en la sección de contacto.</p>
+    <p>Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos. Puedes encontrarnos en nuestro sitio web, en la sección de contacto.</p>
     <p>¡Gracias por unirte a nuestra comunidad!</p>
     <p>Saludos,<br>universoexplora Team 😎✨.</p>
   </div>
@@ -262,7 +262,7 @@ export const APPROVAL_EMAIL_TEMPLATE = `
   </div>
   <div class="content">
     <p>Hola {name} {last_name},</p>
-    <p>¡Felicitaciones! Hemos revisado y aprobado tu solicitud para unirte a nuestro equipo de psicólogos en universoexplora.</p>
+    <p>¡Felicitaciones! Hemos revisado y aprobado tu solicitud para unirte a nuestro equipo de psicólogos en <strong>universoexplora</strong>.</p>
     <p>Ahora puedes iniciar sesión y comenzar a trabajar con nosotros.</p>
     
     <div class="button-container">
@@ -342,11 +342,87 @@ export const REJECTION_EMAIL_TEMPLATE = `
     <p><b>Motivo del rechazo:</b></p>
     <p style="color: #c9302c; font-weight: bold;">"{reason}"</p>
     <p>Si crees que ha habido un error o deseas más información, puedes comunicarte con nuestro equipo de soporte.</p>
-    <p>Agradecemos tu interés en formar parte de universoexplora.</p>
+    <p>Agradecemos tu interés en formar parte de <strong>universoexplora</strong>.</p>
     <p>Saludos,<br>universoexplora Team 😎✨</p>
   </div>
   <div class="footer">
     <p>Este es un mensaje automático, por favor no respondas a este correo.</p>
+  </div>
+</body>
+</html>
+`;
+
+export const ACCOUNT_DELETION_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitud Rechazada</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(to right, #d9534f, #c9302c);
+      padding: 20px;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: white;
+      margin: 0;
+      font-size: 17px;
+      font-weight: 400;
+    }
+
+    .content {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 0 0 5px 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .content p {
+      font-size: 18px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+      font-size: 0.8em;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Información Importante sobre su Cuenta</h1>
+  </div>
+  <div class="content">
+    <h1>Cordial saludo {name} {last_name},</h1>
+    <p>Le informamos que su cuenta en <strong>universoexplora</strong> ha sido eliminada.</p>
+    <p>Esta acción puede haberse realizado por uno de los siguientes motivos:</p>
+    <ul>
+      <li>Usted solicitó la eliminación de su cuenta.</li>
+      <li>Su cuenta fue eliminada debido a una revisión interna por incumplimiento de nuestras políticas.</li>
+    </ul>
+    <p>Si desea conocer el motivo específico de la eliminación o si considera que ha ocurrido un error, le invitamos a ponerse en contacto con nuestro equipo de soporte. Estaremos encantados de brindarle asistencia.</p>
+    <p>Agradecemos el tiempo que ha compartido con nosotros en <strong>universoexplora</strong>.</p>
+    <p>Atentamente,<br>El equipo de <strong>universoexplora</strong></p>
+  </div>
+  <div class="footer">
+    <p>Este es un mensaje automático, por favor, no responda a este correo.</p>
   </div>
 </body>
 </html>

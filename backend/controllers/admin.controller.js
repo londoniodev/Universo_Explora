@@ -1,4 +1,4 @@
-import { sendApprovalEmail, sendRejectionEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
+import { sendApprovalEmail, sendRejectionEmail, sendAccountDeletionEmail } from "../Oauth_nodemailer/Oauth.Emails.js";
 import { Psychologist } from "../models/psychologist.model.js";
 import cloudinary from "../config/cloudinary.config.js";
 import { User } from "../models/user.model.js";
@@ -40,13 +40,44 @@ export const deleteUser = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const user = await User.findByIdAndDelete(userId);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "Usuario no encontrado" });
     }
 
+    if (user.role === "psychologist") {
+      console.log("🔴 Eliminando imágenes de Cloudinary para el psicólogo:", user.email);
+
+      const deleteFromCloudinary = async (imageUrl) => {
+        if (!imageUrl) return;
+        try {
+          const publicId = imageUrl.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(`psychologists/${publicId}`);
+          console.log(`✅ Imagen eliminada: ${imageUrl}`);
+        } catch (err) {
+          console.warn(`⚠️ Error eliminando imagen ${imageUrl}:`, err.message);
+        }
+      };
+
+      await deleteFromCloudinary(user.profilePicture);
+      await deleteFromCloudinary(user.degreeCertificate);
+      await deleteFromCloudinary(user.professionalCard);
+
+      await sendAccountDeletionEmail(user.email, user.name, user.last_name);
+
+      await Psychologist.findOneAndDelete({ userId });
+
+      const io = getIO();
+      io.emit("psychologistDeleted", { userId, email: user.email });
+      console.log(`📢 Notificación enviada al admin: Psicólogo eliminado (${user.email})`);
+    }
+
+    await User.findByIdAndDelete(userId);
+
     res.status(200).json({ success: true, message: "Usuario eliminado correctamente" });
+
   } catch (error) {
+    console.error("❌ Error al eliminar usuario:", error);
     res.status(500).json({ success: false, message: "Error al eliminar usuario" });
   }
 };

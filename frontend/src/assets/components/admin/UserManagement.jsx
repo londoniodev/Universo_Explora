@@ -1,19 +1,53 @@
-import { FaTrash, FaUserEdit } from "react-icons/fa";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useState } from "react";
+import toast from "react-hot-toast";
+import { FaTrash, FaUserEdit, FaSpinner } from "react-icons/fa";
+import { socket } from "../../../store/AuthStore.jsx";
 
-const UserManagement = ({ users, fetchData }) => {
+const UserManagement = ({ fetchData }) => {
+  const [users, setUsers] = useState([]);
   const [editingUserId, setEditingUserId] = useState(null);
   const [newRole, setNewRole] = useState("");
+  const [loadingUserId, setLoadingUserId] = useState(null);
+
+  useEffect(() => {
+    fetchUsers();
+
+    socket.on("userUpdated", () => {
+      fetchUsers();
+    });
+
+    return () => {
+      socket.off("userUpdated");
+    };
+  }, []);
+
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/admin/users", { withCredentials: true });
+      if (response.data.success) {
+        setUsers(response.data.users);
+      } else {
+        toast.error("Error al obtener usuarios.");
+      }
+    } catch (error) {
+      toast.error("Error en la carga de datos.");
+    }
+  };
 
   const handleDeleteUser = async (userId) => {
+    setLoadingUserId(userId);
+
     try {
       await axios.delete(`/api/admin/users/${userId}`, { withCredentials: true });
       toast.success("Usuario eliminado correctamente.");
-      fetchData();
+      fetchUsers();
+      socket.emit("userUpdated");
     } catch (error) {
       toast.error("Error al eliminar usuario.");
+    } finally {
+      setLoadingUserId(null);
     }
   };
 
@@ -22,19 +56,19 @@ const UserManagement = ({ users, fetchData }) => {
       toast.error("Selecciona un rol válido.");
       return;
     }
-  
+
     try {
       await axios.put(`/api/admin/users/${userId}/role`, { newRole: selectedRole }, { withCredentials: true });
       toast.success("Rol actualizado correctamente.");
-      fetchData();
+      fetchUsers();
       setEditingUserId(null);
       setNewRole("");
+      socket.emit("userUpdated");
     } catch (error) {
       toast.error("Error al actualizar el rol.");
     }
   };
-  
-  
+
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Gestión de Usuarios</h2>
@@ -100,9 +134,15 @@ const UserManagement = ({ users, fetchData }) => {
                 )}
                 <button
                   onClick={() => handleDeleteUser(u._id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
+                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition flex items-center gap-2"
+                  disabled={loadingUserId === u._id}
                 >
-                  <FaTrash /> Eliminar
+                  {loadingUserId === u._id ? (
+                    <FaSpinner className="animate-spin" />
+                  ) : (
+                    <FaTrash />
+                  )}
+                  Eliminar
                 </button>
               </td>
             </tr>
