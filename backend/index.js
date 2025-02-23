@@ -82,7 +82,6 @@ if (isProduction) {
 const startServer = async () => {
   try {
     await connectDB(MONGO_URI);
-    console.log(`Conectado a MongoDB: ${MONGO_URI}`);
 
     server.listen(PORT, () => {
       console.log(`Servidor corriendo en el puerto ${PORT}`);

@@ -453,10 +453,10 @@ completeTest: async (packageId, testType) => {
       if (response.status === 200) {
         toast.success("Respuestas guardadas exitosamente.");
       } else {
-        toast.error("No se pudieron guardar las respuestas.");
+        console.error("No se pudieron guardar las respuestas.");
       }
     } catch (error) {
-      toast.error("Error al guardar las respuestas.");
+      console.error("Error al guardar las respuestas.");
     }
   },
   
@@ -484,10 +484,10 @@ completeTest: async (packageId, testType) => {
       if (response.status === 200) {
         set({ autoevaluationResults: response.data.graphData });
       } else {
-        toast.error("No se pudieron obtener los resultados de la autoevaluación.");
+        console.error("No se pudieron obtener los resultados de la autoevaluación.");
       }
     } catch (error) {
-      toast.error("Error al obtener los resultados de la autoevaluación.");
+      console.error("Error al obtener los resultados de la autoevaluación.");
     }
   },
 
@@ -583,11 +583,11 @@ getQuestions: async (packageId) => {
       set({ questions: response.data.questions });
       return response.data.questions;
     } else {
-      toast.error("No se pudieron cargar las preguntas.");
+      console.error("No se pudieron cargar las preguntas.");
       return [];
     }
   } catch (error) {
-    toast.error("Error al obtener las preguntas.");
+    console.error("Error al obtener las preguntas.");
     return [];
   }
 },
@@ -640,10 +640,10 @@ fetchCalculatedResults: async () => {
     if (response.status === 200) {
       set({ calculatedResults: response.data.results });
     } else {
-      toast.error("No se pudieron obtener los resultados.");
+      console.error("No se pudieron obtener los resultados.");
     }
   } catch (error) {
-    toast.error("Error al obtener resultados.");
+    console.error("Error al obtener los resultados.");
   }
 },
 
