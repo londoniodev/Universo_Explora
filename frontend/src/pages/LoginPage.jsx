@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Logo from "../assets/images/logominimalistaExplora.png";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/AuthStore.jsx";
+import Light from "../assets/images/light.png";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -81,87 +82,104 @@ const LoginPage = () => {
   };
 
   return (
-    <motion.div
-      className="flex items-center justify-center bg-[#101828] min-h-screen relative overflow-hidden"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
+    <div className="relative overflow-hidden bg-[#101828] min-h-screen">
+      <img
+        src={Light}
+        alt="Logo de Explora"
+        className="absolute z-10 w-[120%] h-[120%] rotate-[20deg] mt-[-10%] opacity-70 ml-[-30%] pointer-events-none"
+        loading="eager"
+      />
+
+      <img
+        src={Light}
+        alt="Logo de Explora"
+        className="absolute z-10 w-[120%] h-[120%] rotate-[120deg] mt-[-10%] opacity-70 ml-[30%] pointer-events-none"
+        loading="eager"
+      />
 
       <motion.div
-        className="w-full max-w-md bg-transparent p-8 rounded-lg shadow-lg relative z-10"
-        variants={itemVariants}
+        className="flex items-center justify-center bg-[#101828] min-h-screen relative overflow-hidden"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
       >
-        <motion.img
-          src={Logo}
-          alt="Logo"
-          className="w-[18%] h-[18%] mx-auto pointer-events-none"
+
+        <motion.div
+          className="w-full max-w-md bg-transparent p-8 relative z-20"
           variants={itemVariants}
-        />
-        <motion.h1 className="text-3xl font-bold text-center text-white" variants={itemVariants}>
-          Accede a tu cuenta
-        </motion.h1>
-        <motion.form className="space-y-6 mt-6" onSubmit={handleLogin} variants={containerVariants}>
-          <motion.div variants={itemVariants}>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-              Correo Electrónico
-            </label>
-            <input
-              type="email"
-              id="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
-            />
-          </motion.div>
-          <motion.div className="relative" variants={itemVariants}>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-              Contraseña
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-9 text-gray-400"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
-          </motion.div>
-          <motion.div variants={itemVariants}>
-            <Link
-              to="/api/auth/forgot-password"
-              className="block text-sm text-[#6589FF] font-semibold"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </motion.div>
-          <motion.button
-            type="submit"
-            className="w-full py-2 px-4 bg-[#615FFF] text-white rounded-md hover:bg-[#4F4CFF] focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105"
-            disabled={isLoading}
+        >
+          <motion.img
+            src={Logo}
+            alt="Logo"
+            className="w-[18%] h-[18%] mx-auto pointer-events-none"
             variants={itemVariants}
-          >
-            {isLoading ? "Ingresando..." : "Ingresar"}
-          </motion.button>
-        </motion.form>
-        <motion.div className="mt-6 text-center" variants={itemVariants}>
-          <p className="text-sm text-gray-400">
-            ¿No tienes una cuenta?{" "}
-            <Link to="/api/auth/signup" className="text-[#6589FF] font-semibold">
-              Registrarme
-            </Link>
-          </p>
+          />
+          <motion.h1 className="text-3xl font-bold text-center text-white" variants={itemVariants}>
+            Accede a tu cuenta
+          </motion.h1>
+          <motion.form className="space-y-6 mt-6" onSubmit={handleLogin} variants={containerVariants}>
+            <motion.div variants={itemVariants}>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                Correo Electrónico
+              </label>
+              <input
+                type="email"
+                id="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+              />
+            </motion.div>
+            <motion.div className="relative" variants={itemVariants}>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                Contraseña
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-9 text-gray-400"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <Link
+                to="/api/auth/forgot-password"
+                className="block text-sm text-[#6589FF] font-semibold"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </motion.div>
+            <motion.button
+              type="submit"
+              className="w-full py-2 px-4 bg-[#615FFF] text-white rounded-md hover:bg-[#4F4CFF] focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105"
+              disabled={isLoading}
+              variants={itemVariants}
+            >
+              {isLoading ? "Ingresando..." : "Ingresar"}
+            </motion.button>
+          </motion.form>
+          <motion.div className="mt-6 text-center" variants={itemVariants}>
+            <p className="text-sm text-gray-400">
+              ¿No tienes una cuenta?{" "}
+              <Link to="/api/auth/signup" className="text-[#6589FF] font-semibold">
+                Registrarme
+              </Link>
+            </p>
+          </motion.div>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
+    
   );
 };
 
