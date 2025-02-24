@@ -6,9 +6,8 @@ import { useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "./PasswordStrenghtMeter.jsx";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import toast from "react-hot-toast";
-import Boy from "../assets/images/astro_boy.png";
-import NightLight from "../assets/images/nightlight.png";
-
+import Logo from "../assets/images/logominimalistaExplorawhite.png";
+import Light from "../assets/images/light.png";
 
 const genderOptions = [
   { value: "male", label: "Masculino" },
@@ -185,37 +184,16 @@ const RegisterPage = () => {
     hover: { scale: 1.05, transition: { duration: 0.3, yoyo: Infinity } },
   };
 
-  const lightAnimation = {
-    animate: {
-      x: [0, 50, -50, 0],
-      y: [0, -30, 30, 0],
-    },
-    transition: {
-      duration: 8,
-      repeat: Infinity,
-      repeatType: "mirror",
-      ease: "easeInOut",
-    },
-  };
-
   return (
-    <div id="container" className="flex justify-center items-center min-h-screen px-4 md:px-8 bg-gray-50 relative overflow-hidden">
+    <div className="flex justify-center items-center min-h-screen px-4 md:px-8 bg-[#101828] relative overflow-hidden">
       <img
-        src={NightLight}
-        alt="Light"
-        className="absolute z-1 inset-0 h-[50%] top-[50%] w-full pointer-events-none"
+        src={Light}
+        alt="Logo de Explora"
+        className="absolute z-0 w-[120%] h-[120%] rotate-[25deg] mt-[-15%] ml-[15%] pointer-events-none"
+        loading="eager"
       />
       <motion.div
-        className="absolute top-[20%] left-[15%] w-[150px] h-[150px] bg-gradient-to-br from-purple-800/50 to-transparent rounded-full blur-2xl"
-        {...lightAnimation}
-      />
-      <motion.div
-        className="absolute bottom-[10%] right-[15%] w-[100px] h-[100px] bg-gradient-to-br from-blue-500/50 to-transparent blur-3xl"
-        {...lightAnimation}
-      />
-
-      <motion.div
-        className="flex flex-col md:flex-row w-full z-10 max-w-4xl lg:max-w-6xl bg-transparent border border-white/20 shadow-lg overflow-hidden h-auto md:h-[38rem]"
+        className="flex flex-col md:flex-row w-full z-10 max-w-4xl lg:max-w-6xl bg-transparent overflow-hidden h-auto md:h-[38rem]"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -225,24 +203,25 @@ const RegisterPage = () => {
           variants={itemVariants}
         >
           <img
-            src={Boy}
-            alt="Astro Boy Background"
-            className="absolute inset-0 w-full h-full object-cover"
+            src={Logo}
+            alt="Logo de Explora"
+            className="absolute inset-0 w-[30%] h-[30%] mx-auto mt-[30%] pointer-events-none my-auto z-20"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-            <h1 className="text-base lg:text-lg font-bold text-white text-center p-2">
-              <FaQuoteLeft className="inline-block mr-2" />
+          <div className="absolute inset-0 bg-[#020617] flex z-10 items-center justify-center">
+            <h1 className="text-base mt-[50%] lg:text-lg font-bold text-white text-center p-2">
+              <FaQuoteLeft className="inline-block text-white mr-2" />
               Eres la razón de nuestro trabajo diario. ¡Gracias por elegirnos!
             </h1>
           </div>
         </motion.div>
 
         <motion.div
-          className="flex flex-col justify-center bg-[#101010]/20 md:w-1/2 w-full p-4 sm:p-6 lg:p-8 backdrop-blur-lg border-white/10 shadow-lg"
+          className="flex flex-col justify-center md:w-1/2 w-full p-4 sm:p-6 lg:p-8"
           variants={itemVariants}
         >
-          <div className="max-w-sm md:max-w-md mt-[-2%] mx-auto">
+
+          <div className="max-w-sm md:max-w-md z-10 mt-[-2%] mx-auto">
             <motion.h1
               className="text-base sm:text-2xl font-bold text-white text-center"
               variants={itemVariants}
