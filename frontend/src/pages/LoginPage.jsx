@@ -83,14 +83,14 @@ const LoginPage = () => {
 
   return (
     <div className="relative overflow-hidden bg-[#101828] min-h-screen">
-      <img
+      <motion.img
         src={Light}
         alt="Logo de Explora"
         className="absolute z-10 w-[120%] h-[120%] rotate-[20deg] mt-[-10%] opacity-70 ml-[-30%] pointer-events-none"
         loading="eager"
       />
 
-      <img
+      <motion.img
         src={Light}
         alt="Logo de Explora"
         className="absolute z-10 w-[120%] h-[120%] rotate-[120deg] mt-[-10%] opacity-70 ml-[30%] pointer-events-none"

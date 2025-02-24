@@ -186,7 +186,7 @@ const RegisterPage = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen px-4 md:px-8 bg-[#101828] relative overflow-hidden">
-      <img
+      <motion.img
         src={Light}
         alt="Logo de Explora"
         className="absolute z-0 w-[120%] h-[120%] rotate-[25deg] mt-[-15%] ml-[15%] pointer-events-none"
