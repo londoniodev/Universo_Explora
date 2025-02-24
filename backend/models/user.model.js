@@ -45,8 +45,8 @@ const userSchema = new mongoose.Schema(
     professionalCard: { type: String, default: "" },
     
     psychologistAssigned: { type: mongoose.Schema.Types.ObjectId, ref: "Psychologist", default: null },
-    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Request" }],
-
+    accessBalance: { type: Number, default: 0 },
+    
     resetPasswordToken: { type: String },
     resetPasswordExpiresAt: { type: Date },
     verificationToken: { type: String },

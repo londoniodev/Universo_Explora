@@ -6,7 +6,27 @@ import { assignPsychologistAutomatically } from "../controllers/psychologist.con
 export const handlePurchase = async (req, res) => {
   try {
     const userId = req.userId;
-    const { purchasedTests, paymentMethod } = req.body;
+    const { purchasedTests, paymentMethod, accessQuantity } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    if (user.role === "psychologist") {
+      if (!accessQuantity || accessQuantity <= 0) {
+        return res.status(400).json({ success: false, message: "Cantidad de accesos inválida" });
+      }
+
+      user.accessBalance = (user.accessBalance || 0) + accessQuantity;
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `Compra exitosa. Se añadieron ${accessQuantity} accesos.`,
+        accessBalance: user.accessBalance,
+      });
+    }
 
     if (!Array.isArray(purchasedTests) || purchasedTests.length === 0) {
       return res.status(400).json({ success: false, message: "Datos de compra inválidos" });
@@ -26,22 +46,15 @@ export const handlePurchase = async (req, res) => {
       results.push(newAccess);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { 
-        $push: { purchasedTests: purchasedTests.map((test) => ({ ...test })) },
-        $set: { cart: [] }
-      },
-      { new: true }
-    ).select("-password");
+    user.purchasedTests.push(...purchasedTests);
+    user.cart = [];
+    await user.save();
 
     let psychologist = null;
     try {
       const assignResult = await assignPsychologistAutomatically(userId);
       if (assignResult?.success && assignResult.psychologist) {
         psychologist = assignResult.psychologist;
-      } else {
-        console.warn("⚠️ No se pudo asignar un psicólogo automáticamente.");
       }
     } catch (error) {
       console.error("⚠️ Error asignando psicólogo:", error);
@@ -51,14 +64,13 @@ export const handlePurchase = async (req, res) => {
       success: true,
       message: psychologist
         ? "Compra realizada con éxito y psicólogo asignado automáticamente."
-        : "Compra realizada con éxito, pero no se pudo asignar un psicólogo automáticamente.",
+        : "Compra realizada con éxito.",
       results,
       psychologist,
-      user: updatedUser,
+      user,
     });
 
   } catch (error) {
-    console.error("ERROR en handlePurchase:", error);
     return res.status(500).json({ success: false, message: "Error al procesar la compra" });
   }
 };

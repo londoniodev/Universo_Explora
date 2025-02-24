@@ -2,7 +2,8 @@ import { UserPackageAccess } from "../models/UserPackageAccess.model.js";
 import { generateTestAccessToken, verifyTestAccessToken } from "../utils/testAccessToken.utils.js";
 
 export const createAccessToken = async (req, res) => {
-  const { userId, packageId, expiration } = req.body;
+  const { packageId, expiration } = req.body;
+  const userId = req.userId;
 
   if (!userId || !packageId) {
     return res.status(400).json({ success: false, message: "userId y packageId son requeridos." });
@@ -75,5 +76,76 @@ export const revokeAccessToken = async (req, res) => {
     res.status(200).json({ success: true, message: "Token revocado con éxito." });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error al revocar el token." });
+  }
+};
+
+export const generateAccessForUser = async (req, res) => {
+  try {
+    const psychologistId = req.userId;
+    const { packageId } = req.body;
+
+    if (!packageId) {
+      return res.status(400).json({ success: false, message: "El packageId es requerido." });
+    }
+
+    const psychologist = await User.findById(psychologistId);
+
+    if (!psychologist || psychologist.role !== "psychologist") {
+      return res.status(403).json({ success: false, message: "Acción no permitida." });
+    }
+
+    if (psychologist.accessBalance <= 0) {
+      return res.status(400).json({ success: false, message: "No tienes accesos disponibles." });
+    }
+
+    const token = generateTestAccessToken({ psychologistId, packageId }, "1d");
+
+    await TestAccessToken.create({
+      token,
+      userId: psychologistId,
+      packageId,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 5000),
+    });
+
+    psychologist.accessBalance -= 1;
+    await psychologist.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Acceso generado con éxito.",
+      accessToken: token,
+      remainingAccesses: psychologist.accessBalance,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Error al generar el acceso." });
+  }
+};
+
+export const getPsychologistAccesses = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const accesses = await UserPackageAccess.find({ userId });
+
+    return res.status(200).json({ success: true, accesses });
+  } catch (error) {
+    console.error("Error al obtener los accesos:", error);
+    return res.status(500).json({ success: false, message: "Error al obtener los accesos" });
+  }
+};
+
+export const getPsychologistPurchases = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const purchases = await UserPackageAccess.find({ userId, paymentStatus: "completed" });
+
+    const accessBalance = purchases.length;
+
+    return res.status(200).json({ success: true, accessBalance, purchases });
+  } catch (error) {
+    console.error("Error al obtener las compras:", error);
+    return res.status(500).json({ success: false, message: "Error al obtener las compras" });
   }
 };

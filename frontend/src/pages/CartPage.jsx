@@ -24,6 +24,7 @@ const CartPage = () => {
   const handleRemoveFromCart = async (itemId) => {
     try {
       await removeFromCart(itemId);
+      toast.dismiss();
       toast.success("Producto eliminado del carrito");
     } catch (error) {
       toast.error("No se pudo eliminar el producto");
@@ -32,6 +33,7 @@ const CartPage = () => {
 
   const handlePurchase = async () => {
     if (cart.length === 0) {
+      toast.dismiss();
       toast.error("El carrito está vacío");
       return;
     }
@@ -47,13 +49,16 @@ const CartPage = () => {
       const response = await buyTests(purchasedTests);
 
       if (response?.data?.success) {
+        toast.dismiss();
         toast.success("Compra realizada con éxito");
         clearCart();
         navigate("/api/auth/dashboard/payment/thank-you", { state: { purchasedTests } });
       } else {
+        toast.dismiss();
         toast.error(response?.data?.message || "Error al procesar la compra");
       }
     } catch (error) {
+      toast.dismiss();
       toast.error("Error al procesar la compra");
     }
   };

@@ -32,7 +32,7 @@ const DashboardPage = () => {
 
   
   return (
-    <div id="container" className="relative min-h-screen flex flex-col text-white">
+    <div className="relative min-h-screen bg-[#101828] flex flex-col text-white">
       <Navbar />
       <div className="flex-grow flex flex-col items-center justify-center px-4 md:px-6">
         <h1 className="text-4xl font-extrabold text-white mb-10 tracking-wide">

@@ -41,6 +41,7 @@ export const useAuthStore = create((set, get) => ({
   isLoading: false,
   isCheckingAuth: true,
   pendingRequests: [],
+  psychologistAccesses: [],
 
   questions: [],
   calculatedResults: null,
@@ -274,7 +275,6 @@ export const useAuthStore = create((set, get) => ({
     try {
       await axios.post(`${AUTHENTICATION_API}/logout`);
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
-      toast.success("Sesión cerrada correctamente");
     } catch (error) {
       toast.error("Error al cerrar sesión");
     }
@@ -498,7 +498,7 @@ completeTest: async (packageId, testType) => {
         const { activities, activityPerformance } = response.data;
 
         if (!activities || !activityPerformance) {
-          toast.error("No se encontraron datos de actividades en las respuestas.");
+          console.log("No se encontraron datos de actividades en las respuestas.");
           return;
         }
   
@@ -517,7 +517,7 @@ completeTest: async (packageId, testType) => {
         toast.error("No se pudieron obtener los datos de actividades.");
       }
     } catch (error) {
-      toast.error("Error al obtener los datos de actividades.");
+      console.log("Error al obtener los datos de actividades.");
     }
   },
   
@@ -912,6 +912,129 @@ listenToSocketEvents: () => {
   });
 },
 
+// ==========================
+//    REVOCAR ACCESO DEL PSICÓLOGO PARA USUARIOS
+// ==========================
+
+revokePsychologistAccess: async (token) => {
+  try {
+    const response = await axios.post(
+      `/api/test-access/revoke`,
+      { token },
+      { withCredentials: true }
+    );
+
+    if (response.data.success) {
+      toast.success("Token revocado con éxito.");
+      return true;
+    } else {
+      throw new Error(response.data.message || "Error desconocido.");
+    }
+  } catch (error) {
+    toast.error("Error al revocar acceso.");
+    return false;
+  }
+},
+
+
+ // ==========================
+  // GESTIÓN DE ACCESOS PARA PSICÓLOGOS
+  // ==========================
+
+  fetchPsychologistPurchases: async () => {
+    try {
+      const response = await axios.get("/api/test-access/psychologist-purchases", { withCredentials: true });
+
+      if (response.data.success) {
+        set({ purchasedAccesses: response.data.purchases });
+      }
+    } catch (error) {
+      console.warn("⚠️ Error al obtener las compras de accesos:", error);
+    }
+  },
+
+  fetchActiveAccesses: async () => {
+    try {
+      const response = await axios.get(`/api/test-access/psychologist-accesses`, { withCredentials: true });
+      if (response.data.success) {
+        set({ psychologistAccesses: response.data.accesses });
+      }
+    } catch (error) {
+      console.warn("Error al obtener accesos activos:", error);
+    }
+  },
+
+  handleGenerateAccessFromBalance: async (selectedPackageId) => {
+    const { accessBalance } = get();
+    if (accessBalance <= 0) {
+      toast.error("⚠️ No tienes accesos disponibles.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/api/test-access/generate-from-balance`, {
+        packageId: selectedPackageId,
+      }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast.success("✅ Acceso generado correctamente.");
+        set({ accessBalance: response.data.accessBalance });
+        get().fetchActiveAccesses();
+      }
+    } catch (error) {
+      toast.error("❌ Error al generar acceso.");
+    }
+  },
+
+  handleValidateAccess: async (token) => {
+    if (!token) {
+      toast.error("Ingresa un token para validar.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/api/test-access/validate`, { token }, { withCredentials: true });
+      if (response.data.success) {
+        toast.success("✅ Token válido.");
+      }
+    } catch (error) {
+      toast.error("❌ Token inválido o expirado.");
+    }
+  },
+
+  handleRevokeAccess: async (token) => {
+    try {
+      const response = await axios.post(`/api/test-access/revoke`, { token }, { withCredentials: true });
+      if (response.data.success) {
+        toast.success("🔴 Acceso revocado.");
+        get().fetchActiveAccesses();
+      }
+    } catch (error) {
+      toast.error("❌ Error al revocar acceso.");
+    }
+  },
+
+  handlePurchaseAccesses: async (selectedPackageId, accessQuantity) => {
+    if (!selectedPackageId || accessQuantity <= 0) {
+      toast.error("⚠️ Debes seleccionar un paquete y una cantidad válida.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/api/test-access/purchase`, {
+        packageId: selectedPackageId,
+        quantity: accessQuantity,
+      }, { withCredentials: true });
+
+      if (response.data.success) {
+        toast.success(`✅ Has comprado ${accessQuantity} accesos.`);
+        set({ accessBalance: response.data.accessBalance });
+        get().fetchPsychologistPurchases();
+      }
+    } catch (error) {
+      toast.error("❌ Error al comprar accesos.");
+    }
+  },
   
 }));
 useAuthStore.getState().listenToSocketEvents();

@@ -8,20 +8,26 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const PsychologistDashboard = () => {
-  const { user, logout, fetchPsychologistAccountInfo, fetchAssignedUsers } = useAuthStore();
+  const { user, logout, fetchPsychologistAccountInfo, fetchAssignedUsers, fetchPendingRequests, handleGenerateAccessFromBalance,
+  revokePsychologistAccess, pendingRequests, pendingRequestCount  } = useAuthStore();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [assignedUsers, setAssignedUsers] = useState([]);
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [newAssignedCount, setNewAssignedCount] = useState(0);
   const [notes, setNotes] = useState({});
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
 
+  const [psychologistAccesses, setPsychologistAccesses] = useState([]);
+
+  const [accessBalance, setAccessBalance] = useState(0);
+  const [purchasedAccesses, setPurchasedAccesses] = useState([]);
+
   useEffect(() => {
     fetchPsychologistAccountInfo();
+    fetchActiveAccesses()
+    fetchPsychologistPurchases();
   
     const updateAssignedUsers = async () => {
       await fetchAssignedUsers();
@@ -30,7 +36,7 @@ const PsychologistDashboard = () => {
 
     updateAssignedUsers();
     fetchPendingRequests();
-  }, []);
+  }, [fetchPendingRequests]);
   
 
   useEffect(() => {
@@ -43,21 +49,12 @@ const PsychologistDashboard = () => {
   
         socketRef.current.emit("join-psychologist-room", user._id);
   
-        socketRef.current.on("new-request", async ({ userId }) => {
-          try {
-            const response = await axios.get(`/api/psychologist/pending-requests`, { withCredentials: true });
-            if (response.data.success) {
-              setPendingRequests(response.data.requests);
-              setPendingRequestCount(response.data.requests.length);
-            }
-          } catch (error) {
-            console.warn("Error al obtener solicitudes tras notificación:", error);
-          }
+        socketRef.current.on("new-request", async () => {
+          await fetchPendingRequests();
         });
   
-        socketRef.current.on("request-removed", ({ userId }) => {
-          setPendingRequests((prev) => prev.filter((req) => req.userId._id !== userId));
-          setPendingRequestCount((prev) => Math.max(0, prev - 1));
+        socketRef.current.on("request-removed", async () => {
+          await fetchPendingRequests();
         });
   
         socketRef.current.on("assigned-user", async ({ psychologistId, userId, message }) => {
@@ -101,33 +98,59 @@ const PsychologistDashboard = () => {
         socketRef.current = null;
       }
     };
-  }, [user?._id]);
+  }, [user?._id, fetchPendingRequests]);
   
 
-  const fetchPendingRequests = async () => {
+  const fetchPsychologistPurchases = async () => {
     try {
-      const response = await axios.get("/api/psychologist/pending-requests", { withCredentials: true });
+      const response = await axios.get(`/api/test-access/psychologist-purchases`, { withCredentials: true });
+  
       if (response.data.success) {
-        setPendingRequests(response.data.requests);
-        setPendingRequestCount(response.data.requests.length);
+        setAccessBalance(response.data.accessBalance);
+        setPurchasedAccesses(response.data.purchases);
       }
     } catch (error) {
-      console.warn("⚠️ Error al obtener solicitudes pendientes:", error);
+      console.warn("⚠️ Error al obtener las compras de accesos:", error);
+    }
+  };
+  
+  const fetchActiveAccesses = async () => {
+    try {
+      const response = await axios.get(`/api/test-access/psychologist-accesses`, { withCredentials: true });
+      if (response.data.success) {
+        setPsychologistAccesses(response.data.accesses);
+      }
+    } catch (error) {
+      console.warn("Error al obtener accesos activos:", error);
+    }
+  };
+  
+  const handleRevokeAccess = async (token) => {
+    try {
+      const success = await revokePsychologistAccess(token);
+  
+      if (success) {
+        toast.success("🔴 Acceso revocado.");
+        fetchActiveAccesses();
+      }
+    } catch (error) {
+      toast.error("❌ Error al revocar acceso.");
     }
   };
 
   const handleRequestResponse = async (requestId, action) => {
     try {
-      await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
-
-      toast.success(`✅ Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
-      
-      if (action === "accept" && socketRef.current) {
-        socketRef.current.emit("request-removed", { requestId });
+      const response = await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
+  
+      if (response.data.success) {
+        toast.success(`✅ Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+  
+        if (action === "accept" && socketRef.current) {
+          socketRef.current.emit("assigned-user", { psychologistId: user._id, userId: response.data.userId, message: "Nuevo usuario asignado" });
+        }
+  
+        await fetchPendingRequests();
       }
-
-      await fetchAssignedUsers();
-      await fetchPendingRequests();
     } catch (error) {
       toast.error("❌ Error al procesar la solicitud.");
     }
@@ -227,6 +250,70 @@ const PsychologistDashboard = () => {
         case "messages":
           return <div>Mensajes</div>;
 
+          case "accesses":
+            return (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Gestión de Accesos</h2>
+
+                {/* Accesos Comprados */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold">Accesos Comprados</h3>
+                  {purchasedAccesses.length === 0 ? (
+                    <p className="text-gray-500 mt-2">No has comprado accesos aún.</p>
+                  ) : (
+                    <ul className="mt-2">
+                      {purchasedAccesses.map((purchase) => (
+                        <li key={purchase._id} className="bg-gray-100 p-2 rounded mb-2">
+                          <strong>{purchase.packageName}</strong> - {purchase.quantity} accesos
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Generar Accesos */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold">Generar Accesos para Compartir</h3>
+                  <p className="text-gray-700 font-bold mt-2">Saldo disponible: {accessBalance}</p>
+
+                  <button
+                    className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition mt-2"
+                    onClick={handleGenerateAccessFromBalance}
+                    disabled={accessBalance <= 0}
+                  >
+                    Generar Acceso
+                  </button>
+                </div>
+
+                {/* Accesos Activos */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold">Accesos Activos</h3>
+                  {psychologistAccesses.length === 0 ? (
+                    <p className="text-gray-500 mt-2">No hay accesos activos.</p>
+                  ) : (
+                    <ul className="mt-2">
+                      {psychologistAccesses.map((access) => (
+                        <li key={access._id} className="flex justify-between items-center bg-gray-100 p-2 rounded mb-2">
+                          <span>
+                            {access.token} -{" "}
+                            <span className={access.used ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
+                              {access.used ? `Usado por ${access.usedByName || "Desconocido"}` : "No usado"}
+                            </span>
+                          </span>
+                          <button
+                            className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                            onClick={() => handleRevokeAccess(access.token)}
+                          >
+                            Revocar
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            );
+        
         case "reports":
           return <div>Reportes</div>;
 
@@ -245,6 +332,7 @@ const PsychologistDashboard = () => {
             { label: "Pacientes", icon: <FaUserFriends />, id: "patients" },
             { label: "Calendario", icon: <FaCalendarAlt />, id: "calendar" },
             { label: "Mensajes", icon: <FaEnvelope />, id: "messages" },
+            { label: "Gestión de Accesos", icon: <FaClipboardList />, id: "accesses" },
             { label: "Reportes", icon: <FaChartLine />, id: "reports" },
             { label: "Solicitudes Pendientes", icon: <FaClipboardList />, id: "requests" },
           ].map(({ label, icon, id }) => (
