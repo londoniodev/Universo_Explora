@@ -12,6 +12,7 @@ const CART_API = import.meta.env.MODE === "development" ? "http://localhost:4001
 const PURCHASE_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/purchase" : "/api/purchase";
 const PSYCHOLOGIST_API = import.meta.env.VITE_PSYCHOLOGIST_API || "/api/psychologist";
 const SOCKET_SERVER = import.meta.env.MODE === "development" ? "http://localhost:4001" : import.meta.env.VITE_SOCKET_SERVER || "/";
+const PSYCHOLOGIST_CART_API = import.meta.env.MODE === "development" ? "http://localhost:4001/api/psychologist-access/cart" : "/api/psychologist-access/cart";
 export const socket = io(SOCKET_SERVER, {
   withCredentials: true,
   transports: ["websocket"],
@@ -42,6 +43,8 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   pendingRequests: [],
   psychologistAccesses: [],
+  accessBalance: 0,
+  purchasedAccesses: [],
 
   questions: [],
   calculatedResults: null,
@@ -149,21 +152,29 @@ export const useAuthStore = create((set, get) => ({
         user.profilePicture = `${import.meta.env.VITE_BACKEND_URL}/uploads/psychologists/${user.profilePicture.split('/').pop()}`;
       }
   
-      set({
+      set((state) => ({
+        ...state,
         user,
         isAuthenticated: true,
         isCheckingAuth: false,
-      });
+      }));
   
       if (user.role === "psychologist" || user.role === "fallback_psychologist") {
         socket.emit("join-psychologist-room", user._id);
       }
-  
-      await get().fetchCart();
+
+      if (user.role === "psychologist") {
+        await get().fetchCartPsychologistAccess();
+      } else {
+        await get().fetchCart();
+      }
+
     } catch (error) {
       set({ user: null, isAuthenticated: false, isCheckingAuth: false });
     }
   },
+  
+  
   
   login: async (email, password) => {
     try {
@@ -517,7 +528,7 @@ completeTest: async (packageId, testType) => {
         toast.error("No se pudieron obtener los datos de actividades.");
       }
     } catch (error) {
-      console.log("Error al obtener los datos de actividades.");
+      toast.error("Error al obtener los datos de actividades.");
     }
   },
   
@@ -946,10 +957,10 @@ revokePsychologistAccess: async (token) => {
       const response = await axios.get("/api/test-access/psychologist-purchases", { withCredentials: true });
 
       if (response.data.success) {
-        set({ purchasedAccesses: response.data.purchases });
+        set({ purchasedAccesses: response.data.purchases, accessBalance: response.data.accessBalance });
       }
     } catch (error) {
-      console.warn("⚠️ Error al obtener las compras de accesos:", error);
+      console.warn("Error al obtener las compras de accesos:", error);
     }
   },
 
@@ -967,7 +978,7 @@ revokePsychologistAccess: async (token) => {
   handleGenerateAccessFromBalance: async (selectedPackageId) => {
     const { accessBalance } = get();
     if (accessBalance <= 0) {
-      toast.error("⚠️ No tienes accesos disponibles.");
+      toast.error("No tienes accesos disponibles.");
       return;
     }
 
@@ -982,7 +993,7 @@ revokePsychologistAccess: async (token) => {
         get().fetchActiveAccesses();
       }
     } catch (error) {
-      toast.error("❌ Error al generar acceso.");
+      toast.error("Error al generar acceso.");
     }
   },
 
@@ -995,28 +1006,20 @@ revokePsychologistAccess: async (token) => {
     try {
       const response = await axios.post(`/api/test-access/validate`, { token }, { withCredentials: true });
       if (response.data.success) {
-        toast.success("✅ Token válido.");
+        toast.success("Token válido.");
       }
     } catch (error) {
-      toast.error("❌ Token inválido o expirado.");
+      toast.error("Token inválido o expirado.");
     }
   },
 
-  handleRevokeAccess: async (token) => {
-    try {
-      const response = await axios.post(`/api/test-access/revoke`, { token }, { withCredentials: true });
-      if (response.data.success) {
-        toast.success("🔴 Acceso revocado.");
-        get().fetchActiveAccesses();
-      }
-    } catch (error) {
-      toast.error("❌ Error al revocar acceso.");
-    }
-  },
+  // ==========================
+  // CARRITO DE COMPRAS PARA USUARIOS
+  // ==========================
 
   handlePurchaseAccesses: async (selectedPackageId, accessQuantity) => {
     if (!selectedPackageId || accessQuantity <= 0) {
-      toast.error("⚠️ Debes seleccionar un paquete y una cantidad válida.");
+      toast.error("Debes seleccionar un paquete y una cantidad válida.");
       return;
     }
 
@@ -1027,14 +1030,76 @@ revokePsychologistAccess: async (token) => {
       }, { withCredentials: true });
 
       if (response.data.success) {
-        toast.success(`✅ Has comprado ${accessQuantity} accesos.`);
+        toast.success(`Has agregado ${accessQuantity} accesos.`);
         set({ accessBalance: response.data.accessBalance });
         get().fetchPsychologistPurchases();
       }
     } catch (error) {
-      toast.error("❌ Error al comprar accesos.");
+      toast.error("Error al comprar accesos.");
+    }
+  },
+
+  addToCartPsychologistAccess: async (packageId, title, price, quantity) => {
+    try {
+      const response = await axios.post(PSYCHOLOGIST_CART_API, {
+        packageId,
+        title,
+        price,
+        quantity
+      }, { withCredentials: true });
+  
+      if (response.data.items) {
+        set({ cart: response.data.items });
+      } else {
+        console.warn("⚠️ La API no devolvió 'items'. Asegurar que el backend retorna los datos correctos.");
+      }
+  
+    } catch (error) {
+      toast.error("Error al agregar el paquete al carrito.");
     }
   },
   
+  removeFromCartPsychologistAccess: async (packageId) => {
+    try {
+  
+      const response = await axios.delete(`${PSYCHOLOGIST_CART_API}/${packageId}`, { withCredentials: true });
+  
+      if (response.data.success) {
+        toast.success("Paquete eliminado del carrito.");
+        
+        set((state) => ({
+          cart: state.cart.filter(item => item.packageId !== packageId),
+        }));
+  
+      } else {
+        toast.error("No se pudo eliminar el paquete.");
+      }
+    } catch (error) {
+      toast.error("Error al eliminar el paquete.");
+    }
+  },
+  
+  
+
+  fetchCartPsychologistAccess: async () => {
+    set({ loadingCart: true });
+  
+    try {
+      const response = await axios.get(PSYCHOLOGIST_CART_API, { withCredentials: true });
+  
+      if (response.data.items && Array.isArray(response.data.items)) {
+        
+        set({ cart: response.data.items, loadingCart: false });
+  
+      } else {
+        set({ cart: [], loadingCart: false });
+      }
+    } catch (error) {
+      set({ cart: [], loadingCart: false });
+    }
+  },
+  
+  
+
 }));
 useAuthStore.getState().listenToSocketEvents();

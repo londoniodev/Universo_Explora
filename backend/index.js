@@ -53,6 +53,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import { verifyToken } from "./middleware/verifyToken.js";
 import testAccessRoutes from "./routes/testAccess.routes.js";
 import packageRoutes from "./routes/Package.routes.js";
+import psychologistPurchaseRoutes from "./routes/psychologistPurchase.routes.js";
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
@@ -69,8 +71,8 @@ app.use("/api/short-contextualization", verifyToken, shortcontextualizationRoute
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/test-access", verifyToken, testAccessRoutes);
 app.use("/api/packages", verifyToken, packageRoutes);
+app.use("/api/psychologist-access", verifyToken, psychologistPurchaseRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 
 if (isProduction) {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
@@ -78,6 +80,7 @@ if (isProduction) {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
+
 
 const startServer = async () => {
   try {

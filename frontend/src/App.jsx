@@ -27,6 +27,8 @@ import AdminDashboard from "./assets/components/admin/AdminDashboard.jsx";
 import ThankYouPage from "./pages/ThankYouPage.jsx";
 import LoadingSpinner from "./pages/LoadingSpinner.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
+import BuyTestsPsychologist from "./assets/components/psychologist/BuyTestsPsychologist.jsx";
+import CartPagePsychologist from "./assets/components/psychologist/CartPagePsychologist.jsx";
 import { useAuthStore } from "./store/AuthStore.jsx";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true, transports: ["websocket"],});
@@ -89,9 +91,17 @@ const App = () => {
 
   useEffect(() => {
     checkAuth()
-      .then(fetchCart)
+      .then(() => {
+        const { user, fetchCart, fetchCartPsychologistAccess } = useAuthStore.getState();
+        if (user?.role === "psychologist" || user?.role === "fallback_psychologist") {
+          fetchCartPsychologistAccess(); // 🔥 Carga el carrito correcto para psicólogos
+        } else {
+          fetchCart(); // 🔥 Carga el carrito normal para usuarios
+        }
+      })
       .catch((err) => console.warn("Error al verificar autenticación:", err.message));
   }, []);
+  
 
   useEffect(() => {
     const tokenExpiration = localStorage.getItem("tokenExpiration");
@@ -152,14 +162,16 @@ const App = () => {
     { path: "/api/auth/dashboard/payment/thank-you", element: <ProtectedRoute><ThankYouPage /></ProtectedRoute> },
     { path: "/api/auth/dashboard/package/:packageId/short-contextualization", element: <ProtectedRoute><ShortContextualizationAnswer /></ProtectedRoute> },
     { path: "/api/auth/psychologist-dashboard", element: <ProtectedRoute><PsychologistDashboard /></ProtectedRoute> },
+    { path: "/api/auth/psychologist-dashboard/buy-access", element: <ProtectedRoute><BuyTestsPsychologist /></ProtectedRoute> },
+    { path: "/api/auth/psychologist-dashboard/cart", element: <ProtectedRoute><CartPagePsychologist /></ProtectedRoute> },
     { path: "/api/auth/admin-dashboard", element: <ProtectedRoute><AdminDashboard /></ProtectedRoute> },
     { path: "*", element: <NotFoundPage /> }
   ];
 
   return (
     <CartProvider>
-      <Routes>{routes.map((route) => <Route key={route.path} path={route.path} element={route.element} />)}</Routes>
-      <Toaster />
+        <Routes>{routes.map((route) => <Route key={route.path} path={route.path} element={route.element} />)}</Routes>
+        <Toaster />
     </CartProvider>
   );
 };

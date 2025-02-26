@@ -6,46 +6,82 @@ import { useAuthStore } from "../../../store/AuthStore.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import BuyTestsPsychologist from "./BuyTestsPsychologist.jsx";
+import CartPagePsychologist from "./CartPagePsychologist.jsx";
+import { BsCart3 } from "react-icons/bs";
+
 
 const PsychologistDashboard = () => {
-  const { user, logout, fetchPsychologistAccountInfo, fetchAssignedUsers, fetchPendingRequests, handleGenerateAccessFromBalance,
-  revokePsychologistAccess, pendingRequests, pendingRequestCount  } = useAuthStore();
+  const { 
+    user, 
+    logout, 
+    fetchPsychologistAccountInfo, 
+    fetchAssignedUsers,
+    isAuthenticated,
+    fetchPendingRequests, 
+    fetchCartPsychologistAccess,
+    cart,
+    handleGenerateAccessFromBalance,
+    revokePsychologistAccess,
+    purchasedAccesses,
+    accessBalance,
+    fetchPsychologistPurchases,
+    pendingRequests, 
+    pendingRequestCount 
+  } = useAuthStore();
+
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [newAssignedCount, setNewAssignedCount] = useState(0);
-  const [notes, setNotes] = useState({});
+  // const [notes, setNotes] = useState({});
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
 
   const [psychologistAccesses, setPsychologistAccesses] = useState([]);
-
-  const [accessBalance, setAccessBalance] = useState(0);
-  const [purchasedAccesses, setPurchasedAccesses] = useState([]);
+  const [cartState, setCartState] = useState([]);
 
   useEffect(() => {
-    fetchPsychologistAccountInfo();
-    fetchActiveAccesses()
-    fetchPsychologistPurchases();
+    if (isAuthenticated && user?._id) {
+      fetchPsychologistAccountInfo();
+      fetchActiveAccesses();
+      fetchPsychologistPurchases();
   
-    const updateAssignedUsers = async () => {
-      await fetchAssignedUsers();
-      setAssignedUsers(useAuthStore.getState().assignedUsers || []);
-    };
-
-    updateAssignedUsers();
-    fetchPendingRequests();
-  }, [fetchPendingRequests]);
+      fetchCartPsychologistAccess();
   
+      const updateAssignedUsers = async () => {
+        await fetchAssignedUsers();
+        setAssignedUsers(useAuthStore.getState().assignedUsers || []);
+      };
+  
+      updateAssignedUsers();
+      fetchPendingRequests();
+    }
+  }, [isAuthenticated, user?._id, fetchPendingRequests]);
+  
+  
+  useEffect(() => {
+  
+    if (cart.length >= 0) {
+      setCartState([...cart]);
+    } else {
+      console.warn("Carrito vacío en useEffect, evitando actualización.");
+    }
+  }, [cart]);
 
   useEffect(() => {
     if (user?._id) {
       if (!socketRef.current) {
-        socketRef.current = io(import.meta.env.VITE_BACKEND_URL, {
-          withCredentials: true,
-          transports: ["websocket", "polling"],
-        });
+        socketRef.current = io(
+          import.meta.env.MODE === "production"
+            ? import.meta.env.VITE_SOCKET_SERVER
+            : import.meta.env.VITE_BACKEND_URL,
+          {
+            withCredentials: true,
+            transports: ["websocket", "polling"],
+          }
+        );
   
         socketRef.current.emit("join-psychologist-room", user._id);
   
@@ -86,7 +122,10 @@ const PsychologistDashboard = () => {
         });
   
         socketRef.current.on("disconnect", () => {
-          console.warn("Desconectado del servidor de sockets.");
+          console.warn("⚠️ Desconectado del servidor de sockets. Reintentando...");
+          setTimeout(() => {
+            socketRef.current.connect();
+          }, 3000);
         });
       }
     }
@@ -100,19 +139,6 @@ const PsychologistDashboard = () => {
     };
   }, [user?._id, fetchPendingRequests]);
   
-
-  const fetchPsychologistPurchases = async () => {
-    try {
-      const response = await axios.get(`/api/test-access/psychologist-purchases`, { withCredentials: true });
-  
-      if (response.data.success) {
-        setAccessBalance(response.data.accessBalance);
-        setPurchasedAccesses(response.data.purchases);
-      }
-    } catch (error) {
-      console.warn("⚠️ Error al obtener las compras de accesos:", error);
-    }
-  };
   
   const fetchActiveAccesses = async () => {
     try {
@@ -130,11 +156,13 @@ const PsychologistDashboard = () => {
       const success = await revokePsychologistAccess(token);
   
       if (success) {
-        toast.success("🔴 Acceso revocado.");
+        toast.dismiss();
+        toast.success("Acceso revocado.");
         fetchActiveAccesses();
       }
     } catch (error) {
-      toast.error("❌ Error al revocar acceso.");
+      toast.dismiss();
+      toast.error("Error al revocar acceso.");
     }
   };
 
@@ -143,7 +171,8 @@ const PsychologistDashboard = () => {
       const response = await axios.post(`/api/psychologist/requests/respond`, { requestId, action }, { withCredentials: true });
   
       if (response.data.success) {
-        toast.success(`✅ Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
+        toast.dismiss();
+        toast.success(`Solicitud ${action === "accept" ? "aceptada" : "rechazada"} correctamente.`);
   
         if (action === "accept" && socketRef.current) {
           socketRef.current.emit("assigned-user", { psychologistId: user._id, userId: response.data.userId, message: "Nuevo usuario asignado" });
@@ -152,18 +181,19 @@ const PsychologistDashboard = () => {
         await fetchPendingRequests();
       }
     } catch (error) {
-      toast.error("❌ Error al procesar la solicitud.");
+      toast.dismiss();
+      toast.error("Error al procesar la solicitud.");
     }
   };
 
-  const handleSaveNote = async (userId) => {
-    try {
-      await axios.post("/api/psychologist/save-note", { userId, note: notes[userId] }, { withCredentials: true });
-      toast.success("Nota guardada correctamente.");
-    } catch (error) {
-      toast.error("Error al guardar la nota.");
-    }
-  };
+  // const handleSaveNote = async (userId) => {
+  //   try {
+  //     await axios.post("/api/psychologist/save-note", { userId, note: notes[userId] }, { withCredentials: true });
+  //     toast.success("Nota guardada correctamente.");
+  //   } catch (error) {
+  //     toast.error("Error al guardar la nota.");
+  //   }
+  // };
 
   const handleLogout = async () => {
     await logout();
@@ -250,6 +280,13 @@ const PsychologistDashboard = () => {
         case "messages":
           return <div>Mensajes</div>;
 
+        case "buy-access":
+          return <BuyTestsPsychologist />;
+
+        case "cart":
+          return <CartPagePsychologist />;
+
+
           case "accesses":
             return (
               <div>
@@ -271,7 +308,6 @@ const PsychologistDashboard = () => {
                   )}
                 </div>
 
-                {/* Generar Accesos */}
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold">Generar Accesos para Compartir</h3>
                   <p className="text-gray-700 font-bold mt-2">Saldo disponible: {accessBalance}</p>
@@ -285,7 +321,6 @@ const PsychologistDashboard = () => {
                   </button>
                 </div>
 
-                {/* Accesos Activos */}
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold">Accesos Activos</h3>
                   {psychologistAccesses.length === 0 ? (
@@ -330,9 +365,20 @@ const PsychologistDashboard = () => {
           {[
             { label: "Dashboard", icon: <FaChartLine />, id: "dashboard" },
             { label: "Pacientes", icon: <FaUserFriends />, id: "patients" },
+            { label: "Gestión de Accesos", icon: <FaClipboardList />, id: "accesses" },
             { label: "Calendario", icon: <FaCalendarAlt />, id: "calendar" },
             { label: "Mensajes", icon: <FaEnvelope />, id: "messages" },
-            { label: "Gestión de Accesos", icon: <FaClipboardList />, id: "accesses" },
+            { label: "Comprar Accesos", icon: <BsCart3 />, id: "buy-access" },
+            { label: "Carrito de Compras", icon: (
+              <div className="relative">
+                <BsCart3 />
+                {cartState.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1">
+                    {cartState.length}
+                  </span>
+                )}
+              </div>
+            ), id: "cart" },
             { label: "Reportes", icon: <FaChartLine />, id: "reports" },
             { label: "Solicitudes Pendientes", icon: <FaClipboardList />, id: "requests" },
           ].map(({ label, icon, id }) => (

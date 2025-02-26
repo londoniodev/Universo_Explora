@@ -22,6 +22,16 @@ const userSchema = new mongoose.Schema(
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
+    
+    psychologistCart: [
+      {
+        packageId: { type: String, required: true },
+        title: { type: String, required: true },
+        price: { type: Number, required: true },
+        quantity: { type: Number, required: true },
+      }
+    ],
+
 
     purchasedTests: [
       {

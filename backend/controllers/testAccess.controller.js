@@ -1,6 +1,5 @@
 import { UserPackageAccess } from "../models/UserPackageAccess.model.js";
 import { generateTestAccessToken, verifyTestAccessToken } from "../utils/testAccessToken.utils.js";
-
 export const createAccessToken = async (req, res) => {
   const { packageId, expiration } = req.body;
   const userId = req.userId;
@@ -79,6 +78,9 @@ export const revokeAccessToken = async (req, res) => {
   }
 };
 
+/**
+ * Genera un acceso para un usuario desde el saldo del psicólogo.
+ */
 export const generateAccessForUser = async (req, res) => {
   try {
     const psychologistId = req.userId;
@@ -90,7 +92,7 @@ export const generateAccessForUser = async (req, res) => {
 
     const psychologist = await User.findById(psychologistId);
 
-    if (!psychologist || psychologist.role !== "psychologist") {
+    if (!psychologist || (psychologist.role !== "psychologist" && psychologist.role !== "fallback_psychologist")) {
       return res.status(403).json({ success: false, message: "Acción no permitida." });
     }
 
@@ -98,15 +100,18 @@ export const generateAccessForUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "No tienes accesos disponibles." });
     }
 
-    const token = generateTestAccessToken({ psychologistId, packageId }, "1d");
+    // Generar token de acceso válido por 30 días
+    const token = generateTestAccessToken({ psychologistId, packageId }, "30d");
 
-    await TestAccessToken.create({
+    // Guardar el token en UserPackageAccess
+    const newAccess = await UserPackageAccess.create({
       token,
-      userId: psychologistId,
+      userId: psychologistId, // El psicólogo es quien lo generó
       packageId,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 5000),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
     });
 
+    // Descontar el acceso del saldo del psicólogo
     psychologist.accessBalance -= 1;
     await psychologist.save();
 
@@ -118,15 +123,19 @@ export const generateAccessForUser = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Error al generar el acceso:", error);
     return res.status(500).json({ success: false, message: "Error al generar el acceso." });
   }
 };
 
+/**
+ * Obtiene la lista de accesos generados por el psicólogo.
+ */
 export const getPsychologistAccesses = async (req, res) => {
   try {
-    const userId = req.userId;
+    const psychologistId = req.userId;
 
-    const accesses = await UserPackageAccess.find({ userId });
+    const accesses = await UserPackageAccess.find({ userId: psychologistId });
 
     return res.status(200).json({ success: true, accesses });
   } catch (error) {
@@ -135,11 +144,15 @@ export const getPsychologistAccesses = async (req, res) => {
   }
 };
 
+/**
+ * Obtiene el historial de compras del psicólogo y su saldo de accesos.
+*/
+
 export const getPsychologistPurchases = async (req, res) => {
   try {
-    const userId = req.userId;
+    const psychologistId = req.userId;
 
-    const purchases = await UserPackageAccess.find({ userId, paymentStatus: "completed" });
+    const purchases = await UserPackageAccess.find({ userId: psychologistId, paymentStatus: "completed" });
 
     const accessBalance = purchases.length;
 
