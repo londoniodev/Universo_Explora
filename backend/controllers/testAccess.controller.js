@@ -40,7 +40,6 @@ export const validateAccessToken = async (req, res) => {
   try {
     const decoded = verifyTestAccessToken(token);
 
-    // Buscar el acceso en la base de datos
     const access = await UserPackageAccess.findOne({ token });
 
     if (!access) {
@@ -55,22 +54,18 @@ export const validateAccessToken = async (req, res) => {
       return res.status(400).json({ success: false, message: "Token expirado." });
     }
 
-    // Buscar el usuario que usó el token
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ success: false, message: "Usuario no encontrado." });
     }
 
-    // Buscar el psicólogo que creó el acceso
     const psychologist = await User.findById(access.createdBy);
 
-    // ✅ Asignar el psicólogo al usuario si no tiene uno
     if (!user.psychologistAssigned) {
       user.psychologistAssigned = psychologist ? psychologist._id : null;
     }
 
-    // ✅ Agregar el paquete a `purchasedTests` del usuario
     const packageExists = user.purchasedTests.some(
       (p) => p.id.toString() === access.packageId.toString()
     );
@@ -81,20 +76,14 @@ export const validateAccessToken = async (req, res) => {
 
     await user.save();
 
-    // ✅ Marcar el token como usado y asignarlo al usuario
-    access.isActive = false; // 🔥 Asegurar que el acceso no esté activo después de ser usado
+    access.isActive = false;
     access.used = true;
     access.usedBy = userId;
     await access.save();
 
-    console.log("🔄 Usuario actualizado correctamente en MongoDB:", {
-      psychologistAssigned: user.psychologistAssigned,
-      purchasedTests: user.purchasedTests,
-    });
-
     return res.status(200).json({
       success: true,
-      message: "✅ Token válido. Acceso concedido.",
+      message: "Token válido. Acceso concedido.",
       psychologistAssigned: user.psychologistAssigned,
       packageId: access.packageId,
     });
@@ -135,37 +124,25 @@ export const revokeAccessToken = async (req, res) => {
 
 export const generateAccessForUser = async (req, res) => {
   try {
-    console.log("🛠 Intentando generar acceso...");
     
     const psychologistId = req.userId;
     const { packageId } = req.body;
 
-    console.log("📌 Datos recibidos:", { psychologistId, packageId });
-
     if (!packageId) {
-      console.log("❌ Error: El packageId es requerido.");
       return res.status(400).json({ success: false, message: "El packageId es requerido." });
     }
 
     const psychologist = await User.findById(psychologistId);
     if (!psychologist || (psychologist.role !== "psychologist" && psychologist.role !== "fallback_psychologist")) {
-      console.log("❌ Error: No tienes permisos.");
       return res.status(403).json({ success: false, message: "Acción no permitida." });
     }
 
     if (psychologist.accessBalance <= 0) {
-      console.log("❌ Error: No hay accesos disponibles.");
       return res.status(400).json({ success: false, message: "No tienes accesos disponibles." });
     }
 
-    console.log("✅ Psicólogo validado, generando token...");
-    
-    // Generar token
     const token = generateTestAccessToken({ psychologistId, packageId }, "30d");
 
-    console.log("🔑 Token generado:", token);
-
-    // 🔥 Intento de guardar acceso con try-catch explícito
     let newAccess;
     try {
       newAccess = await UserPackageAccess.create({
@@ -182,14 +159,11 @@ export const generateAccessForUser = async (req, res) => {
         paymentStatus: "pending",
       });
 
-      console.log("✅ Acceso guardado en la BD:", newAccess);
-
     } catch (error) {
       console.error("❌ ERROR AL GUARDAR EL ACCESO:", error);
       return res.status(500).json({ success: false, message: "Error al guardar el acceso en la base de datos." });
     }
 
-    // Si el acceso se guardó bien, actualizar el balance
     psychologist.accessBalance -= 1;
     await psychologist.save();
     console.log("💰 Nuevo saldo de accesos:", psychologist.accessBalance);
@@ -310,10 +284,8 @@ export const validateAccessTokenForUser = async (req, res) => {
       });
     }
 
-    // ✅ **Guardar cambios en el usuario**
     await user.save();
 
-    // ✅ **Marcar el token como usado**
     accessRecord.used = true;
     accessRecord.usedBy = userId;
     accessRecord.usedByName = `${user.name} ${user.last_name}`;
