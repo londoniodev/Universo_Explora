@@ -120,7 +120,6 @@ export const getPendingRequests = async (req, res) => {
   }
 };
 
-
 export const assignPsychologistAutomatically = async (userId) => {
   try {
     const user = await User.findById(userId);

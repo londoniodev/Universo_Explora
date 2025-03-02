@@ -2,16 +2,21 @@ import { UserPackageAccess } from "../models/UserPackageAccess.model.js";
 
 export const validatePackageAccess = async (req, res, next) => {
   try {
-   
     const { packageId } = req.params;
-    const userId = req.userId;
 
     if (!packageId) {
       return next();
     }
 
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Usuario no autenticado. No puedes acceder al paquete.",
+      });
+    }
+
     const access = await UserPackageAccess.findOne({
-      userId,
+      $or: [{ userId: req.user._id }, { usedBy: req.user._id }],
       packageId,
       isActive: true,
     });
@@ -22,9 +27,9 @@ export const validatePackageAccess = async (req, res, next) => {
         message: "Acceso denegado. No tienes permiso para este paquete.",
       });
     }
+
     req.accessDetails = access;
     next();
-    
   } catch (error) {
     res.status(500).json({
       success: false,

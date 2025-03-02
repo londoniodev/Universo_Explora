@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import { PsychologistAccessPurchase } from "../models/PsychologistAccessPurchase.model.js";
-
+import { PsychologistPackage } from "../models/PsychologistPackage.model.js";
+import mongoose from "mongoose";
 /**
  * Maneja la compra de accesos para los psicólogos.
  */
@@ -22,11 +23,42 @@ export const handlePsychologistPurchase = async (req, res) => {
     const purchases = [];
 
     for (const access of purchasedAccesses) {
+      let packageId = access.packageId;
+      let packageName = access.packageName || "Paquete sin nombre";
+
+      if (!packageId) {
+        return res.status(400).json({ success: false, message: "ID del paquete inválido." });
+      }
+
+      console.log("🔍 Buscando paquete con ID:", packageId);
+
+      if (!mongoose.Types.ObjectId.isValid(packageId)) {
+        console.warn("⚠️ Advertencia: packageId no es un ObjectId válido. Se usará como String.");
+      } else {
+        packageId = new mongoose.Types.ObjectId(packageId);
+      }
+
       totalAccesses += access.quantity;
+
+      let packageData = await PsychologistPackage.findById(packageId);
+      if (!packageData) {
+        console.warn("Paquete no encontrado. Creando automáticamente...");
+
+        packageData = await PsychologistPackage.create({
+          _id: packageId,
+          name: packageName,
+          description: "Paquete generado automáticamente",
+          price: access.price,
+          durationDays: 30,
+        });
+
+        console.log("✅ Paquete creado automáticamente:", packageData);
+      }
 
       const newPurchase = await PsychologistAccessPurchase.create({
         psychologistId,
-        packageId: "647ec1e2a5b8e930f4b1e1a3",
+        packageId: packageData._id,
+        packageName: packageData.name,
         quantity: access.quantity,
         price: access.price,
         paymentMethod: paymentMethod || "manual",
@@ -37,21 +69,21 @@ export const handlePsychologistPurchase = async (req, res) => {
       purchases.push(newPurchase);
     }
 
-    // Actualizar el saldo de accesos del psicólogo
     psychologist.accessBalance = (psychologist.accessBalance || 0) + totalAccesses;
     await psychologist.save();
 
     return res.status(200).json({
       success: true,
-      message: `Compra realizada con éxito. Se añadieron ${totalAccesses} accesos.`,
+      message: `✅ Compra realizada con éxito. Se añadieron ${totalAccesses} accesos.`,
       accessBalance: psychologist.accessBalance,
       purchases,
     });
   } catch (error) {
-    console.error("Error al procesar la compra de accesos:", error);
+    console.error("❌ Error al procesar la compra de accesos:", error);
     return res.status(500).json({ success: false, message: "Error al procesar la compra de accesos." });
   }
 };
+
 
 /**
  * Obtiene el historial de compras de accesos de un psicólogo.
@@ -105,19 +137,28 @@ export const getRecentPsychologistPurchase = async (req, res) => {
  */
 export const getPsychologistAccessBalance = async (req, res) => {
   try {
-    const psychologist = await User.findById(req.userId);
-
-    if (!psychologist) {
-      return res.status(404).json({ success: false, message: "Psicólogo no encontrado." });
+    console.log("🧐 Buscando saldo de accesos para el psicólogo:", req.user?._id);
+    
+    if (!req.user) {
+      console.warn("⚠️ req.user es undefined en getPsychologistAccessBalance");
+      return res.status(403).json({ success: false, message: "Acceso denegado" });
     }
 
-    return res.status(200).json({ 
-      success: true, 
-      accessBalance: psychologist.accessBalance || 0 
-    });
+    console.log("✅ Usuario autenticado:", req.user);
+
+    const psychologist = await User.findById(req.user._id).select("accessBalance");
+
+    if (!psychologist) {
+      console.warn("⚠️ Psicólogo no encontrado en la base de datos");
+      return res.status(404).json({ success: false, message: "Psicólogo no encontrado" });
+    }
+
+    console.log("✅ Saldo encontrado:", psychologist.accessBalance);
+    
+    return res.status(200).json({ success: true, accessBalance: psychologist.accessBalance });
 
   } catch (error) {
-    console.error("Error al obtener el saldo de accesos:", error);
-    return res.status(500).json({ success: false, message: "Error al obtener el saldo de accesos." });
+    console.error("❌ Error al obtener el saldo de accesos:", error);
+    return res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };

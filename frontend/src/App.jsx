@@ -14,17 +14,18 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import MyAccount from "./pages/MyAccount.jsx";
 import BuyTests from "./pages/BuyTests.jsx";
 import FirstPackage from "./pages/FirstPackage.jsx";
-import AutoevaluationTest from "./assets/components/user_functionalities/AutoevaluationTest.jsx";
-import ContextualizationTest from "./assets/components/user_functionalities/ContextualizationTest.jsx";
-import SixteenPfTest from "./assets/components/user_functionalities/SixteenPfTest.jsx";
+import AutoevaluationTest from "./assets/components/GraphicsAndResults_for_user/AutoevaluationTest.jsx";
+import ContextualizationTest from "./assets/components/GraphicsAndResults_for_user/ContextualizationTest.jsx";
+import SixteenPfTest from "./assets/components/GraphicsAndResults_for_user/SixteenPfTest.jsx";
 import CartPage from "./pages/CartPage.jsx";
-import GraphicResults from "./assets/components/user_functionalities/GraphicResults.jsx";
-import ShortContextualizationAnswer from "./assets/components/user_functionalities/ContextualizationShort.jsx";
+import GraphicResults from "./assets/components/GraphicsAndResults_for_user/GraphicResults.jsx";
+import ShortContextualizationAnswer from "./assets/components/GraphicsAndResults_for_user/ContextualizationShort.jsx";
 import RegisterPsychologist from "./assets/components/psychologist/RegisterPsychologist.jsx";
 import PsychologistDashboard from "./assets/components/psychologist/PsychologistDashboard.jsx";
 import MyAccountPsychologist from "./assets/components/psychologist/MyAccountPsychologist.jsx";
 import AdminDashboard from "./assets/components/admin/AdminDashboard.jsx";
 import ThankYouPage from "./pages/ThankYouPage.jsx";
+import ThankYouPagePsychologist from "./assets/components/psychologist/ThankYouPagePsychologist.jsx";
 import LoadingSpinner from "./pages/LoadingSpinner.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import BuyTestsPsychologist from "./assets/components/psychologist/BuyTestsPsychologist.jsx";
@@ -43,7 +44,7 @@ const ProtectedRoute = ({ children }) => {
 
   const roleRoutes = {
     admin: ["/api/auth/admin-dashboard"],
-    psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account"],
+    psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account", "/api/auth/psychologist-dashboard/payment/thank-you"],
     fallback_psychologist: ["/api/auth/psychologist-dashboard", "/api/auth/psychologist-dashboard/my-account"],
   };
   
@@ -80,7 +81,6 @@ const App = () => {
   const { 
     isCheckingAuth, 
     checkAuth, 
-    fetchCart, 
     getAutoevaluationAnswers, 
     saveAutoevaluationAnswers, 
     getContextualizationAnswers, 
@@ -94,9 +94,9 @@ const App = () => {
       .then(() => {
         const { user, fetchCart, fetchCartPsychologistAccess } = useAuthStore.getState();
         if (user?.role === "psychologist" || user?.role === "fallback_psychologist") {
-          fetchCartPsychologistAccess(); // 🔥 Carga el carrito correcto para psicólogos
+          fetchCartPsychologistAccess();
         } else {
-          fetchCart(); // 🔥 Carga el carrito normal para usuarios
+          fetchCart();
         }
       })
       .catch((err) => console.warn("Error al verificar autenticación:", err.message));
@@ -165,6 +165,7 @@ const App = () => {
     { path: "/api/auth/psychologist-dashboard/buy-access", element: <ProtectedRoute><BuyTestsPsychologist /></ProtectedRoute> },
     { path: "/api/auth/psychologist-dashboard/cart", element: <ProtectedRoute><CartPagePsychologist /></ProtectedRoute> },
     { path: "/api/auth/admin-dashboard", element: <ProtectedRoute><AdminDashboard /></ProtectedRoute> },
+    { path: "/api/auth/psychologist-dashboard/payment/thank-you", element: <ProtectedRoute><ThankYouPagePsychologist /></ProtectedRoute> },
     { path: "*", element: <NotFoundPage /> }
   ];
 

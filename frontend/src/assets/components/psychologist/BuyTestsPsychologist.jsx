@@ -10,14 +10,14 @@ const BuyTestsPsychologist = () => {
 
   const packageInfo = {
     packageId: "647ec1e2a5b8e930f4b1e1a3",
-    title: "Paquete Psicólogo - Accesos",
+    title: "Paquete 1: Autoconocimiento y Orientación Vocacional",
     price: 100,
   };
 
   const handleAddToCart = async () => {
     if (quantity <= 0) {
       toast.dismiss();
-      toast.error("⚠️ Debes agregar al menos 1 acceso.");
+      toast.error("Debes agregar al menos 1 acceso.");
       return;
     }
 

@@ -24,33 +24,40 @@ const CartPagePsychologist = () => {
       toast.error("El carrito está vacío");
       return;
     }
-
+  
     try {
       const purchasedAccesses = cart.map((item) => ({
         packageId: item.packageId,
+        packageName: item.title || "Nombre no disponible", // ✅ Asegurando que se pase el nombre
         quantity: item.quantity || 1,
         price: item.price || 0,
       }));
-      console.log("Intentando comprar:", purchasedAccesses);
-      const response = await buyPsychologistAccesses(purchasedAccesses);
-
-      if (response?.data?.success) {
+  
+      console.log("🔎 Datos enviados a la API:", purchasedAccesses);
+  
+      const response = await buyPsychologistAccesses(purchasedAccesses) || {};
+      console.log("📌 Verificando response en handlePurchase:", response);
+  
+      if (response?.success === true) {
+        console.log("✅ Compra exitosa");
         toast.dismiss();
         toast.success("Compra realizada con éxito");
         await clearCartPsychologistAccess();
         await fetchCartPsychologistAccess();
         fetchPsychologistAccessBalance();
-        console.log("✅ Carrito después de la compra:", useAuthStore.getState().cart);
         navigate("/api/auth/psychologist-dashboard/payment/thank-you", { state: { purchasedAccesses } });
       } else {
+        console.log("❌ Error en la compra", response);
         toast.dismiss();
-        toast.error(response?.data?.message || "Error al procesar la compra");
+        toast.error(response?.message || "Error al procesar la compra");
       }
     } catch (error) {
+      console.log("❌ Excepción atrapada en catch:", error);
       toast.dismiss();
       toast.error("Error al procesar la compra");
     }
   };
+  
 
   return (
     <div className="w-full h-full text-gray-200 flex flex-col">

@@ -7,6 +7,11 @@ const PsychologistAccessPurchaseSchema = new mongoose.Schema({
     required: true,
   },
   packageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PsychologistPackage",
+    required: true,
+  },
+  packageName: {
     type: String,
     required: true,
   },

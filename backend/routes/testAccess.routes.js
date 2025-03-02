@@ -1,6 +1,6 @@
 import express from "express";
 import { 
-    createAccessToken, validateAccessToken, revokeAccessToken, 
+    createAccessToken, validateAccessToken, revokeAccessToken, validateAccessTokenForUser,
     generateAccessForUser, getPsychologistAccesses, getPsychologistPurchases
 } from "../controllers/testAccess.controller.js";
 
@@ -18,5 +18,7 @@ router.post("/revoke", verifyToken, revokeAccessToken);
 router.post("/generate-psychologist-access", verifyToken, isPsychologist, generateAccessForUser);
 router.get("/psychologist-accesses", verifyToken, isPsychologist, getPsychologistAccesses);
 router.get("/psychologist-purchases", verifyToken, isPsychologist, getPsychologistPurchases);
+router.post("/validate-access-token", verifyToken, validateAccessTokenForUser);
+
 
 export default router;

@@ -1,7 +1,7 @@
 import Navbar from "../NavBar.jsx";
-import AutoevaluationGraphic from "../user_functionalities/ActivityEvaluationGraphic.jsx";
-import Sixteenpfgraphic from "../user_functionalities/Sixteenpfgraphic.jsx";
-import ActivityEvaluationGraphic from "../user_functionalities/ActivityEvaluationGraphic.jsx";
+import AutoevaluationGraphic from "../GraphicsAndResults_for_user/ActivityEvaluationGraphic.jsx";
+import Sixteenpfgraphic from "../GraphicsAndResults_for_user/Sixteenpfgraphic.jsx";
+import ActivityEvaluationGraphic from "../GraphicsAndResults_for_user/ActivityEvaluationGraphic.jsx";
 import { useAuthStore } from "../../../store/AuthStore.jsx";
 import { useEffect, useRef, useState } from "react";
 import NoData from "../../../assets/images/nodata.png";

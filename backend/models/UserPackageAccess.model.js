@@ -2,10 +2,14 @@ import mongoose from "mongoose";
 
 const userPackageAccessSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: "Package", required: true },
+    psychologistId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     token: { type: String, required: true, unique: true },
     isActive: { type: Boolean, default: true },
+    used: { type: Boolean, default: false }, // 🚀 Nuevo campo para saber si ya se usó
+    usedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    usedByName: { type: String, default: "Usuario no registrado" },
     expiresAt: { type: Date, required: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
     isPermanent: { type: Boolean, default: false },

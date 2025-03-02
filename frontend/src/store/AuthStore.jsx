@@ -143,7 +143,7 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      const response = await axios.get(`${AUTHENTICATION_API}/check-auth`);
+      const response = await axios.get(`${AUTHENTICATION_API}/check-auth`,{ withCredentials: true });
       if (!response.data.user) throw new Error("Usuario no autenticado");
   
       let user = response.data.user;
@@ -274,13 +274,26 @@ export const useAuthStore = create((set, get) => ({
   fetchUserData: async () => {
     try {
       const response = await axios.get(`${AUTHENTICATION_API}/my-account`, { withCredentials: true });
-      set((state) => ({
-        user: { ...response.data.user, purchasedTests: response.data.user.purchasedTests || [] }
-      }));
+  
+      if (response.data.success) {
+        console.log("✅ Datos obtenidos del backend en fetchUserData:", response.data.user);
+  
+        set((state) => ({
+          user: {
+            ...response.data.user,
+            purchasedTests: response.data.user.purchasedTests || [],
+            psychologistAssigned: response.data.user.psychologistAssigned || null,
+          },
+        }));
+  
+        console.log("✅ Usuario actualizado en AuthStore:", useAuthStore.getState().user);
+      }
     } catch (error) {
       toast.error("Error al cargar datos del usuario.");
+      console.warn("⚠️ Error en fetchUserData:", error);
     }
   },
+  
   
   logout: async () => {
     try {
@@ -923,46 +936,58 @@ listenToSocketEvents: () => {
   });
 },
 
-// ==========================
-//    REVOCAR ACCESO DEL PSICÓLOGO PARA USUARIOS
-// ==========================
-
-revokePsychologistAccess: async (token) => {
-  try {
-    const response = await axios.post(
-      `/api/test-access/revoke`,
-      { token },
-      { withCredentials: true }
-    );
-
-    if (response.data.success) {
-      toast.success("Token revocado con éxito.");
-      return true;
-    } else {
-      throw new Error(response.data.message || "Error desconocido.");
-    }
-  } catch (error) {
-    toast.error("Error al revocar acceso.");
-    return false;
-  }
-},
-
-
  // ==========================
   // GESTIÓN DE ACCESOS PARA PSICÓLOGOS
   // ==========================
 
   fetchPsychologistPurchases: async () => {
     try {
+      console.log("🛒 Fetching psychologist purchases...");
       const response = await axios.get("/api/test-access/psychologist-purchases", { withCredentials: true });
-
+  
       if (response.data.success) {
-        set({ purchasedAccesses: response.data.purchases, accessBalance: response.data.accessBalance });
+        console.log("🛒 Respuesta API fetchPsychologistPurchases:", response.data);
+  
+        // ✅ SOLO actualizar los paquetes comprados, NO modificar accessBalance
+        set((state) => ({
+          purchasedAccesses: response.data.purchases.map((purchase) => ({
+            ...purchase,
+            packageName: purchase.packageName || "Desconocido",
+          })),
+          // ❌ Eliminamos esto para evitar sobrescribir accessBalance
+          // accessBalance: response.data.accessBalance
+        }));
       }
     } catch (error) {
-      console.warn("Error al obtener las compras de accesos:", error);
+      console.warn("⚠️ Error al obtener las compras de accesos:", error);
     }
   },
+  
+
+  revokePsychologistAccess: async (token) => {
+    try {
+      const response = await axios.post(
+        `/api/test-access/revoke`,
+        { token },
+        { withCredentials: true }
+      );
+  
+      if (response.data.success) {
+        toast.success("Token revocado con éxito.");
+        return true;
+      } else {
+        throw new Error(response.data.message || "Error desconocido.");
+      }
+    } catch (error) {
+      toast.error("Error al revocar acceso.");
+      return false;
+    }
+  },
+
+  // ==========================
+  // GESTIÓN DE ACCESOS PARA USUARIOS GENERADOS POR EL PSICÓLOGO
+  // ==========================
+
 
   fetchActiveAccesses: async () => {
     try {
@@ -974,7 +999,7 @@ revokePsychologistAccess: async (token) => {
       console.warn("Error al obtener accesos activos:", error);
     }
   },
-
+  
   handleGenerateAccessFromBalance: async (selectedPackageId) => {
     const { accessBalance } = get();
     if (accessBalance <= 0) {
@@ -983,7 +1008,7 @@ revokePsychologistAccess: async (token) => {
     }
 
     try {
-      const response = await axios.post(`/api/test-access/generate-from-balance`, {
+      const response = await axios.post(`/api/test-access/generate-psychologist-access`, {
         packageId: selectedPackageId,
       }, { withCredentials: true });
 
@@ -996,6 +1021,30 @@ revokePsychologistAccess: async (token) => {
       toast.error("Error al generar acceso.");
     }
   },
+
+  fetchPsychologistAccessBalance: async () => {
+    try {
+      console.log("🔄 Fetching access balance...");
+      const response = await axios.get("/api/psychologist-access/access-balance", { withCredentials: true });
+  
+      if (response.data.success) {
+        console.log("✅ Nuevo accessBalance obtenido:", response.data.accessBalance);
+        set({ accessBalance: response.data.accessBalance });
+  
+        // 🔍 Verificar que el estado se actualiza correctamente
+        setTimeout(() => {
+          console.log("🔄 Estado actualizado en AuthStore (accessBalance):", useAuthStore.getState().accessBalance);
+        }, 500);
+      } else {
+        console.warn("⚠️ No se pudo obtener el balance de accesos.");
+      }
+    } catch (error) {
+      console.error("❌ Error al obtener el saldo de accesos:", error);
+    }
+  },  
+  
+  
+  
 
   handleValidateAccess: async (token) => {
     if (!token) {
@@ -1010,6 +1059,23 @@ revokePsychologistAccess: async (token) => {
       }
     } catch (error) {
       toast.error("Token inválido o expirado.");
+    }
+  },
+// ==========================
+// COMPRA DE ACCESOS PARA PSICÓLOGOS
+// ==========================
+
+  buyPsychologistAccesses: async (purchasedAccesses) => {
+    try {
+      const response = await axios.post("/api/psychologist-access/purchase", 
+        { purchasedAccesses },
+        { withCredentials: true }
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error en la compra:", error.response?.data || error.message);
+      return { success: false, message: error.response?.data?.message || "Error en la compra" };
     }
   },
 
@@ -1051,7 +1117,7 @@ revokePsychologistAccess: async (token) => {
       if (response.data.items) {
         set({ cart: response.data.items });
       } else {
-        console.warn("⚠️ La API no devolvió 'items'. Asegurar que el backend retorna los datos correctos.");
+        console.warn("La API no devolvió 'items'. Asegurar que el backend retorna los datos correctos.");
       }
   
     } catch (error) {
@@ -1078,8 +1144,27 @@ revokePsychologistAccess: async (token) => {
       toast.error("Error al eliminar el paquete.");
     }
   },
+
+  clearCartPsychologistAccess: async () => {
+    try {
+      const response = await axios.delete(PSYCHOLOGIST_CART_API, { withCredentials: true });
+  
+      if (response?.data?.success) {
+        set({ cart: [] });
+        console.log("Carrito del psicólogo limpiado con éxito.");
+      } else {
+        console.warn("No se pudo limpiar el carrito:", response?.data?.message);
+      }
+    } catch (error) {
+      console.error("Error al limpiar el carrito:", error);
+    }
+  },
   
   
+  
+// ==========================
+// MOSTRAR ACCESOS PARA PSICOLOGOS
+// ==========================
 
   fetchCartPsychologistAccess: async () => {
     set({ loadingCart: true });
@@ -1098,8 +1183,105 @@ revokePsychologistAccess: async (token) => {
       set({ cart: [], loadingCart: false });
     }
   },
+
+  // ==========================
+  // VALIDAR ACCESO AL PAQUETE PARA USUARIOS
+  // ==========================
   
+  validateUserAccessToken: async (token) => {
+    try {
+      const response = await axios.post("/api/test-access/validate-access-token", { token }, { withCredentials: true });
   
+      if (response.data.success) {
+        toast.success("✅ Token válido. Redirigiendo...");
+  
+        // 📌 **Actualizar el usuario en el estado global**
+        set((state) => ({
+          user: {
+            ...state.user,
+            psychologistAssigned: response.data.psychologistId,
+            purchasedTests: [
+              ...state.user.purchasedTests,
+              { id: response.data.packageId, title: response.data.packageName },
+            ],
+          },
+        }));
+  
+        return response.data; // 🔴 Retorna los datos, incluyendo packageId
+      } else {
+        toast.error("❌ Token inválido.");
+        return null;
+      }
+    } catch (error) {
+      toast.error("❌ Token inválido o expirado.");
+      return null;
+    }
+  },
+
+
+  // ==========================
+  // VALIDAR ACCESO AL PAQUETE PARA USUARIOS CUANDO EL PSICOLOGO LES COMPARTE EL ACCESO
+  // ==========================
+  
+  verifyUserPackageAccess: async (packageId) => {
+    try {
+      const user = useAuthStore.getState().user;
+  
+      if (!user || !user.purchasedTests) {
+        toast.error("No tienes acceso a este paquete.");
+        return false;
+      }
+  
+      if (!user.purchasedTests.some(test => test.id === packageId)) {
+        toast.error("No tienes acceso a este paquete.");
+        return false;
+      }
+  
+      // ✅ **Ahora verificamos con el backend**
+      const response = await axios.get(`/api/packages/${packageId}`, { withCredentials: true });
+  
+      if (response.data.success) {
+        return true;
+      } else {
+        toast.error("No tienes acceso a este paquete.");
+        return false;
+      }
+    } catch (error) {
+      if (error.response?.status === 403) {
+        toast.error("Acceso denegado.");
+      } else {
+        toast.error("Error al verificar el acceso al paquete.");
+      }
+      return false;
+    }
+  },  
+  
+  verifyPsychologistPackageAccess: async (packageId) => {
+    try {
+      const response = await axios.get(`/api/packages/${packageId}`, { withCredentials: true });
+  
+      if (response.data.success) {
+        const user = useAuthStore.getState().user;
+  
+        // ✅ Los psicólogos pueden ver los paquetes que compraron o generaron accesos
+        if (
+          user.role === "psychologist" &&
+          (!user.purchasedAccesses || !user.purchasedAccesses.some(access => access.packageId === packageId))
+        ) {
+          toast.error("No tienes acceso a este paquete.");
+          return false;
+        }
+  
+        return true;
+      } else {
+        toast.error("No tienes acceso a este paquete.");
+        return false;
+      }
+    } catch (error) {
+      toast.error("Error al verificar el acceso al paquete.");
+      return false;
+    }
+  },  
 
 }));
 useAuthStore.getState().listenToSocketEvents();

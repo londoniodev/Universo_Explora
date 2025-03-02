@@ -1,0 +1,128 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { BsCheckCircle, BsHouseDoor } from "react-icons/bs";
+
+const ThankYouPagePsychologist = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [purchasedAccesses, setPurchasedAccesses] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.purchasedAccesses) {
+      console.log("📦 Datos recibidos en ThankYouPagePsychologist:", location.state.purchasedAccesses); // ✅ Log de depuración
+  
+      setPurchasedAccesses(location.state.purchasedAccesses);
+  
+      const total = location.state.purchasedAccesses.reduce(
+        (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
+        0
+      );
+      setTotalPrice(total);
+    } else {
+      navigate("/api/auth/psychologist-dashboard");
+    }
+  }, [location.state, navigate]);
+  
+  const handleReturn = () => {
+    setIsRedirecting(true);
+    setTimeout(() => {
+      navigate("/api/auth/psychologist-dashboard");
+    }, 3000);
+  };
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center transition-all duration-500">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xl font-bold text-gray-800 animate-fade-in">
+            Volviendo al Dashboard...
+          </p>
+        </div>
+
+        <div className="relative flex items-center justify-center mt-8 w-3/4 max-w-md">
+          <div className="flex flex-col items-center">
+            <BsCheckCircle className="text-4xl text-green-500" />
+            <p className="text-sm text-gray-600 mt-2">Compra Exitosa</p>
+          </div>
+
+          <div className="flex-1 h-1 mx-4 bg-gray-300 relative overflow-hidden">
+            <div className="absolute top-0 left-0 h-full bg-green-500 transition-all duration-3000 w-full"></div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <BsHouseDoor className="text-4xl text-blue-600" />
+            <p className="text-sm text-gray-600 mt-2">Dashboard</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="bg-white shadow-2xl rounded-lg p-8 max-w-2xl w-full">
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 flex items-center justify-center bg-green-100 rounded-full">
+              <BsCheckCircle className="text-4xl text-green-600" />
+            </div>
+          </div>
+
+          <h1 className="text-sm font-medium text-green-600">Confirmación de Compra</h1>
+          <h2 className="text-3xl font-bold text-blue-700 mb-3">¡Gracias por tu compra!</h2>
+          <p className="text-base text-gray-600">
+            Tu pedido ha sido procesado con éxito. A continuación, te presentamos los detalles de la transacción.
+          </p>
+        </div>
+
+        {purchasedAccesses.length > 0 ? (
+          <div className="bg-gray-50 rounded-lg p-5 shadow-sm mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-3">Detalles de la compra</h2>
+            <ul className="divide-y divide-gray-300">
+              {purchasedAccesses.map((item, index) => (
+                <li key={index} className="py-3 flex justify-between items-center">
+                  <div>
+                    <span className="text-base font-medium text-gray-700">
+                      {item.packageName || "Nombre no disponible"} {/* 🔥 Aquí corregimos */}
+                    </span>
+                    <div className="text-sm text-gray-500">Cantidad: {item.quantity}</div>
+                  </div>
+                  <span className="text-lg font-semibold text-gray-800">
+                    ${Number(item.price || 0).toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-gray-300 mt-5 pt-3 flex justify-between items-center">
+              <span className="text-lg font-medium text-gray-700">Total:</span>
+              <span className="text-xl font-bold text-blue-700">${totalPrice.toFixed(2)}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="text-base text-red-500 text-center">No se encontraron datos de compra.</p>
+        )}
+
+        <div className="flex justify-center">
+          <button
+            onClick={handleReturn}
+            className="py-2 px-6 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all duration-300"
+          >
+            Volver al Dashboard
+          </button>
+        </div>
+
+        <div className="mt-6 text-center text-sm text-gray-500">
+          Si tienes alguna pregunta sobre tu compra,{" "}
+          <a href="/support" className="text-blue-600 underline hover:text-blue-800 transition-colors">
+            contáctanos aquí
+          </a>.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ThankYouPagePsychologist;

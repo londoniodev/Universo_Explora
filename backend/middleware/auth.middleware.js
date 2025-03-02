@@ -24,6 +24,7 @@ export const verifyToken = async (req, res, next) => {
 };
 
 export const isPsychologist = (req, res, next) => {
+  console.log("🔍 Revisando usuario:", req.user);
 
   if (!req.user) {
     console.warn("isPsychologist - req.user no está definido");
@@ -31,11 +32,14 @@ export const isPsychologist = (req, res, next) => {
   }
 
   if (req.user.role !== "psychologist" && req.user.role !== "fallback_psychologist") {
+    console.warn("Acceso denegado para el usuario:", req.user);
     return res.status(403).json({ success: false, message: "Acceso denegado" });
   }
 
+  console.log("✅ Usuario validado como psicólogo:", req.user);
   next();
 };
+
 
 export const isAdmin = (req, res, next) => {
   if (req.user?.role !== "admin") {

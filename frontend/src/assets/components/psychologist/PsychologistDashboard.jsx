@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import BuyTestsPsychologist from "./BuyTestsPsychologist.jsx";
 import CartPagePsychologist from "./CartPagePsychologist.jsx";
+import AccessManagement from "../../components/psychologist/AccessManagement.jsx";
 import { BsCart3 } from "react-icons/bs";
 
 
@@ -151,20 +152,6 @@ const PsychologistDashboard = () => {
     }
   };
   
-  const handleRevokeAccess = async (token) => {
-    try {
-      const success = await revokePsychologistAccess(token);
-  
-      if (success) {
-        toast.dismiss();
-        toast.success("Acceso revocado.");
-        fetchActiveAccesses();
-      }
-    } catch (error) {
-      toast.dismiss();
-      toast.error("Error al revocar acceso.");
-    }
-  };
 
   const handleRequestResponse = async (requestId, action) => {
     try {
@@ -288,66 +275,7 @@ const PsychologistDashboard = () => {
 
 
           case "accesses":
-            return (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">Gestión de Accesos</h2>
-
-                {/* Accesos Comprados */}
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold">Accesos Comprados</h3>
-                  {purchasedAccesses.length === 0 ? (
-                    <p className="text-gray-500 mt-2">No has comprado accesos aún.</p>
-                  ) : (
-                    <ul className="mt-2">
-                      {purchasedAccesses.map((purchase) => (
-                        <li key={purchase._id} className="bg-gray-100 p-2 rounded mb-2">
-                          <strong>{purchase.packageName}</strong> - {purchase.quantity} accesos
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold">Generar Accesos para Compartir</h3>
-                  <p className="text-gray-700 font-bold mt-2">Saldo disponible: {accessBalance}</p>
-
-                  <button
-                    className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition mt-2"
-                    onClick={handleGenerateAccessFromBalance}
-                    disabled={accessBalance <= 0}
-                  >
-                    Generar Acceso
-                  </button>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold">Accesos Activos</h3>
-                  {psychologistAccesses.length === 0 ? (
-                    <p className="text-gray-500 mt-2">No hay accesos activos.</p>
-                  ) : (
-                    <ul className="mt-2">
-                      {psychologistAccesses.map((access) => (
-                        <li key={access._id} className="flex justify-between items-center bg-gray-100 p-2 rounded mb-2">
-                          <span>
-                            {access.token} -{" "}
-                            <span className={access.used ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
-                              {access.used ? `Usado por ${access.usedByName || "Desconocido"}` : "No usado"}
-                            </span>
-                          </span>
-                          <button
-                            className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
-                            onClick={() => handleRevokeAccess(access.token)}
-                          >
-                            Revocar
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            );
+            return <AccessManagement />;
         
         case "reports":
           return <div>Reportes</div>;

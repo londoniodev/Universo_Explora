@@ -17,6 +17,9 @@ const PORT = process.env.PORT || 4001;
 const app = express();
 const __dirname = path.resolve();
 
+// 🔥 Asegurar que Mongoose registre el modelo antes de cualquier consulta
+import "./models/PsychologistPackage.model.js"; 
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -29,7 +32,6 @@ app.use(
 );
 
 const server = createServer(app);
-
 initSocket(server);
 
 export const emitPsychologistRequest = (userId) => {
@@ -37,6 +39,7 @@ export const emitPsychologistRequest = (userId) => {
   io.emit("newPsychologistRequest", { userId });
 };
 
+// Importar rutas
 import authRoutes from "./routes/auth.routes.js";
 import contextualizationRoute from "./routes/contextualization.routes.js";
 import autoevaluationRoute from "./routes/autoevaluation.routes.js";
@@ -54,7 +57,6 @@ import { verifyToken } from "./middleware/verifyToken.js";
 import testAccessRoutes from "./routes/testAccess.routes.js";
 import packageRoutes from "./routes/Package.routes.js";
 import psychologistPurchaseRoutes from "./routes/psychologistPurchase.routes.js";
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
@@ -80,7 +82,6 @@ if (isProduction) {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
-
 
 const startServer = async () => {
   try {

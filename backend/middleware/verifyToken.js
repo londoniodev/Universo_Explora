@@ -31,6 +31,10 @@ export const verifyToken = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Usuario no encontrado" });
     }
 
+    req.user = user; // 🔴 Ahora req.user tiene el usuario completo
+    req.userId = user._id.toString(); // 🔴 Aseguramos que req.userId esté disponible como string
+
+
     req.user = user;
     next();
   } catch (error) {
