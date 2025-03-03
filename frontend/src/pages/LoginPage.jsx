@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Logo from "../assets/images/logominimalistaExplora.png";
+import Logo from "../assets/images/explora.png";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import Light from "../assets/images/light.png";
