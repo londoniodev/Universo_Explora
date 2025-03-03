@@ -96,7 +96,6 @@ export const getRecentPurchase = async (req, res) => {
       recentPurchase: [recentPurchase],
     });
   } catch (error) {
-    console.error("Error al obtener la compra reciente:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener la compra reciente.",

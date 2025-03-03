@@ -6,7 +6,7 @@ import { connectDB } from "./db/connectDB.js";
 import path from "path";
 import { createServer } from "http";
 import { initSocket, getIO } from "./socket.js";
-
+import "./models/PsychologistPackage.model.js"; 
 dotenv.config();
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -17,8 +17,6 @@ const PORT = process.env.PORT || 4001;
 const app = express();
 const __dirname = path.resolve();
 
-// 🔥 Asegurar que Mongoose registre el modelo antes de cualquier consulta
-import "./models/PsychologistPackage.model.js"; 
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

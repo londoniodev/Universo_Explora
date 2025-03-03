@@ -42,20 +42,14 @@ const DashboardPage = () => {
     const response = await validateUserAccessToken(token);
   
     if (response) {
-      console.log("🔄 Llamando a fetchUserData()...");
       await fetchUserData();
   
       const user = useAuthStore.getState().user;
-      console.log("🔍 Usuario después de actualizar con fetchUserData:", user);
   
       if (user?.role === "psychologist") {
-        console.log("👨‍⚕️ Psicólogo detectado. Actualizando saldo de accesos...");
         await useAuthStore.getState().fetchPsychologistAccessBalance();
-      } else {
-        console.log("👤 Usuario normal. No se actualiza saldo de accesos.");
       }
-  
-      // 🚀 ✅ Esperar a que el usuario se actualice antes de verificar el acceso
+
       setTimeout(async () => {
         const hasAccess = await useAuthStore.getState().verifyUserPackageAccess(response.packageId, { withCredentials: true });
 
@@ -65,7 +59,6 @@ const DashboardPage = () => {
           return;
         }
   
-        // ✅ **Redirigir al usuario después de validar el acceso**
         navigate(`/api/auth/dashboard/package/${response.packageId}`);
       }, 1000);
     }

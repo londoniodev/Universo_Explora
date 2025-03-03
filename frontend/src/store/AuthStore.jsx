@@ -218,7 +218,7 @@ export const useAuthStore = create((set, get) => ({
       try {
         await get().fetchCart();
       } catch (cartError) {
-        console.warn("⚠️ No se pudo cargar el carrito:", cartError.message);
+        console.warn("No se pudo cargar el carrito:", cartError.message);
       }
   
       return user;
@@ -228,7 +228,7 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoading: false });
   
       if (!error.response) {
-        toast.error("❌ Error inesperado: No se recibió respuesta del servidor.");
+        toast.error("Error inesperado: No se recibió respuesta del servidor.");
         return null;
       }
   
@@ -276,7 +276,6 @@ export const useAuthStore = create((set, get) => ({
       const response = await axios.get(`${AUTHENTICATION_API}/my-account`, { withCredentials: true });
   
       if (response.data.success) {
-        console.log("✅ Datos obtenidos del backend en fetchUserData:", response.data.user);
   
         set((state) => ({
           user: {
@@ -286,7 +285,6 @@ export const useAuthStore = create((set, get) => ({
           },
         }));
   
-        console.log("✅ Usuario actualizado en AuthStore:", useAuthStore.getState().user);
       }
     } catch (error) {
       toast.error("Error al cargar datos del usuario.");
@@ -680,9 +678,6 @@ fetchCalculatedResults: async () => {
       const response = await axios.post(
         `/api/users/update-results-sent`,
         null,
-        {
-          // headers: getAuthHeaders()
-        }
       );
       if (response.data.success) {
         set((state) => ({
@@ -942,20 +937,15 @@ listenToSocketEvents: () => {
 
   fetchPsychologistPurchases: async () => {
     try {
-      console.log("🛒 Fetching psychologist purchases...");
       const response = await axios.get("/api/test-access/psychologist-purchases", { withCredentials: true });
   
       if (response.data.success) {
-        console.log("🛒 Respuesta API fetchPsychologistPurchases:", response.data);
   
-        // ✅ SOLO actualizar los paquetes comprados, NO modificar accessBalance
         set((state) => ({
           purchasedAccesses: response.data.purchases.map((purchase) => ({
             ...purchase,
             packageName: purchase.packageName || "Desconocido",
           })),
-          // ❌ Eliminamos esto para evitar sobrescribir accessBalance
-          // accessBalance: response.data.accessBalance
         }));
       }
     } catch (error) {
@@ -974,6 +964,10 @@ listenToSocketEvents: () => {
   
       if (response.data.success) {
         toast.success("Token revocado con éxito.");
+  
+        // 🔥 Actualizar la lista de accesos después de revocar
+        await get().fetchActiveAccesses();
+  
         return true;
       } else {
         throw new Error(response.data.message || "Error desconocido.");
@@ -983,6 +977,7 @@ listenToSocketEvents: () => {
       return false;
     }
   },
+  
 
   // ==========================
   // GESTIÓN DE ACCESOS PARA USUARIOS GENERADOS POR EL PSICÓLOGO
@@ -1013,7 +1008,7 @@ listenToSocketEvents: () => {
       }, { withCredentials: true });
 
       if (response.data.success) {
-        toast.success("✅ Acceso generado correctamente.");
+        toast.success("Acceso generado correctamente.");
         set({ accessBalance: response.data.accessBalance });
         get().fetchActiveAccesses();
       }
@@ -1024,27 +1019,19 @@ listenToSocketEvents: () => {
 
   fetchPsychologistAccessBalance: async () => {
     try {
-      console.log("🔄 Fetching access balance...");
       const response = await axios.get("/api/psychologist-access/access-balance", { withCredentials: true });
   
       if (response.data.success) {
-        console.log("✅ Nuevo accessBalance obtenido:", response.data.accessBalance);
         set({ accessBalance: response.data.accessBalance });
   
-        // 🔍 Verificar que el estado se actualiza correctamente
-        setTimeout(() => {
-          console.log("🔄 Estado actualizado en AuthStore (accessBalance):", useAuthStore.getState().accessBalance);
-        }, 500);
       } else {
-        console.warn("⚠️ No se pudo obtener el balance de accesos.");
+        console.warn("No se pudo obtener el balance de accesos.");
       }
     } catch (error) {
-      console.error("❌ Error al obtener el saldo de accesos:", error);
+      console.error("Error al obtener el saldo de accesos:", error);
     }
   },  
-  
-  
-  
+
 
   handleValidateAccess: async (token) => {
     if (!token) {
@@ -1074,7 +1061,7 @@ listenToSocketEvents: () => {
   
       return response.data;
     } catch (error) {
-      console.error("❌ Error en la compra:", error.response?.data || error.message);
+      console.error("Error en la compra:", error.response?.data || error.message);
       return { success: false, message: error.response?.data?.message || "Error en la compra" };
     }
   },
@@ -1151,7 +1138,6 @@ listenToSocketEvents: () => {
   
       if (response?.data?.success) {
         set({ cart: [] });
-        console.log("Carrito del psicólogo limpiado con éxito.");
       } else {
         console.warn("No se pudo limpiar el carrito:", response?.data?.message);
       }
@@ -1193,9 +1179,8 @@ listenToSocketEvents: () => {
       const response = await axios.post("/api/test-access/validate-access-token", { token }, { withCredentials: true });
   
       if (response.data.success) {
-        toast.success("✅ Token válido. Redirigiendo...");
+        toast.success("Token válido. Redirigiendo...");
   
-        // 📌 **Actualizar el usuario en el estado global**
         set((state) => ({
           user: {
             ...state.user,
@@ -1207,13 +1192,13 @@ listenToSocketEvents: () => {
           },
         }));
   
-        return response.data; // 🔴 Retorna los datos, incluyendo packageId
+        return response.data;
       } else {
-        toast.error("❌ Token inválido.");
+        toast.error("Token inválido.");
         return null;
       }
     } catch (error) {
-      toast.error("❌ Token inválido o expirado.");
+      toast.error("Token inválido o expirado.");
       return null;
     }
   },
@@ -1237,7 +1222,6 @@ listenToSocketEvents: () => {
         return false;
       }
   
-      // ✅ **Ahora verificamos con el backend**
       const response = await axios.get(`/api/packages/${packageId}`, { withCredentials: true });
   
       if (response.data.success) {
@@ -1263,7 +1247,6 @@ listenToSocketEvents: () => {
       if (response.data.success) {
         const user = useAuthStore.getState().user;
   
-        // ✅ Los psicólogos pueden ver los paquetes que compraron o generaron accesos
         if (
           user.role === "psychologist" &&
           (!user.purchasedAccesses || !user.purchasedAccesses.some(access => access.packageId === packageId))

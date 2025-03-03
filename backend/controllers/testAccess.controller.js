@@ -89,7 +89,6 @@ export const validateAccessToken = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error al validar el acceso:", error);
     return res.status(500).json({ success: false, message: "Error al validar el acceso." });
   }
 };
@@ -104,7 +103,7 @@ export const revokeAccessToken = async (req, res) => {
   try {
     const access = await UserPackageAccess.findOneAndUpdate(
       { token },
-      { isRevoked: true },
+      { isActive: false, usedBy: null, used: false, usedByName: "Revocado" },
       { new: true }
     );
 
@@ -112,9 +111,10 @@ export const revokeAccessToken = async (req, res) => {
       return res.status(404).json({ success: false, message: "Token no encontrado." });
     }
 
-    res.status(200).json({ success: true, message: "Token revocado con éxito." });
+    return res.status(200).json({ success: true, message: "Token revocado con éxito.", access });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error al revocar el token." });
+    console.error("Error al revocar el token:", error);
+    return res.status(500).json({ success: false, message: "Error al revocar el token." });
   }
 };
 
@@ -156,27 +156,23 @@ export const generateAccessForUser = async (req, res) => {
         usedBy: null,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         isPermanent: false,
-        paymentStatus: "pending",
       });
 
     } catch (error) {
-      console.error("❌ ERROR AL GUARDAR EL ACCESO:", error);
       return res.status(500).json({ success: false, message: "Error al guardar el acceso en la base de datos." });
     }
 
     psychologist.accessBalance -= 1;
     await psychologist.save();
-    console.log("💰 Nuevo saldo de accesos:", psychologist.accessBalance);
 
     return res.status(201).json({
       success: true,
-      message: "✅ Acceso generado con éxito.",
+      message: "Acceso generado con éxito.",
       accessToken: token,
       remainingAccesses: psychologist.accessBalance,
     });
 
   } catch (error) {
-    console.error("❌ Error crítico al generar acceso:", error);
     return res.status(500).json({ success: false, message: "Error al generar el acceso." });
   }
 };
@@ -193,7 +189,6 @@ export const getPsychologistAccesses = async (req, res) => {
 
     return res.status(200).json({ success: true, accesses });
   } catch (error) {
-    console.error("Error al obtener los accesos:", error);
     return res.status(500).json({ success: false, message: "Error al obtener los accesos" });
   }
 };
@@ -205,7 +200,6 @@ export const getPsychologistAccesses = async (req, res) => {
 export const getPsychologistPurchases = async (req, res) => {
   try {
     const psychologistId = req.userId;
-    console.log("🧐 Buscando compras para el psicólogo:", psychologistId);
 
     const purchases = await PsychologistAccessPurchase.find({
       psychologistId,
@@ -232,7 +226,6 @@ export const getPsychologistPurchases = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error("❌ Error al obtener las compras:", error);
     return res.status(500).json({ success: false, message: "Error al obtener las compras" });
   }
 };
@@ -240,47 +233,41 @@ export const getPsychologistPurchases = async (req, res) => {
 export const validateAccessTokenForUser = async (req, res) => {
   try {
     const { token } = req.body;
-    const userId = req.user._id; // Usuario que usa el token
+    const userId = req.user._id;
 
     if (!token) {
       return res.status(400).json({ success: false, message: "Debes ingresar un token." });
     }
 
-    // 📌 Buscar el acceso en la base de datos
     const accessRecord = await UserPackageAccess.findOne({ token, isActive: true });
 
     if (!accessRecord) {
       return res.status(400).json({ success: false, message: "Token inválido o expirado." });
     }
 
-    // 📌 Buscar el paquete relacionado
     const packageInfo = await PsychologistPackage.findById(accessRecord.packageId);
     if (!packageInfo) {
       return res.status(400).json({ success: false, message: "El paquete asociado no existe." });
     }
 
-    // 🚀 **Asignar el paquete al usuario**
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "Usuario no encontrado." });
     }
 
-    // 📌 Verificar si el token ya fue usado
     if (accessRecord.used) {
       return res.status(400).json({ success: false, message: "Este token ya fue usado." });
     }
 
-    // ✅ **Asignar el psicólogo al usuario**
     user.psychologistAssigned = accessRecord.psychologistId;
 
-    // ✅ **Agregar el paquete a `purchasedTests`**
     const packageExists = user.purchasedTests.some((p) => p.id.toString() === packageInfo._id.toString());
 
     if (!packageExists) {
       user.purchasedTests.push({
         id: packageInfo._id,
         title: packageInfo.name,
-        price: packageInfo.price || 0, // 🔴 Se añade `price` para evitar el error
+        price: packageInfo.price || 0,
       });
     }
 
@@ -302,7 +289,6 @@ export const validateAccessTokenForUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error al validar el token:", error);
     return res.status(500).json({ success: false, message: "Error interno al validar el token." });
   }
 };

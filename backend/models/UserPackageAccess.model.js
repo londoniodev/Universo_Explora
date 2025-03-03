@@ -7,7 +7,7 @@ const userPackageAccessSchema = new mongoose.Schema(
     psychologistId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     token: { type: String, required: true, unique: true },
     isActive: { type: Boolean, default: true },
-    used: { type: Boolean, default: false }, // 🚀 Nuevo campo para saber si ya se usó
+    used: { type: Boolean, default: false },
     usedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     usedByName: { type: String, default: "Usuario no registrado" },
     expiresAt: { type: Date, required: false },
