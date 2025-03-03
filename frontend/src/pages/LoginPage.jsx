@@ -171,7 +171,7 @@ const LoginPage = () => {
           <motion.div className="mt-6 text-center" variants={itemVariants}>
             <p className="text-sm text-gray-400">
               ¿No tienes una cuenta?{" "}
-              <Link to="/api/auth/signup" className="text-[#6589FF] font-semibold">
+              <Link to="/api/auth/choose-role" className="text-[#6589FF] font-semibold">
                 Registrarme
               </Link>
             </p>

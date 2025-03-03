@@ -5,7 +5,8 @@ export default {
     './src/**/*.{js,jsx}',
   ],
   theme: {
-    extend: {
+    efontFamily: {
+      sans: ['Poppins', 'sans-serif'],
     },
   },
   plugins: [],

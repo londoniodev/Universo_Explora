@@ -127,8 +127,8 @@ const RegisterPsychologist = () => {
   }));
 
   return (
-    <div id="container" className="min-h-screen flex items-center justify-center p-4 bg-gray-900">
-      <div className="w-[70%] bg-[#202020] rounded-xl shadow-lg p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#181818]">
+      <div className="w-[70%] p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-100 text-center mb-8">
           Registro de Psicólogo
         </h1>
@@ -239,7 +239,7 @@ const RegisterPsychologist = () => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-transparent text-white"
+                  className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-[#121212] text-white"
                   required
                 >
                   <option value="" disabled>Seleccionar...</option>

@@ -111,7 +111,6 @@ export const registerPsychologist = async (req, res) => {
     }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
-    console.log("Contraseña cifrada correctamente.");
 
     const user = new User({
       name,

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "./PasswordStrenghtMeter.jsx";
 import { useAuthStore } from "../store/AuthStore.jsx";
 import toast from "react-hot-toast";
-import Logo from "../assets/images/logominimalistaExplorawhite.png";
+import Logo from "../assets/images/explora.png";
 import Light from "../assets/images/light.png";
 
 const genderOptions = [
@@ -205,7 +205,7 @@ const RegisterPage = () => {
           <img
             src={Logo}
             alt="Logo de Explora"
-            className="absolute inset-0 w-[30%] h-[30%] mx-auto mt-[30%] pointer-events-none my-auto z-20"
+            className="absolute inset-0 w-[20%] h-[20%] mx-auto mt-[40%] pointer-events-none my-auto z-20"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-[#020617] flex z-10 items-center justify-center">

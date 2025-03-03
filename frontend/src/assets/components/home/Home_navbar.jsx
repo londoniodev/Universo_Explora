@@ -55,7 +55,7 @@ const HomeNavbar = () => {
             Ingresar
           </Link>
           <Link
-            to="/api/auth/signup"
+            to="/api/auth/choose-role"
             className="flex items-center bg-white text-black text-sm font-medium px-4 py-2 rounded-lg shadow-lg hover:bg-gray-400 transition duration-300"
           >
             <FaUserPlus className="mr-2" />

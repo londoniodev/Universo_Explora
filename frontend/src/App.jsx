@@ -31,6 +31,7 @@ import { CartProvider } from "./context/CartContext.jsx";
 import BuyTestsPsychologist from "./assets/components/psychologist/BuyTestsPsychologist.jsx";
 import CartPagePsychologist from "./assets/components/psychologist/CartPagePsychologist.jsx";
 import { useAuthStore } from "./store/AuthStore.jsx";
+import ChoosingRoleUser from "./pages/ChoosingRoleUser.jsx";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true, transports: ["websocket"],});
 
@@ -144,8 +145,9 @@ const App = () => {
   const routes = [
     { path: "/", element: <Home /> },
     { path: "/api/auth/login", element: <RedirectAuthenticatedUser><Login /></RedirectAuthenticatedUser> },
-    { path: "/api/auth/signup", element: <RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser> },
-    { path: "/api/auth/register-psychologist", element: <RedirectAuthenticatedUser><RegisterPsychologist /></RedirectAuthenticatedUser> },
+    { path: "/api/auth/choose-role", element: <RedirectAuthenticatedUser><ChoosingRoleUser /></RedirectAuthenticatedUser> },
+    { path: "/api/auth/users/signup", element: <RedirectAuthenticatedUser><Signup /></RedirectAuthenticatedUser> },
+    { path: "/api/auth/psychologist/signup", element: <RedirectAuthenticatedUser><RegisterPsychologist /></RedirectAuthenticatedUser> },
     { path: "/api/auth/psychologist-dashboard/my-account", element: <ProtectedRoute><MyAccountPsychologist /></ProtectedRoute> },
     { path: "/verify-code", element: <VerifyEmail /> },
     { path: "/api/auth/forgot-password", element: <RedirectAuthenticatedUser><ForgotPassword /></RedirectAuthenticatedUser> },
