@@ -189,47 +189,47 @@ const MyAccount = () => {
       <div className="flex-1 flex items-center justify-center p-8">
         <Toaster position="top-center" />
         <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl">
-        <motion.div
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="bg-[#1A1A1A] rounded-xl p-6 flex flex-col items-center w-full md:w-1/3 shadow-2xl"
-        >
-          <div className="relative">
-            <Avatar name={formData.name} size="100" round={true} />
-          </div>
-          <h2 className="mt-4 text-xl font-bold text-white text-center">
-            {formData.name || "Usuario"}
-          </h2>
-          <p className="mt-1 text-gray-400 text-sm text-center">
-            {formData.email}
-          </p>
-          <div className="mt-4 text-gray-400 text-sm text-center space-y-2">
-            <div className="flex items-center gap-2">
-              <FaMapMarkerAlt className="text-gray-400" />
-              <p>
-                <strong className="text-gray-400">Ciudad:</strong>{" "}
-                <span className="text-white">{formData.city || "No especificada"}</span>
-              </p>
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="bg-[#1A1A1A] rounded-xl p-6 flex flex-col items-center w-full md:w-1/3 shadow-2xl"
+          >
+            <div className="relative">
+              <Avatar name={formData.name} size="100" round={true} />
             </div>
-            <div className="flex items-center gap-2">
-              <FaVenusMars className="text-gray-400" />
-              <p>
-                <strong className="text-gray-400">Género:</strong>{" "}
-                <span className="text-white">
-                  {formData.gender === "custom" ? formData.customGender : formData.gender || "No especificado"}
-                </span>
-              </p>
+            <h2 className="mt-4 text-xl font-bold text-white text-center">
+              {formData.name || "Usuario"}
+            </h2>
+            <p className="mt-1 text-gray-400 text-sm text-center">
+              {formData.email}
+            </p>
+            <div className="mt-4 text-gray-400 text-sm text-center space-y-2">
+              <div className="flex items-center gap-2">
+                <FaMapMarkerAlt className="text-gray-400" />
+                <p>
+                  <strong className="text-gray-400">Ciudad:</strong>{" "}
+                  <span className="text-white">{formData.city || "No especificada"}</span>
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <FaVenusMars className="text-gray-400" />
+                <p>
+                  <strong className="text-gray-400">Género:</strong>{" "}
+                  <span className="text-white">
+                    {formData.gender === "custom" ? formData.customGender : formData.gender || "No especificado"}
+                  </span>
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <FaUserTag className="text-gray-400" />
+                <p>
+                  <strong className="text-gray-400">Miembro desde:</strong>{" "}
+                  <span className="text-white">{new Date(user?.createdAt).toLocaleDateString()}</span>
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <FaUserTag className="text-gray-400" />
-              <p>
-                <strong className="text-gray-400">Miembro desde:</strong>{" "}
-                <span className="text-white">{new Date(user?.createdAt).toLocaleDateString()}</span>
-              </p>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
           <motion.div
             initial={{ x: 50, opacity: 0 }}

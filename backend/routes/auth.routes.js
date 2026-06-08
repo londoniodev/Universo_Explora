@@ -1,7 +1,8 @@
 import express from "express";
 import { login, logout, signup, verifyCode, forgotPassword,
-  recoveryPassword, checkAuth, getAccountInfo, updateAccountInfo,
-  markResultsAsSent, getPsychologistAccountInfo, updatePsychologistAccountInfo } from "../controllers/auth.controller.js";
+  recoveryPassword, checkAuth } from "../controllers/auth.controller.js";
+import { getAccountInfo, updateAccountInfo,
+  markResultsAsSent, getPsychologistAccountInfo, updatePsychologistAccountInfo } from "../controllers/userProfile.controller.js";
 
 import { verifyToken } from "../middleware/verifyToken.js";
 import { upload } from "../middleware/upload.middleware.js"; 

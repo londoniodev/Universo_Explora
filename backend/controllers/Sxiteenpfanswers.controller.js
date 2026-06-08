@@ -4,7 +4,7 @@ import { UserProgress } from "../models/UserProgress.model.js";
 import { User } from "../models/user.model.js";
 
 export const saveAnswers = async (req, res) => {
-  
+
   const { answers, currentQuestionIndex } = req.body;
 
   try {
@@ -118,17 +118,17 @@ export const getUserAnswers = async (req, res) => {
 export const getCalculatedSixteenpfResults = async (req, res) => {
   try {
     const userId = req.userId;
-    
+
     // Recuperar respuestas poblando la pregunta asociada
     const answers = await Answer.find({ user: userId }).populate("question");
-    
+
     if (answers.length === 0) {
       return res.status(404).json({ message: "No se encontraron respuestas para el usuario." });
     }
 
     // 1. Calcular promedios por factor (solo categoria: 'rasgo' y se_calcula_en_factor: true)
     const factorResults = {};
-    
+
     answers.forEach((answer) => {
       const q = answer.question;
       if (!q) return;
@@ -169,7 +169,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
     const desSocialTotal = desSocialAnswers.length;
     const desSocialHighCount = desSocialAnswers.filter(a => a.score >= 2).length;
     const desirabilityRate = desSocialTotal > 0 ? desSocialHighCount / desSocialTotal : 0;
-    
+
     let desirabilityStatus = "verde";
     let desirabilityFlags = 0;
     if (desirabilityRate >= 0.85) {
@@ -185,7 +185,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
     const infrecTotal = infrecAnswers.length;
     const infrecHighCount = infrecAnswers.filter(a => a.score >= 2).length;
     const infrequencyRate = infrecTotal > 0 ? infrecHighCount / infrecTotal : 0;
-    
+
     let infrequencyStatus = "verde";
     let infrequencyFlags = 0;
     if (infrequencyRate >= 0.70) {
@@ -204,7 +204,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
         attentionFails += 1;
       }
     });
-    
+
     let attentionStatus = "verde";
     let attentionFlags = 0;
     if (attentionFails >= 2) {
@@ -219,7 +219,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
     const totalAnswersCount = answers.length;
     const agreeCount = answers.filter(a => a.score > 0).length;
     const agreeRate = totalAnswersCount > 0 ? agreeCount / totalAnswersCount : 0;
-    
+
     let agreeStatus = "verde";
     let agreeFlags = 0;
     if (agreeRate >= 0.85) {
@@ -235,7 +235,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
     const rasgoTotal = rasgoAnswers.length;
     const neutralCount = rasgoAnswers.filter(a => a.score === 0).length;
     const neutralRate = rasgoTotal > 0 ? neutralCount / rasgoTotal : 0;
-    
+
     let neutralStatus = "verde";
     let neutralFlags = 0;
     if (neutralRate >= 0.50) {
@@ -257,7 +257,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
         pairsMap[pairId].push(a);
       }
     });
-    
+
     let inconsistencyCount = 0;
     Object.entries(pairsMap).forEach(([pairId, pairAnswers]) => {
       if (pairAnswers.length === 2) {
@@ -267,7 +267,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
         }
       }
     });
-    
+
     let inconsistencyStatus = "verde";
     let inconsistencyFlags = 0;
     if (inconsistencyCount >= 7) {
@@ -281,11 +281,11 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
     // 2.7 Patrón Mecánico (mechanicalPattern)
     const sortedAnswers = [...answers].filter(a => a.question && typeof a.question.orden_aplicacion === 'number')
       .sort((a, b) => a.question.orden_aplicacion - b.question.orden_aplicacion);
-      
+
     let mechanicalPattern = 0;
     let currentRun = 0;
     let lastOption = null;
-    
+
     sortedAnswers.forEach(a => {
       const opt = a.selectedOption;
       if (opt === lastOption) {
@@ -298,7 +298,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
         mechanicalPattern = currentRun;
       }
     });
-    
+
     let mechanicalStatus = "verde";
     let mechanicalFlags = 0;
     if (mechanicalPattern >= 12) {
@@ -328,7 +328,7 @@ export const getCalculatedSixteenpfResults = async (req, res) => {
 
     res.status(200).json({ success: true, results: calculatedAverages, responseQuality });
   } catch (error) {
-    console.error("Error in getCalculatedSixteenpfResults:", error); 
+    console.error("Error in getCalculatedSixteenpfResults:", error);
     res.status(500).json({ message: "Error al obtener los resultados calculados.", error: error.message });
   }
 };
