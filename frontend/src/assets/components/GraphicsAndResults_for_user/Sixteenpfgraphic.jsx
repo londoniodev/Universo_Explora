@@ -16,7 +16,11 @@ const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
         datasets: [
           {
             label: "Resultados",
-            data: calculatedResults.map((result) => result.average * 100),
+            data: calculatedResults.map((result) => 
+              result.bipolarGraphValue !== undefined 
+                ? result.bipolarGraphValue 
+                : (((result.percentage ?? (result.average * 100)) - 50) / 50) * 12
+            ),
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             pointBackgroundColor: "rgba(75, 192, 192, 1)",
@@ -71,7 +75,7 @@ const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
                       {result.factor}
                     </td>
                     <td className="border px-3 py-2 text-center font-semibold text-blue-600 text-sm">
-                      {result.average * 100}%
+                      {result.percentage !== undefined ? `${result.percentage}%` : `${(result.average * 100).toFixed(0)}%`}
                     </td>
                   </tr>
                 ))}
@@ -120,35 +124,42 @@ const Sixteenpfgraphic = ({ setSixteenPFImage }) => {
               <Line
                 ref={chartRef}
                 data={chartData}
-                options={{
-                  responsive: true,
-                  indexAxis: "y",
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                      callbacks: {
-                        label: (context) => `${context.raw}%`,
+                  options={{
+                    responsive: true,
+                    indexAxis: "y",
+                    plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                        callbacks: {
+                          label: (context) => `Valor: ${context.raw > 0 ? `+${context.raw}` : context.raw}`,
+                        },
                       },
                     },
-                  },
-                  scales: {
-                    x: {
-                      beginAtZero: true,
-                      max: 100,
-                      ticks: { callback: (value) => `${value}%` },
+                    scales: {
+                      x: {
+                        min: -12,
+                        max: 12,
+                        ticks: {
+                          stepSize: 2,
+                          callback: (value) => value > 0 ? `+${value}` : `${value}`
+                        },
+                        grid: {
+                          color: (context) => context.tick.value === 0 ? "rgba(0, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.08)",
+                          lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                        }
+                      },
+                      y: {
+                        ticks: { display: false },
+                        grid: { display: false },
+                      },
                     },
-                    y: {
-                      ticks: { display: false },
-                      grid: { display: false },
+                    layout: {
+                      padding: {
+                        left: 20,
+                        right: 20,
+                      },
                     },
-                  },
-                  layout: {
-                    padding: {
-                      left: 20,
-                      right: 20,
-                    },
-                  },
-                }}
+                  }}
               />
               <button
                 onClick={exportChartImage}

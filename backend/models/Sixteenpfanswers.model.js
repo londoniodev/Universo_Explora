@@ -16,4 +16,8 @@ const answerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound indexes for common query patterns
+answerSchema.index({ user: 1, package: 1 });
+answerSchema.index({ user: 1, question: 1, package: 1 }, { unique: true });
+
 export const Answer = mongoose.model("Answer", answerSchema);

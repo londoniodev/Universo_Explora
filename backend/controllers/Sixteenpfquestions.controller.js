@@ -2,7 +2,7 @@ import Question from "../models/Sixtenpfquestion.model.js";
 
 export const getQuestions = async (req, res) => {
   try {
-    const questions = await Question.find().select(
+    const questions = await Question.find({ isActive: true }).select(
       "pregunta factor opciones_respuesta tipo_pregunta.polo"
     );
 
